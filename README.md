@@ -50,5 +50,6 @@ git -C ~/.claude pull
 
 | 날짜 | PC | 커밋 메시지 |
 |------|----|------------|
+| 2026-05-02 | Home-Desktop | fix: Stop 훅에 shell:powershell 명시 ($env:USERPROFILE 확장 오류 수정) |
 | 2026-05-02 | Home-Desktop | fix: toast 알림 소리 추가 (audio 태그) |
 | 2026-05-02 | Home-Desktop | docs: README 추가 및 post-commit 훅 설정 |
