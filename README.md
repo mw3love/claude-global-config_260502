@@ -10,10 +10,13 @@
 
 ## 새 PC 온보딩
 
+새 PC / 기존 Claude Code 사용 PC 구분 없이 아래 한 줄로 완료:
+
 ```powershell
-git clone https://github.com/mw3love/claude-global-config_260502.git $env:USERPROFILE\.claude
-powershell.exe -ExecutionPolicy Bypass -File "$env:USERPROFILE\.claude\setup.ps1"
+irm https://raw.githubusercontent.com/mw3love/claude-global-config_260502/main/setup.ps1 | iex
 ```
+
+> `~/.claude`가 없으면 clone, 있으면 pull로 자동 처리됩니다.
 
 ## 동기화
 
