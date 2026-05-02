@@ -48,3 +48,4 @@ git -C $env:USERPROFILE\.claude pull
 
 | 날짜 | PC | 커밋 메시지 |
 |------|----|------------|
+| 2026-05-02 | Home-Desktop | refactor: setup 스크립트 전체 제거, bypass를 settings.json으로 단순화 |
