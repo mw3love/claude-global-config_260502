@@ -1,0 +1,70 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C:*)",
+      "Bash(python -c:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git restore:*)",
+      "Bash(git init:*)",
+      "Bash(git config:*)",
+      "Bash(git remote add:*)",
+      "Bash(git branch:*)",
+      "Bash(python:*)",
+      "Read(//c/Users/7make/.claude/commands/**)",
+      "Bash(powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"C:\\\\Users\\\\7make\\\\.claude\\\\toast.ps1\")",
+      "Bash(powershell.exe -NoProfile -Sta -ExecutionPolicy Bypass -File \"C:\\\\Users\\\\7make\\\\.claude\\\\toast.ps1\")",
+      "Bash(mshta \"vbscript:Execute\\(\"\"CreateObject\\(\"\"\"\"Wscript.Shell\"\"\"\"\\).Popup \"\"\"\"Claude Code: Response complete\"\"\"\",3,\"\"\"\"Claude Code\"\"\"\",64:close\"\"\\)\")",
+      "Bash(echo \"exit: $?\")",
+      "Bash(powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"C:\\\\Users\\\\7make\\\\.claude\\\\toast.ps1\")",
+      "Bash(powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"C:\\\\Users\\\\7make\\\\.claude\\\\create_task.ps1\")",
+      "Bash(pwsh.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"C:\\\\Users\\\\7make\\\\.claude\\\\toast.ps1\")",
+      "Bash(pwsh.exe -NoProfile -ExecutionPolicy Bypass -File \"C:\\\\Users\\\\7make\\\\.claude\\\\toast.ps1\")",
+      "Bash(pwsh.exe -NoProfile -ExecutionPolicy Bypass -File \"C:\\\\Users\\\\7make\\\\.claude\\\\create_task.ps1\")",
+      "Bash(find \"g:/내 드라이브/A1. 개인 자료/A1. Python/260222 KBS Peacock v1.0 이후/kbs_monitor\" -name \"*.py\" -exec wc -l {} +)",
+      "Edit(/.claude/skills/fix-plan/**)",
+      "Edit(/.claude/skills/fix-freeze/**)",
+      "Edit(/.claude/skills/version/**)",
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(rm \"g:/내 드라이브/A1. 개인 자료/A1. AI 연습/260418 KBS_Monitoring_v2/.claude/commands/version.md\")",
+      "Bash(rmdir \"g:/내 드라이브/A1. 개인 자료/A1. AI 연습/260418 KBS_Monitoring_v2/.claude/commands\")"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\7make\\.claude",
+      "C:\\Users\\7make\\.claude\\commands",
+      "g:\\내 드라이브\\A1. 개인 자료\\A1. AI 연습\\260418 KBS_Monitoring_v2\\.claude",
+      "g:\\내 드라이브\\A1. 개인 자료\\A1. AI 연습\\260418 KBS_Monitoring_v2\\.claude\\skills"
+    ]
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -NoProfile -Sta -ExecutionPolicy Bypass -File \"C:\\Users\\7make\\.claude\\toast.ps1\"",
+            "async": true
+          }
+        ]
+      }
+    ]
+  },
+  "enabledPlugins": {
+    "playwright@claude-plugins-official": true,
+    "document-skills@anthropic-agent-skills": false
+  },
+  "extraKnownMarketplaces": {
+    "anthropic-agent-skills": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/skills"
+      }
+    }
+  },
+  "effortLevel": "medium",
+  "autoUpdatesChannel": "latest",
+  "skipDangerousModePermissionPrompt": true,
+  "remoteControlAtStartup": false,
+  "agentPushNotifEnabled": true
+}
