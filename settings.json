@@ -6,6 +6,7 @@
           {
             "type": "command",
             "command": "powershell.exe -NoProfile -Sta -ExecutionPolicy Bypass -File \"$env:USERPROFILE\\.claude\\toast.ps1\"",
+            "shell": "powershell",
             "async": true
           }
         ]
