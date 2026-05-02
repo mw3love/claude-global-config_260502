@@ -43,4 +43,12 @@ if ($bashrcContent -notlike "*dangerously-skip-permissions*") {
     Write-Host "[SKIP] Git Bash bypass 이미 설정됨" -ForegroundColor Yellow
 }
 
+# 7. post-commit 훅 설치
+$hooksDir = "$env:USERPROFILE\.claude\.git\hooks"
+if (Test-Path $hooksDir) {
+    Copy-Item "$scriptDir\hooks\post-commit" "$hooksDir\post-commit" -Force
+    git -C "$env:USERPROFILE\.claude" update-index --chmod=+x "setup/hooks/post-commit" 2>$null
+    Write-Host "[OK] post-commit 훅 설치 완료" -ForegroundColor Green
+}
+
 Write-Host "`n=== 설치 완료! 새 터미널을 열어주세요 ===" -ForegroundColor Cyan
