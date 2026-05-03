@@ -13,7 +13,7 @@ $ARGUMENTS 를 아래 규칙으로 파싱한다:
 
 예시:
 - `/draft`
-- `/draft --ref "g:/경로/참고문서.pdf"`
+- `/draft --ref "/path/to/참고문서.pdf"`
 - `/draft --brief "UPS 교체 공사. 예산 5천만원. 3개월 공사."`
 
 ---
@@ -22,11 +22,17 @@ $ARGUMENTS 를 아래 규칙으로 파싱한다:
 
 ### 1단계 — 규칙 로드
 
-아래 절대경로의 `Draft_rules.md`를 Read 도구로 읽는다:
+Bash로 홈 디렉토리를 확인한 뒤 `Draft_rules.md`를 Read 도구로 읽는다:
 
+```bash
+# Windows
+echo $env:USERPROFILE
+
+# Mac/Linux
+echo $HOME
 ```
-C:/Users/7make/.claude/skills/draft/Draft_rules.md
-```
+
+읽을 경로: `[홈경로]/.claude/skills/draft/Draft_rules.md`
 
 ### 2단계 — 소스 스캔 (현재 작업 디렉토리 기준)
 
@@ -37,21 +43,14 @@ C:/Users/7make/.claude/skills/draft/Draft_rules.md
 3. **CWD의 문서 파일 스캔** → Glob으로 `*.md`, `*.txt`, `*.pdf` 파일 탐색 후 Read
    - `draft_brief.md`는 이미 읽었으면 중복 제외
    - 파일 수가 많으면 이름 보고 관련성 높은 것 우선 선택
-4. **HWP 파일** → CWD에 `*.hwp`가 있으면 아래 명령으로 변환 후 생성된 `*_content.txt` 읽기:
-
-   ```
-   python "g:/내 드라이브/A1. 개인 자료/A1. AI 연습/260325 KOBIS 기안/hwp2text.py" "현재폴더경로"
-   ```
-
-   이미 최신 `_content.txt`가 존재하면 변환 생략.
 
 ### 3단계 — 참고문서 로드
 
-- `--ref` 지정된 경우: 해당 파일만 읽기 (hwp이면 위와 동일하게 변환)
-- 미지정 시: 아래 경로의 References/ 폴더 전체를 Glob 후 읽기:
+- `--ref` 지정된 경우: 해당 파일만 읽기
+- 미지정 시: Bash로 홈 디렉토리 확인 후 아래 경로의 References/ 폴더 전체를 Glob 후 읽기:
 
   ```
-  g:/내 드라이브/A1. 개인 자료/A1. AI 연습/260325 KOBIS 기안/References/
+  [홈경로]/.claude/skills/draft/References/
   ```
 
 ### 4단계 — 기안문 작성
@@ -67,7 +66,7 @@ C:/Users/7make/.claude/skills/draft/Draft_rules.md
 ### 5단계 — 규칙 업데이트 제안
 
 이번 작성에서 새로 발견한 패턴이나 규칙이 있으면 아래 형식으로 제안한다.
-사용자가 승인하면 KOBIS 프로젝트의 `Draft_rules.md`를 즉시 업데이트한다:
+사용자가 승인하면 `Draft_rules.md`를 즉시 업데이트한다:
 
 ```
 ---
@@ -77,7 +76,4 @@ C:/Users/7make/.claude/skills/draft/Draft_rules.md
 ---
 ```
 
-업데이트 대상 경로:
-```
-C:/Users/7make/.claude/skills/draft/Draft_rules.md
-```
+업데이트 대상 경로: `[홈경로]/.claude/skills/draft/Draft_rules.md`
