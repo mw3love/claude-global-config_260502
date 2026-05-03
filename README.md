@@ -88,5 +88,6 @@ git -C $env:USERPROFILE\.claude pull
 
 | 날짜 | PC | 커밋 메시지 |
 |------|----|------------|
+| 2026-05-03 | Home-Desktop | feat: draft 스킬 완전 전역화 |
 | 2026-05-03 | Home-Desktop | feat: draft 규칙 파일 전역 관리로 이동 |
 | 2026-05-02 | Home-Desktop | docs: README 온보딩 안내 보강 (기존 PC 케이스 추가) |
