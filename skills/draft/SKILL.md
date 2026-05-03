@@ -25,7 +25,7 @@ $ARGUMENTS 를 아래 규칙으로 파싱한다:
 아래 절대경로의 `Draft_rules.md`를 Read 도구로 읽는다:
 
 ```
-g:/내 드라이브/A1. 개인 자료/A1. AI 연습/260325 KOBIS 기안/Draft_rules.md
+C:/Users/7make/.claude/skills/draft/Draft_rules.md
 ```
 
 ### 2단계 — 소스 스캔 (현재 작업 디렉토리 기준)
@@ -79,5 +79,5 @@ g:/내 드라이브/A1. 개인 자료/A1. AI 연습/260325 KOBIS 기안/Draft_ru
 
 업데이트 대상 경로:
 ```
-g:/내 드라이브/A1. 개인 자료/A1. AI 연습/260325 KOBIS 기안/Draft_rules.md
+C:/Users/7make/.claude/skills/draft/Draft_rules.md
 ```
