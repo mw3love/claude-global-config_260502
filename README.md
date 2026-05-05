@@ -20,8 +20,9 @@
 ```powershell
 git clone https://github.com/mw3love/claude-global-config_260502.git $env:USERPROFILE\.claude
 
-# (선택) 변경 이력 자동 기록 훅 설치
+# 훅 설치 (post-commit: 변경 이력 자동 기록 / post-merge: statusLine 경로 자동 교체)
 Copy-Item "$env:USERPROFILE\.claude\setup\hooks\post-commit" "$env:USERPROFILE\.claude\.git\hooks\post-commit"
+Copy-Item "$env:USERPROFILE\.claude\setup\hooks\post-merge"  "$env:USERPROFILE\.claude\.git\hooks\post-merge"
 ```
 
 ---
@@ -42,8 +43,9 @@ git -C $env:USERPROFILE\.claude reset --hard origin/main
 git -C $env:USERPROFILE\.claude branch -m master main
 git -C $env:USERPROFILE\.claude branch --set-upstream-to=origin/main main
 
-# (선택) 변경 이력 자동 기록 훅 설치
+# 훅 설치 (post-commit: 변경 이력 자동 기록 / post-merge: statusLine 경로 자동 교체)
 Copy-Item "$env:USERPROFILE\.claude\setup\hooks\post-commit" "$env:USERPROFILE\.claude\.git\hooks\post-commit"
+Copy-Item "$env:USERPROFILE\.claude\setup\hooks\post-merge"  "$env:USERPROFILE\.claude\.git\hooks\post-merge"
 ```
 
 ---

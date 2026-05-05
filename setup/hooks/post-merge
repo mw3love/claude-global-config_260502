@@ -1,0 +1,53 @@
+#!/bin/bash
+# post-merge hook: settings.json의 statusLine 경로를 현재 PC 사용자명으로 자동 교체
+
+CURRENT_USER=$(powershell.exe -NoProfile -NonInteractive -Command '$env:USERNAME' 2>/dev/null | tr -d '\r\n')
+
+if [ -z "$CURRENT_USER" ]; then
+    echo "[post-merge] 사용자명을 가져올 수 없어 statusLine 경로 업데이트를 건너뜁니다."
+    exit 0
+fi
+
+export PATCH_USER="$CURRENT_USER"
+export PATCH_SETTINGS="C:/Users/$CURRENT_USER/.claude/settings.json"
+
+python - <<'PYEOF'
+import sys, json, re, os
+
+username = os.environ['PATCH_USER']
+settings_path = os.environ['PATCH_SETTINGS']
+
+try:
+    with open(settings_path, encoding='utf-8') as f:
+        data = json.load(f)
+except Exception as e:
+    print(f"[post-merge] settings.json 읽기 실패: {e}")
+    sys.exit(0)
+
+old_cmd = data.get('statusLine', {}).get('command', '')
+
+new_cmd = re.sub(
+    r'C:\\Users\\[^\\]+\\\.claude\\statusline\.ps1',
+    rf'C:\\Users\\{username}\\.claude\\statusline.ps1',
+    old_cmd
+)
+
+if new_cmd == old_cmd:
+    sys.exit(0)
+
+data['statusLine']['command'] = new_cmd
+
+with open(settings_path, 'w', encoding='utf-8') as f:
+    json.dump(data, f, indent=2, ensure_ascii=False)
+    f.write('\n')
+
+print("UPDATED")
+PYEOF
+
+if ! git diff --quiet settings.json 2>/dev/null; then
+    PC=$(hostname | tr -d '\r\n')
+    git add settings.json
+    git commit -m "chore: statusLine 경로 로컬 적용 ($PC)"
+fi
+
+exit 0
