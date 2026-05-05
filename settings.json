@@ -1,46 +1,46 @@
 {
+  "autoUpdatesChannel": "latest",
   "permissions": {
     "defaultMode": "bypassPermissions"
   },
+  "effortLevel": "medium",
+  "extraKnownMarketplaces": {
+    "anthropic-agent-skills": {
+      "source": {
+        "repo": "anthropics/skills",
+        "source": "github"
+      }
+    },
+    "claude-plugins-official": {
+      "source": {
+        "repo": "anthropics/claude-plugins-official",
+        "source": "github"
+      }
+    }
+  },
+  "skipDangerousModePermissionPrompt": true,
+  "agentPushNotifEnabled": true,
+  "enabledPlugins": {
+    "document-skills@anthropic-agent-skills": true,
+    "playwright@claude-plugins-official": true
+  },
+  "remoteControlAtStartup": false,
   "hooks": {
     "Stop": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "powershell.exe -NoProfile -Sta -ExecutionPolicy Bypass -File \"$env:USERPROFILE\.claude\toast.ps1\"",
-            "shell": "powershell",
-            "async": true
+            "command": "powershell.exe -NoProfile -Sta -ExecutionPolicy Bypass -File \"$env:USERPROFILE\\.claude\\toast.ps1\"",
+            "async": true,
+            "shell": "powershell"
           }
         ]
       }
     ]
   },
-  "extraKnownMarketplaces": {
-    "claude-plugins-official": {
-      "source": {
-        "source": "github",
-        "repo": "anthropics/claude-plugins-official"
-      }
-    },
-    "anthropic-agent-skills": {
-      "source": {
-        "source": "github",
-        "repo": "anthropics/skills"
-      }
-    }
-  },
   "statusLine": {
-    "type": "command",
-    "command": "powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"$env:USERPROFILE\.claude\statusline.ps1\""
-  },
-  "enabledPlugins": {
-    "playwright@claude-plugins-official": true,
-    "document-skills@anthropic-agent-skills": true
-  },
-  "effortLevel": "medium",
-  "autoUpdatesChannel": "latest",
-  "skipDangerousModePermissionPrompt": true,
-  "remoteControlAtStartup": false,
-  "agentPushNotifEnabled": true
+    "command": "powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"C:\\Users\\minwoo\\.claude\\statusline.ps1\"",
+    "type": "command"
+  }
 }
