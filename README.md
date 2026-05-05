@@ -71,7 +71,8 @@ git -C $env:USERPROFILE\.claude pull
 ~/.claude/
 ├── setup/
 │   └── hooks/
-│       └── post-commit       # 커밋 시 변경 이력 자동 기록
+│       ├── post-commit       # 커밋 시 변경 이력 자동 기록
+│       └── post-merge        # pull 후 statusLine 경로 자동 교체
 ├── skills/
 │   └── draft/                # KBS 기안문 작성 스킬
 ├── settings.json             # 전역 설정 (bypass, hooks, statusLine, 마켓플레이스)
