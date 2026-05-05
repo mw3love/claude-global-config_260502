@@ -8,7 +8,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "powershell.exe -NoProfile -Sta -ExecutionPolicy Bypass -File \"$env:USERPROFILE\\.claude\\toast.ps1\"",
+            "command": "powershell.exe -NoProfile -Sta -ExecutionPolicy Bypass -File \"$env:USERPROFILE\.claude\toast.ps1\"",
             "shell": "powershell",
             "async": true
           }
@@ -16,8 +16,27 @@
       }
     ]
   },
+  "extraKnownMarketplaces": {
+    "claude-plugins-official": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/claude-plugins-official"
+      }
+    },
+    "anthropic-agent-skills": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/skills"
+      }
+    }
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"$env:USERPROFILE\.claude\statusline.ps1\""
+  },
   "enabledPlugins": {
-    "playwright@claude-plugins-official": true
+    "playwright@claude-plugins-official": true,
+    "document-skills@anthropic-agent-skills": true
   },
   "effortLevel": "medium",
   "autoUpdatesChannel": "latest",

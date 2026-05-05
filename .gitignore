@@ -24,3 +24,12 @@ history.jsonl
 hook_test.txt
 mcp-needs-auth-cache.json
 stats-cache.json
+
+# 로컬 전용 설정
+settings.local.json
+
+# 스테이터스라인 디버그
+statusline_debug.json
+
+# 태스크 추적
+tasks/
