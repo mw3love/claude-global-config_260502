@@ -65,7 +65,7 @@ git -C $env:USERPROFILE\.claude pull
 ## 주의사항
 
 - `statusLine.command`의 경로는 **절대경로**로 기재해야 합니다.
-  `$env:USERPROFILE` 변수는 `-File` 파라미터에서 展開되지 않아 오동작할 수 있습니다.
+  `$env:USERPROFILE` 변수는 `-File` 파라미터에서 확장되지 않아 오동작할 수 있습니다.
   새 PC 온보딩 시 `settings.json`의 경로를 해당 PC의 실제 경로로 수정하세요.
   ```json
   "statusLine": {
