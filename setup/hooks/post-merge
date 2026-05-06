@@ -1,21 +1,24 @@
 #!/bin/bash
-# post-merge hook: settings.json의 statusLine 경로를 현재 PC 사용자명으로 자동 교체
+# post-merge hook: settings.json의 statusLine 경로를 현재 PC 프로필 폴더로 자동 교체
+# USERNAME != USERPROFILE 폴더명인 경우를 대비해 USERPROFILE 기준으로 처리
 
-CURRENT_USER=$(powershell.exe -NoProfile -NonInteractive -Command '$env:USERNAME' 2>/dev/null | tr -d '\r\n')
+USERPROFILE_PATH=$(powershell.exe -NoProfile -NonInteractive -Command '$env:USERPROFILE.Replace("\", "/")' 2>/dev/null | tr -d '\r\n')
 
-if [ -z "$CURRENT_USER" ]; then
-    echo "[post-merge] 사용자명을 가져올 수 없어 statusLine 경로 업데이트를 건너뜁니다."
+if [ -z "$USERPROFILE_PATH" ]; then
+    echo "[post-merge] USERPROFILE를 가져올 수 없어 statusLine 경로 업데이트를 건너뜁니다."
     exit 0
 fi
 
-export PATCH_USER="$CURRENT_USER"
-export PATCH_SETTINGS="C:/Users/$CURRENT_USER/.claude/settings.json"
+export PATCH_USERPROFILE="$USERPROFILE_PATH"
+export PATCH_SETTINGS="$USERPROFILE_PATH/.claude/settings.json"
 
 python - <<'PYEOF'
 import sys, json, re, os
 
-username = os.environ['PATCH_USER']
+userprofile = os.environ['PATCH_USERPROFILE']  # e.g. C:/Users/7make
 settings_path = os.environ['PATCH_SETTINGS']
+
+folder_name = userprofile.rstrip('/').split('/')[-1]  # e.g. 7make
 
 try:
     with open(settings_path, encoding='utf-8') as f:
@@ -28,7 +31,7 @@ old_cmd = data.get('statusLine', {}).get('command', '')
 
 new_cmd = re.sub(
     r'C:\\Users\\[^\\]+\\\.claude\\statusline\.ps1',
-    rf'C:\\Users\\{username}\\.claude\\statusline.ps1',
+    rf'C:\\Users\\{folder_name}\\.claude\\statusline.ps1',
     old_cmd
 )
 
