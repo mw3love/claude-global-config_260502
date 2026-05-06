@@ -104,6 +104,7 @@ git -C $env:USERPROFILE\.claude pull
 
 | 날짜 | PC | 커밋 메시지 |
 |------|----|------------|
+| 2026-05-06 | Home-N100 | docs: 온보딩 훅 설치를 core.hooksPath 방식으로 전환, statusLine 경로 교체 |
 | 2026-05-06 | Home-Desktop | fix: post-merge hook이 USERNAME 대신 USERPROFILE 경로 사용 |
 | 2026-05-06 | Home-Desktop | feat: 전역 CLAUDE.md 작성 및 settings 업데이트 (Home-Desktop) |
 | 2026-05-06 | MW-Lenovo | docs: 훅 설치 확인 및 수동 복구 절차 추가, statusLine 경로 절대경로로 수정 |
