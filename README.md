@@ -20,12 +20,8 @@
 ```powershell
 git clone https://github.com/mw3love/claude-global-config_260502.git $env:USERPROFILE\.claude
 
-# 훅 설치 (post-commit: 변경 이력 자동 기록 / post-merge: statusLine 경로 자동 교체)
-Copy-Item "$env:USERPROFILE\.claude\setup\hooks\post-commit" "$env:USERPROFILE\.claude\.git\hooks\post-commit"
-Copy-Item "$env:USERPROFILE\.claude\setup\hooks\post-merge"  "$env:USERPROFILE\.claude\.git\hooks\post-merge"
-
-# 훅 설치 확인 (post-commit, post-merge 두 파일이 보여야 함)
-Get-ChildItem "$env:USERPROFILE\.claude\.git\hooks\" | Where-Object { $_.Name -notlike "*.sample" }
+# core.hooksPath 설정 (한 번만 — 이후 git pull 시 훅 자동 실행)
+git -C $env:USERPROFILE\.claude config core.hooksPath setup/hooks
 ```
 
 ---
@@ -46,27 +42,22 @@ git -C $env:USERPROFILE\.claude reset --hard origin/main
 git -C $env:USERPROFILE\.claude branch -m master main
 git -C $env:USERPROFILE\.claude branch --set-upstream-to=origin/main main
 
-# 훅 설치 (post-commit: 변경 이력 자동 기록 / post-merge: statusLine 경로 자동 교체)
-Copy-Item "$env:USERPROFILE\.claude\setup\hooks\post-commit" "$env:USERPROFILE\.claude\.git\hooks\post-commit"
-Copy-Item "$env:USERPROFILE\.claude\setup\hooks\post-merge"  "$env:USERPROFILE\.claude\.git\hooks\post-merge"
-
-# 훅 설치 확인 (post-commit, post-merge 두 파일이 보여야 함)
-Get-ChildItem "$env:USERPROFILE\.claude\.git\hooks\" | Where-Object { $_.Name -notlike "*.sample" }
+# core.hooksPath 설정 (한 번만 — 이후 git pull 시 훅 자동 실행)
+git -C $env:USERPROFILE\.claude config core.hooksPath setup/hooks
 ```
 
 ---
 
-## 훅 없이 pull한 경우 수동 복구
+## core.hooksPath 설정 전에 pull한 경우 수동 복구
 
-`git pull` 전에 훅을 설치하지 않았다면 statusLine 경로가 다른 PC의 사용자명으로 남아 있을 수 있습니다.
+`core.hooksPath` 설정 없이 `git pull`을 먼저 했다면 `post-merge` 훅이 실행되지 않아 statusLine 경로가 다른 PC의 사용자명으로 남아 있을 수 있습니다.
 
 ```powershell
-# 1. 훅 재설치
-Copy-Item "$env:USERPROFILE\.claude\setup\hooks\post-commit" "$env:USERPROFILE\.claude\.git\hooks\post-commit" -Force
-Copy-Item "$env:USERPROFILE\.claude\setup\hooks\post-merge"  "$env:USERPROFILE\.claude\.git\hooks\post-merge"  -Force
+# 1. core.hooksPath 설정 (이후 pull부터는 자동)
+git -C $env:USERPROFILE\.claude config core.hooksPath setup/hooks
 
 # 2. post-merge 훅 수동 실행 (경로 자동 교체)
-bash "$env:USERPROFILE\.claude\.git\hooks\post-merge"
+bash "$env:USERPROFILE\.claude\setup\hooks\post-merge"
 
 # 3. Claude Code 재시작
 ```

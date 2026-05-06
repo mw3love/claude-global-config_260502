@@ -18,7 +18,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"C:\\Users\\7make\\.claude\\statusline.ps1\""
+    "command": "powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"C:\\Users\\minwoo\\.claude\\statusline.ps1\""
   },
   "enabledPlugins": {
     "document-skills@anthropic-agent-skills": true,
