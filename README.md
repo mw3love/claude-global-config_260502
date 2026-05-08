@@ -104,6 +104,7 @@ git -C $env:USERPROFILE\.claude pull
 
 | 날짜 | PC | 커밋 메시지 |
 |------|----|------------|
+| 2026-05-08 | moak-minwoo | merge: origin/main 병합 — gitignore 충돌 해결, 변경 이력 통합 |
 | 2026-05-08 | moak-minwoo | chore: chrome/, .last-cleanup를 .gitignore에 추가 |
 | 2026-05-06 | Home-N100 | docs: 온보딩 훅 설치를 core.hooksPath 방식으로 전환, statusLine 경로 교체 |
 | 2026-05-06 | Home-Desktop | fix: post-merge hook이 USERNAME 대신 USERPROFILE 경로 사용 |
