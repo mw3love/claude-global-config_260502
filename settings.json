@@ -16,10 +16,29 @@
       }
     ]
   },
+  "statusLine": {
+    "type": "command",
+    "command": "powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"C:\\Users\\minwoo\\.claude\\statusline.ps1\""
+  },
   "enabledPlugins": {
+    "document-skills@anthropic-agent-skills": true,
     "playwright@claude-plugins-official": true
   },
-  "effortLevel": "medium",
+  "extraKnownMarketplaces": {
+    "anthropic-agent-skills": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/skills"
+      }
+    },
+    "claude-plugins-official": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/claude-plugins-official"
+      }
+    }
+  },
+  "effortLevel": "xhigh",
   "autoUpdatesChannel": "latest",
   "skipDangerousModePermissionPrompt": true,
   "remoteControlAtStartup": false,
