@@ -24,3 +24,7 @@ history.jsonl
 hook_test.txt
 mcp-needs-auth-cache.json
 stats-cache.json
+
+# PC별 자동 생성 파일
+.last-cleanup
+chrome/
