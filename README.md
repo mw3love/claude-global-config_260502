@@ -2,6 +2,12 @@
 
 여러 PC에서 동일한 Claude Code 환경을 유지하기 위한 전역 설정 저장소.
 
+## 사전 요건
+
+- **Windows + PowerShell** (Windows PowerShell 5.1 또는 PowerShell 7)
+- **Git for Windows (Git Bash 포함)** — 필수. statusLine 명령이 `bash -c '...'` 래퍼를 사용하기 때문 (라우팅 비결정성 우회).
+- **Bun** — Telegram 채널 플러그인 실행용. post-merge hook이 자동 설치하므로 수동 설치 불필요.
+
 ## 기능
 
 - **bypass 모드 자동 진입** — `defaultMode: bypassPermissions` (settings.json)
@@ -100,6 +106,8 @@ git -C $env:USERPROFILE\.claude pull
 │       ├── access.json       # 페어링·allowlist (git 동기화)
 │       └── approved/         # 승인된 sender (gitignore, 런타임)
 ├── settings.json             # 전역 설정 (bypass, hooks, statusLine, 마켓플레이스, 채널 활성)
+│                              #   ⚠ statusLine 명령은 `bash -c '...'` 래퍼 형태 유지 (Git Bash 필요).
+│                              #     단순화하면 cmd 라우팅 PC에서 silent fail.
 ├── statusline.ps1            # 터미널 상태바 스크립트
 ├── toast.ps1                 # Windows toast + Telegram 발송 스크립트
 ├── telegram.json             # 알림용 봇 토큰 (gitignore, PC별 수동)
