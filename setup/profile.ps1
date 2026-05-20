@@ -22,7 +22,7 @@ function claude {
         $existingPid = (Get-Content $lock -ErrorAction SilentlyContinue | Select-Object -First 1) -as [int]
         if ($existingPid -and (Get-Process -Id $existingPid -ErrorAction SilentlyContinue)) {
             $useChannels = $false
-            Write-Host "[claude] 텔레그램 다리는 PID $existingPid (다른 터미널). 이 세션은 로컬 모드." -ForegroundColor DarkGray
+            Write-Host "[claude] 텔레그램 채널 활성: 다른 터미널 PID $existingPid · 이 세션은 로컬" -ForegroundColor DarkGray
         } else {
             Remove-Item $lock -Force -ErrorAction SilentlyContinue
         }
@@ -30,7 +30,7 @@ function claude {
 
     if ($useChannels) {
         $PID | Out-File $lock
-        Write-Host "[claude] 이 세션이 텔레그램 다리입니다 (PID $PID)." -ForegroundColor Green
+        Write-Host "[claude] 텔레그램 채널 활성 (이 세션, PID $PID)" -ForegroundColor Green
         try {
             & claude.exe --channels plugin:telegram@claude-plugins-official @args
         } finally {
