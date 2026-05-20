@@ -1,7 +1,11 @@
 # 민감 정보
 .credentials.json
 telegram.json
-channels/
+channels/**/.env
+channels/**/approved/
+channels/**/inbox/
+channels/**/*.pid
+channels-bridge.pid
 
 # 런타임 / 캐시 / 세션 데이터
 backups/

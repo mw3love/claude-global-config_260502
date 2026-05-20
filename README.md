@@ -5,11 +5,13 @@
 ## 기능
 
 - **bypass 모드 자동 진입** — `defaultMode: bypassPermissions` (settings.json)
-- **Windows toast 알림** — Claude 답변 완료 시 알림 및 소리
+- **Windows toast 알림 + Telegram 발송** — Claude 답변 완료, 질문 대기, 입력 대기 시점에 PC와 폰 양쪽 알림
+- **Telegram 채널 (비상용 원격)** — `claude` 한 단어로 시작하면 자동으로 텔레그램 봇과 연결 (lock 파일로 한 번에 한 세션만 활성)
 - **statusline** — 모델명 / 컨텍스트 사용률 / 5시간·7일 레이트리밋을 터미널 상태바에 표시
 - **플러그인 마켓플레이스** — `claude-plugins-official`, `anthropic-agent-skills` 등록
-- **document-skills 플러그인** — `anthropic-agent-skills` 마켓플레이스에서 활성화
+- **document-skills, telegram 플러그인** 활성화
 - **draft 스킬** — `/draft` 명령으로 KBS 기안문 작성
+- **post-merge hook** — `git pull` 후 환경 자동 점검·복구 (Bun 설치, $PROFILE 갱신, 플러그인 다운로드)
 
 ---
 
@@ -20,16 +22,26 @@
 ```powershell
 git clone https://github.com/mw3love/claude-global-config_260502.git $env:USERPROFILE\.claude
 
-# core.hooksPath 설정 (한 번만 — 커밋 시 변경 이력 훅 자동 실행)
+# core.hooksPath 설정 (한 번만 — 커밋·풀 훅 자동 실행)
 git -C $env:USERPROFILE\.claude config core.hooksPath setup/hooks
+
+# post-merge hook 첫 실행 (Bun 설치 + $PROFILE 갱신 + 플러그인 다운로드 자동)
+bash $env:USERPROFILE\.claude\setup\hooks\post-merge
+
+# 봇 토큰만 직접 입력 (PC당 1회, 시크릿이라 자동 불가)
+Set-Content "$env:USERPROFILE\.claude\channels\telegram\.env" "TELEGRAM_BOT_TOKEN=<봇 토큰>"
+
+# 끝. 새 PowerShell에서 `claude` 입력 → bypass + Telegram 채널 모드 자동
 ```
+
+> BotFather에서 새 봇 만들거나 기존 봇 토큰 재사용. **두 PC가 같은 봇을 동시에 폴링하면 충돌**하니 PC 사용은 순차적으로.
 
 ---
 
 ### 경우 2: 이미 Claude Code를 사용 중인 PC (기존 `~/.claude` 폴더 있음)
 
 > ⚠️ 기존 `settings.json`, `toast.ps1`, `statusline.ps1` 등은 이 레포 버전으로 **덮어씌워집니다.**
-> 세션 기록, 대화 내용, `plugins/`, `cache/` 등 런타임 데이터는 건드리지 않습니다.
+> 세션 기록, 대화 내용, `plugins/cache/`, `cache/` 등 런타임 데이터는 건드리지 않습니다.
 
 ```powershell
 # 기존 .git 제거 후 이 레포로 재연결
@@ -42,8 +54,14 @@ git -C $env:USERPROFILE\.claude reset --hard origin/main
 git -C $env:USERPROFILE\.claude branch -m master main
 git -C $env:USERPROFILE\.claude branch --set-upstream-to=origin/main main
 
-# core.hooksPath 설정 (한 번만 — 커밋 시 변경 이력 훅 자동 실행)
+# core.hooksPath 설정 (한 번만)
 git -C $env:USERPROFILE\.claude config core.hooksPath setup/hooks
+
+# post-merge hook 첫 실행
+bash $env:USERPROFILE\.claude\setup\hooks\post-merge
+
+# 봇 토큰 (PC당 1회)
+Set-Content "$env:USERPROFILE\.claude\channels\telegram\.env" "TELEGRAM_BOT_TOKEN=<봇 토큰>"
 ```
 
 ---
@@ -56,9 +74,11 @@ git -C $env:USERPROFILE\.claude add -A
 git -C $env:USERPROFILE\.claude commit -m "변경 내용 설명"
 git -C $env:USERPROFILE\.claude push
 
-# 다른 PC에서 최신 설정 받아오기
+# 다른 PC에서 최신 설정 받아오기 — post-merge hook이 환경 자동 점검
 git -C $env:USERPROFILE\.claude pull
 ```
+
+> 기존 PC에서 pull 시: Bun·플러그인·`$PROFILE` 등이 이미 갖춰져 있으면 hook이 무동작으로 끝나고 `✅ 모두 정상` 메시지만 출력.
 
 ---
 
@@ -68,13 +88,21 @@ git -C $env:USERPROFILE\.claude pull
 ```
 ~/.claude/
 ├── setup/
-│   └── hooks/
-│       └── post-commit       # 커밋 시 변경 이력 자동 기록
+│   ├── hooks/
+│   │   ├── post-commit       # 커밋 시 변경 이력 자동 기록
+│   │   └── post-merge        # pull 후 환경 자동 점검 (Bun, $PROFILE, 플러그인)
+│   └── profile.ps1           # PowerShell 프로필 — Bun PATH 보정 + claude 함수
 ├── skills/
 │   └── draft/                # KBS 기안문 작성 스킬
-├── settings.json             # 전역 설정 (bypass, hooks, statusLine, 마켓플레이스)
+├── channels/
+│   └── telegram/
+│       ├── .env              # 봇 토큰 (gitignore, PC별 수동)
+│       ├── access.json       # 페어링·allowlist (git 동기화)
+│       └── approved/         # 승인된 sender (gitignore, 런타임)
+├── settings.json             # 전역 설정 (bypass, hooks, statusLine, 마켓플레이스, 채널 활성)
 ├── statusline.ps1            # 터미널 상태바 스크립트
-├── toast.ps1                 # Windows toast 알림 스크립트
+├── toast.ps1                 # Windows toast + Telegram 발송 스크립트
+├── telegram.json             # 알림용 봇 토큰 (gitignore, PC별 수동)
 └── CLAUDE.md                 # 전역 응답 원칙
 ```
 
