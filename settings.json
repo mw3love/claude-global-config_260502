@@ -45,7 +45,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File ~/.claude/statusline.ps1"
+    "command": "bash -c 'powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File ~/.claude/statusline.ps1'"
   },
   "enabledPlugins": {
     "document-skills@anthropic-agent-skills": true,
