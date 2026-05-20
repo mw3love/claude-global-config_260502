@@ -2,6 +2,7 @@
   "permissions": {
     "defaultMode": "bypassPermissions"
   },
+  "model": "opus",
   "hooks": {
     "Stop": [
       {
@@ -14,11 +15,37 @@
           }
         ]
       }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "AskUserQuestion",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -NoProfile -Sta -ExecutionPolicy Bypass -File \"$env:USERPROFILE\\.claude\\toast.ps1\" -Message \"Question waiting\"",
+            "shell": "powershell",
+            "async": true
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "permission_prompt|elicitation_dialog",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -NoProfile -Sta -ExecutionPolicy Bypass -File \"$env:USERPROFILE\\.claude\\toast.ps1\" -Message \"Input needed\"",
+            "shell": "powershell",
+            "async": true
+          }
+        ]
+      }
     ]
   },
   "statusLine": {
     "type": "command",
-    "command": "powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"C:\\Users\\minwoo\\.claude\\statusline.ps1\""
+    "command": "powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File ~/.claude/statusline.ps1"
   },
   "enabledPlugins": {
     "document-skills@anthropic-agent-skills": true,
