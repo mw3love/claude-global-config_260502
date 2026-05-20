@@ -20,7 +20,7 @@
 ```powershell
 git clone https://github.com/mw3love/claude-global-config_260502.git $env:USERPROFILE\.claude
 
-# core.hooksPath 설정 (한 번만 — 이후 git pull 시 훅 자동 실행)
+# core.hooksPath 설정 (한 번만 — 커밋 시 변경 이력 훅 자동 실행)
 git -C $env:USERPROFILE\.claude config core.hooksPath setup/hooks
 ```
 
@@ -42,28 +42,9 @@ git -C $env:USERPROFILE\.claude reset --hard origin/main
 git -C $env:USERPROFILE\.claude branch -m master main
 git -C $env:USERPROFILE\.claude branch --set-upstream-to=origin/main main
 
-# core.hooksPath 설정 (한 번만 — 이후 git pull 시 훅 자동 실행)
+# core.hooksPath 설정 (한 번만 — 커밋 시 변경 이력 훅 자동 실행)
 git -C $env:USERPROFILE\.claude config core.hooksPath setup/hooks
 ```
-
----
-
-## core.hooksPath 설정 전에 pull한 경우 수동 복구
-
-`core.hooksPath` 설정 없이 `git pull`을 먼저 했다면 `post-merge` 훅이 실행되지 않아 statusLine 경로가 다른 PC의 사용자명으로 남아 있을 수 있습니다.
-
-```powershell
-# 1. core.hooksPath 설정 (이후 pull부터는 자동)
-git -C $env:USERPROFILE\.claude config core.hooksPath setup/hooks
-
-# 2. post-merge 훅 수동 실행 (경로 자동 교체)
-bash "$env:USERPROFILE\.claude\setup\hooks\post-merge"
-
-# 3. Claude Code 재시작
-```
-
-> ⚠️ `post-merge` 훅은 settings.json의 `statusLine.command` 경로가 `C:\Users\<이름>\` 형식일 때만 자동 교체합니다.
-> `%USERPROFILE%` 형식으로 되어 있으면 훅이 인식하지 못하므로, 반드시 절대경로 형식을 유지해야 합니다.
 
 ---
 
@@ -88,8 +69,7 @@ git -C $env:USERPROFILE\.claude pull
 ~/.claude/
 ├── setup/
 │   └── hooks/
-│       ├── post-commit       # 커밋 시 변경 이력 자동 기록
-│       └── post-merge        # pull 후 statusLine 경로 자동 교체
+│       └── post-commit       # 커밋 시 변경 이력 자동 기록
 ├── skills/
 │   └── draft/                # KBS 기안문 작성 스킬
 ├── settings.json             # 전역 설정 (bypass, hooks, statusLine, 마켓플레이스)
