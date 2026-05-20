@@ -112,6 +112,7 @@ git -C $env:USERPROFILE\.claude pull
 
 | 날짜 | PC | 커밋 메시지 |
 |------|----|------------|
+| 2026-05-20 | Home-Desktop | fix: statusLine 명령을 bash -c 래퍼로 변경 (Home-Desktop) |
 | 2026-05-20 | Home-Desktop | feat: pull 자동화 — post-merge hook + claude lock 함수 (Home-Desktop) |
 | 2026-05-20 | Home-Desktop | feat: Telegram 채널 플러그인 활성화 (Home-Desktop) |
 | 2026-05-20 | Home-N100 | chore: post-merge 훅 제거 — statusLine portable화로 불필요해진 죽은 코드 정리 |
