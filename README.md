@@ -120,6 +120,7 @@ git -C $env:USERPROFILE\.claude pull
 
 | 날짜 | PC | 커밋 메시지 |
 |------|----|------------|
+| 2026-05-21 | MW-Lenovo | refactor: claude는 로컬 전용, ctg로 텔레그램 분리 |
 | 2026-05-20 | Home-Desktop | chore: claude 함수 안내 문구 자연화 — "다리" → "텔레그램 채널 활성" |
 | 2026-05-20 | Home-Desktop | docs: README 보강 — 사전 요건 + statusLine 래퍼 주의 (Home-Desktop) |
 | 2026-05-20 | Home-Desktop | fix: statusLine 명령을 bash -c 래퍼로 변경 (Home-Desktop) |
