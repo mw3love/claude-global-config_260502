@@ -10,33 +10,31 @@ if (-not (Get-Command bun -ErrorAction SilentlyContinue)) {
     }
 }
 
-# 2) claude 함수: lock 파일로 "한 번에 하나만 채널 활성" 보장
-#    - 첫 세션이 bridge가 되어 봇 폴링 독점
-#    - 추가 세션은 자동으로 로컬 모드 (give-up 영구 종료 회피)
-#    - bridge 종료되면 lock 해제 → 다음 신규 세션이 자동 인계
+# 2) claude: 항상 로컬 모드. 텔레그램 폴링은 ctg에서만.
 function claude {
+    & claude.exe @args
+}
+
+# 3) ctg: 명시적 텔레그램 모드. lock으로 중복 활성 시 경고.
+#    Telegram getUpdates는 토큰당 1 consumer만 허용 — 두 번째 ctg가
+#    뜨면 첫 번째의 폴링을 SIGTERM으로 뺏어감. 경고로 알려줌.
+function ctg {
     $lock = Join-Path $env:USERPROFILE '.claude\channels-bridge.pid'
-    $useChannels = $true
 
     if (Test-Path $lock) {
         $existingPid = (Get-Content $lock -ErrorAction SilentlyContinue | Select-Object -First 1) -as [int]
         if ($existingPid -and (Get-Process -Id $existingPid -ErrorAction SilentlyContinue)) {
-            $useChannels = $false
-            Write-Host "[claude] 텔레그램 채널 활성: 다른 터미널 PID $existingPid · 이 세션은 로컬" -ForegroundColor DarkGray
+            Write-Host "[ctg] 경고: 다른 ctg 세션 활성 (PID $existingPid) · 이 세션이 폴링을 가져갑니다" -ForegroundColor Yellow
         } else {
             Remove-Item $lock -Force -ErrorAction SilentlyContinue
         }
     }
 
-    if ($useChannels) {
-        $PID | Out-File $lock
-        Write-Host "[claude] 텔레그램 채널 활성 (이 세션, PID $PID)" -ForegroundColor Green
-        try {
-            & claude.exe --channels plugin:telegram@claude-plugins-official @args
-        } finally {
-            Remove-Item $lock -Force -ErrorAction SilentlyContinue
-        }
-    } else {
-        & claude.exe @args
+    $PID | Out-File $lock
+    Write-Host "[ctg] 텔레그램 채널 활성 (PID $PID)" -ForegroundColor Green
+    try {
+        & claude.exe --channels plugin:telegram@claude-plugins-official @args
+    } finally {
+        Remove-Item $lock -Force -ErrorAction SilentlyContinue
     }
 }
