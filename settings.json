@@ -27,6 +27,17 @@
             "async": true
           }
         ]
+      },
+      {
+        "matcher": "ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -NoProfile -Sta -ExecutionPolicy Bypass -File \"$env:USERPROFILE\\.claude\\toast.ps1\" -Message \"Plan ready\"",
+            "shell": "powershell",
+            "async": true
+          }
+        ]
       }
     ]
   },
