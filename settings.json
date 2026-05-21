@@ -28,19 +28,6 @@
           }
         ]
       }
-    ],
-    "Notification": [
-      {
-        "matcher": "permission_prompt|elicitation_dialog",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "powershell.exe -NoProfile -Sta -ExecutionPolicy Bypass -File \"$env:USERPROFILE\\.claude\\toast.ps1\" -Message \"Input needed\"",
-            "shell": "powershell",
-            "async": true
-          }
-        ]
-      }
     ]
   },
   "statusLine": {
