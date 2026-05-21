@@ -120,6 +120,7 @@ git -C $env:USERPROFILE\.claude pull
 
 | 날짜 | PC | 커밋 메시지 |
 |------|----|------------|
+| 2026-05-21 | Home-Desktop | feat: ExitPlanMode 알림 훅 추가 - 플랜 승인 대기 토스트 |
 | 2026-05-21 | MW-Lenovo | fix: Notification 훅 제거 - "Input needed" 중복 토스트 차단 |
 | 2026-05-21 | MW-Lenovo | refactor: claude는 로컬 전용, ctg로 텔레그램 분리 |
 | 2026-05-20 | Home-Desktop | chore: claude 함수 안내 문구 자연화 — "다리" → "텔레그램 채널 활성" |
