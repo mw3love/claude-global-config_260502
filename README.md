@@ -120,6 +120,7 @@ git -C $env:USERPROFILE\.claude pull
 
 | 날짜 | PC | 커밋 메시지 |
 |------|----|------------|
+| 2026-05-22 | moak-minwoo | merge: origin/main 병합 — statusLine bash 래퍼 채택, README 본문 ctg 분리 반영 |
 | 2026-05-22 | MW-Lenovo | docs: draft 스킬 참조자료 추가 - 모악산(송) 삭도 비상제동장치 개선공사 |
 | 2026-05-21 | Home-Desktop | feat: ExitPlanMode 알림 훅 추가 - 플랜 승인 대기 토스트 |
 | 2026-05-21 | MW-Lenovo | fix: Notification 훅 제거 - "Input needed" 중복 토스트 차단 |
