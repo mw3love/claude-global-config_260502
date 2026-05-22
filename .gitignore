@@ -1,5 +1,11 @@
 # 민감 정보
 .credentials.json
+telegram.json
+channels/**/.env
+channels/**/approved/
+channels/**/inbox/
+channels/**/*.pid
+channels-bridge.pid
 
 # 런타임 / 캐시 / 세션 데이터
 backups/
@@ -24,6 +30,7 @@ history.jsonl
 hook_test.txt
 mcp-needs-auth-cache.json
 stats-cache.json
+.last-cleanup
 
 # 로컬 전용 설정
 settings.local.json

@@ -1,56 +1,93 @@
 #!/bin/bash
-# post-merge hook: settings.json의 statusLine 경로를 현재 PC 프로필 폴더로 자동 교체
-# USERNAME != USERPROFILE 폴더명인 경우를 대비해 USERPROFILE 기준으로 처리
+# post-merge hook: git pull 후 환경 자동 점검·복구
+# - 기존 PC: 모두 갖춰져 있으면 무동작 (체크만)
+# - 신규 PC: Bun 설치 + $PROFILE 갱신 + 플러그인 다운로드까지 자동
+# - 봇 토큰(.env)만 사용자 수동 작성 (시크릿이라 git 동기화 불가)
 
-USERPROFILE_PATH=$(powershell.exe -NoProfile -NonInteractive -Command '$env:USERPROFILE.Replace("\", "/")' 2>/dev/null | tr -d '\r\n')
+set +e
 
-if [ -z "$USERPROFILE_PATH" ]; then
-    echo "[post-merge] USERPROFILE를 가져올 수 없어 statusLine 경로 업데이트를 건너뜁니다."
-    exit 0
+CLAUDE_DIR="$HOME/.claude"
+ANY_TODO=0
+
+echo ""
+echo "[post-merge] 환경 점검..."
+
+# 1) Bun
+if command -v bun &>/dev/null; then
+    echo "  ✅ Bun ($(bun --version))"
+elif [ -x "$HOME/.bun/bin/bun.exe" ]; then
+    echo "  ✅ Bun 설치됨 ($("$HOME/.bun/bin/bun.exe" --version)) — PATH는 profile.ps1이 보정"
+else
+    echo "  ⏳ Bun 설치 중..."
+    powershell.exe -NoProfile -Command "irm bun.sh/install.ps1 | iex" >/dev/null 2>&1
+    if [ -x "$HOME/.bun/bin/bun.exe" ]; then
+        echo "  ✅ Bun 설치 완료 ($("$HOME/.bun/bin/bun.exe" --version))"
+    else
+        echo "  ❌ Bun 자동 설치 실패. 수동: irm bun.sh/install.ps1 | iex"
+        ANY_TODO=1
+    fi
 fi
 
-export PATCH_USERPROFILE="$USERPROFILE_PATH"
-export PATCH_SETTINGS="$USERPROFILE_PATH/.claude/settings.json"
+# 2) PowerShell $PROFILE에 소싱 한 줄 — pwsh와 powershell.exe 양쪽 모두
+SOURCING_LINE='. "$env:USERPROFILE\.claude\setup\profile.ps1"'
+for shell_cmd in "pwsh.exe" "powershell.exe"; do
+    if ! command -v "$shell_cmd" &>/dev/null; then
+        continue
+    fi
+    PROFILE_PATH=$("$shell_cmd" -NoProfile -Command 'Write-Output $PROFILE' 2>/dev/null | tr -d '\r')
+    if [ -z "$PROFILE_PATH" ]; then
+        continue
+    fi
+    # Windows path → Git Bash path 변환
+    PROFILE_BASH=$(echo "$PROFILE_PATH" | sed -E 's|^([A-Za-z]):|/\L\1|; s|\\|/|g')
+    if [ -f "$PROFILE_BASH" ] && grep -qF 'setup\profile.ps1' "$PROFILE_BASH" 2>/dev/null; then
+        echo "  ✅ $shell_cmd \$PROFILE 소싱 OK"
+    else
+        mkdir -p "$(dirname "$PROFILE_BASH")" 2>/dev/null
+        echo "$SOURCING_LINE" >> "$PROFILE_BASH"
+        echo "  ✅ $shell_cmd \$PROFILE에 소싱 라인 추가 — 새 PowerShell부터 적용"
+    fi
+done
 
-python - <<'PYEOF'
-import sys, json, re, os
-
-userprofile = os.environ['PATCH_USERPROFILE']  # e.g. C:/Users/7make
-settings_path = os.environ['PATCH_SETTINGS']
-
-folder_name = userprofile.rstrip('/').split('/')[-1]  # e.g. 7make
-
-try:
-    with open(settings_path, encoding='utf-8') as f:
-        data = json.load(f)
-except Exception as e:
-    print(f"[post-merge] settings.json 읽기 실패: {e}")
-    sys.exit(0)
-
-old_cmd = data.get('statusLine', {}).get('command', '')
-
-new_cmd = re.sub(
-    r'C:\\Users\\[^\\]+\\\.claude\\statusline\.ps1',
-    rf'C:\\Users\\{folder_name}\\.claude\\statusline.ps1',
-    old_cmd
-)
-
-if new_cmd == old_cmd:
-    sys.exit(0)
-
-data['statusLine']['command'] = new_cmd
-
-with open(settings_path, 'w', encoding='utf-8') as f:
-    json.dump(data, f, indent=2, ensure_ascii=False)
-    f.write('\n')
-
-print("UPDATED")
-PYEOF
-
-if ! git diff --quiet settings.json 2>/dev/null; then
-    PC=$(hostname | tr -d '\r\n')
-    git add settings.json
-    git commit -m "chore: statusLine 경로 로컬 적용 ($PC)"
+# 3) Telegram 플러그인 코드
+PLUGIN_CACHE="$CLAUDE_DIR/plugins/cache/claude-plugins-official/telegram"
+if [ -d "$PLUGIN_CACHE" ] && [ -n "$(ls -A "$PLUGIN_CACHE" 2>/dev/null)" ]; then
+    echo "  ✅ Telegram 플러그인 캐시 OK"
+else
+    echo "  ⏳ Telegram 플러그인 설치 중..."
+    if command -v claude &>/dev/null; then
+        claude plugin marketplace update claude-plugins-official >/dev/null 2>&1
+        claude plugin install telegram@claude-plugins-official >/dev/null 2>&1
+        if [ -d "$PLUGIN_CACHE" ] && [ -n "$(ls -A "$PLUGIN_CACHE" 2>/dev/null)" ]; then
+            echo "  ✅ Telegram 플러그인 설치 완료"
+        else
+            echo "  ❌ 자동 설치 실패. Claude Code 세션에서 /plugin install telegram@claude-plugins-official"
+            ANY_TODO=1
+        fi
+    else
+        echo "  ❌ claude CLI 없음. Claude Code 설치 확인."
+        ANY_TODO=1
+    fi
 fi
+
+# 4) Telegram .env (시크릿이라 자동 불가)
+ENV_FILE="$CLAUDE_DIR/channels/telegram/.env"
+if [ -f "$ENV_FILE" ]; then
+    echo "  ✅ Telegram .env OK"
+else
+    echo "  ⚠  Telegram .env 없음 — 봇 토큰을 직접 입력해야 합니다 (PC당 1회):"
+    echo "      mkdir -p \"\$HOME/.claude/channels/telegram\""
+    echo "      echo 'TELEGRAM_BOT_TOKEN=<봇 토큰>' > \"\$HOME/.claude/channels/telegram/.env\""
+    echo "    (또는 BotFather에서 새 봇 발급 후 그 토큰 사용)"
+    ANY_TODO=1
+fi
+
+echo ""
+if [ "$ANY_TODO" -eq 0 ]; then
+    echo "[post-merge] ✅ 모두 정상. 추가 작업 없음."
+else
+    echo "[post-merge] ⚠  위 항목 처리 후 새 PowerShell에서 'claude' 실행."
+fi
+echo ""
 
 exit 0

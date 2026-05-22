@@ -2,6 +2,7 @@
   "permissions": {
     "defaultMode": "bypassPermissions"
   },
+  "model": "opus",
   "hooks": {
     "Stop": [
       {
@@ -14,15 +15,40 @@
           }
         ]
       }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "AskUserQuestion",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -NoProfile -Sta -ExecutionPolicy Bypass -File \"$env:USERPROFILE\\.claude\\toast.ps1\" -Message \"Question waiting\"",
+            "shell": "powershell",
+            "async": true
+          }
+        ]
+      },
+      {
+        "matcher": "ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -NoProfile -Sta -ExecutionPolicy Bypass -File \"$env:USERPROFILE\\.claude\\toast.ps1\" -Message \"Plan ready\"",
+            "shell": "powershell",
+            "async": true
+          }
+        ]
+      }
     ]
   },
   "statusLine": {
     "type": "command",
-    "command": "powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"C:\\Users\\aros\\.claude\\statusline.ps1\""
+    "command": "bash -c 'powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File ~/.claude/statusline.ps1'"
   },
   "enabledPlugins": {
     "document-skills@anthropic-agent-skills": true,
-    "playwright@claude-plugins-official": true
+    "playwright@claude-plugins-official": true,
+    "telegram@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "anthropic-agent-skills": {
