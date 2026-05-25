@@ -120,6 +120,7 @@ git -C $env:USERPROFILE\.claude pull
 
 | 날짜 | PC | 커밋 메시지 |
 |------|----|------------|
+| 2026-05-26 | MW-Lenovo | feat: statusline 맨 앞에 현재 폴더명 시안색으로 표시 |
 | 2026-05-23 | Home-Desktop | feat: deep-interview 전역 스킬 추가 |
 | 2026-05-23 | Home-Desktop | feat: git push 후 자동 문서 동기화 (doc-sync hook + 스킬) |
 | 2026-05-22 | moak-minwoo | merge: origin/main 병합 — statusLine bash 래퍼 채택, README 본문 ctg 분리 반영 |
