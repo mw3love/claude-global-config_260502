@@ -11,6 +11,7 @@ $Reset  = "${ESC}[0m"
 $Green  = "${ESC}[32m"
 $Orange = "${ESC}[38;5;208m"
 $Red    = "${ESC}[31m"
+$Cyan   = "${ESC}[36m"
 
 function Get-Color($pct) {
     if ($pct -lt 50) { return $Green }
@@ -51,6 +52,14 @@ function Format-CtxSize($tokens) {
 
 $Sep = " | "
 
+# Current folder name (leaf only)
+$cwd = if ($data.workspace.current_dir) { $data.workspace.current_dir } else { $data.cwd }
+$folderPart = ""
+if ($cwd) {
+    $leaf = Split-Path $cwd -Leaf
+    if ($leaf) { $folderPart = "${Cyan}${leaf}${Reset}" }
+}
+
 # Model + context window size
 $model = if ($data.model.display_name) { $data.model.display_name }
          elseif ($data.model.id) { $data.model.id }
@@ -89,7 +98,9 @@ if ($null -ne $weekPct) {
     $weekPart = "7d: ${col}${w}%${Reset} $rem".TrimEnd()
 }
 
-$parts = @($modelPart)
+$parts = @()
+if ($folderPart) { $parts += $folderPart }
+$parts += $modelPart
 if ($ctxPart)  { $parts += $ctxPart }
 if ($fivePart) { $parts += $fivePart }
 if ($weekPart) { $parts += $weekPart }
