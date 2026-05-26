@@ -120,6 +120,7 @@ git -C $env:USERPROFILE\.claude pull
 
 | 날짜 | PC | 커밋 메시지 |
 |------|----|------------|
+| 2026-05-26 | Home-Desktop | docs(doc-sync): SKILL.md를 사전+사후 2단계 흐름과 정합화 |
 | 2026-05-26 | moak-minwoo | docs(CLAUDE.md): 푸쉬 시 문서 동기화 규칙을 사전+사후 2단계로 보강 |
 | 2026-05-26 | MW-Lenovo | feat: statusline 맨 앞에 현재 폴더명 시안색으로 표시 |
 | 2026-05-23 | Home-Desktop | feat: deep-interview 전역 스킬 추가 |
