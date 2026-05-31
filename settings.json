@@ -2,7 +2,6 @@
   "permissions": {
     "defaultMode": "bypassPermissions"
   },
-  "model": "opus",
   "hooks": {
     "Stop": [
       {
@@ -76,9 +75,10 @@
       }
     }
   },
-  "effortLevel": "xhigh",
+  "effortLevel": "high",
   "autoUpdatesChannel": "latest",
   "skipDangerousModePermissionPrompt": true,
   "remoteControlAtStartup": false,
-  "agentPushNotifEnabled": true
+  "agentPushNotifEnabled": true,
+  "model": "opus"
 }
