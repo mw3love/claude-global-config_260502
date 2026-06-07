@@ -123,6 +123,7 @@ git -C $env:USERPROFILE\.claude pull
 
 | 날짜 | PC | 커밋 메시지 |
 |------|----|------------|
+| 2026-06-07 | Home-Desktop | feat: self-review 스킬 + 답변 검증 규칙(11 자기검증, 12 계획·검토 시 실행금지) 추가 |
 | 2026-05-31 | Home-Desktop | chore: effortLevel 기본값(high) 복구 및 설정 정리 |
 | 2026-05-26 | Home-Desktop | docs(doc-sync): SKILL.md를 사전+사후 2단계 흐름과 정합화 |
 | 2026-05-26 | moak-minwoo | docs(CLAUDE.md): 푸쉬 시 문서 동기화 규칙을 사전+사후 2단계로 보강 |
