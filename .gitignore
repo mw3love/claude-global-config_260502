@@ -25,6 +25,15 @@ telemetry/
 todos/
 usage-data/
 
+# 데몬 / 백그라운드 작업 / 이미지 캐시 런타임
+daemon/
+daemon.json
+daemon.lock
+daemon.log
+daemon.status.json
+jobs/
+image-cache/
+
 # 로그 / 임시 파일
 history.jsonl
 hook_test.txt
