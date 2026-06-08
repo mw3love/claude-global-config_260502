@@ -123,6 +123,7 @@ git -C $env:USERPROFILE\.claude pull
 
 | 날짜 | PC | 커밋 메시지 |
 |------|----|------------|
+| 2026-06-08 | moak-minwoo | feat(self-review): 출력 형식에 [제안] 라벨 추가 |
 | 2026-06-08 | moak-minwoo | refactor(self-review): 검토 대상 일반화 + 독립 에이전트 한계 정직화 |
 | 2026-06-07 | Home-Desktop | feat: self-review 스킬 + 답변 검증 규칙(11 자기검증, 12 계획·검토 시 실행금지) 추가 |
 | 2026-05-31 | Home-Desktop | chore: effortLevel 기본값(high) 복구 및 설정 정리 |
