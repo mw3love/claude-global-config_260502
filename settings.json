@@ -2,6 +2,7 @@
   "permissions": {
     "defaultMode": "bypassPermissions"
   },
+  "model": "opus",
   "hooks": {
     "Stop": [
       {
@@ -73,12 +74,17 @@
         "source": "github",
         "repo": "anthropics/claude-plugins-official"
       }
+    },
+    "harness-marketplace": {
+      "source": {
+        "source": "github",
+        "repo": "revfactory/harness"
+      }
     }
   },
   "effortLevel": "high",
   "autoUpdatesChannel": "latest",
   "skipDangerousModePermissionPrompt": true,
   "remoteControlAtStartup": false,
-  "agentPushNotifEnabled": true,
-  "model": "opus"
+  "agentPushNotifEnabled": true
 }
