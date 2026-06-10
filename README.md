@@ -123,6 +123,7 @@ git -C $env:USERPROFILE\.claude pull
 
 | 날짜 | PC | 커밋 메시지 |
 |------|----|------------|
+| 2026-06-10 | Home-Desktop | feat: harness 스킬을 전역 personal skill로 포크 + 적합성 사전심사 게이트 추가 |
 | 2026-06-09 | moak-minwoo | feat(self-review): 출력 끝에 [다음] 행동 추천 줄 추가 |
 | 2026-06-08 | moak-minwoo | docs(CLAUDE): 규칙 11 '덜 상관된 독립 에이전트' 표현 정정 |
 | 2026-06-08 | moak-minwoo | feat(self-review): 출력 형식에 [제안] 라벨 추가 |
