@@ -20,7 +20,7 @@ description: 푸쉬 전후로 호출되어 코드 변경이 핵심 문서(CLAUDE
 1. **수정 허용 대상**: 작업 폴더(cwd) **하위**의 `.md` 파일만.
 2. **수정 절대 금지 대상**:
    - 코드 파일 일체(`.py`, `.js`, `.ts`, `.go`, `.rs`, `.java`, `.c`, `.cpp`, `.cs`, `.rb`, `.php`, `.sh`, `.ps1` 등)
-   - `~/.claude/**` 전체 (글로벌 CLAUDE.md/스킬/훅 자기수정 차단)
+   - `~/.claude/**` — 원칙 금지(글로벌 CLAUDE.md/스킬/훅 자기수정 차단). **단 하나의 예외**: cwd가 `~/.claude` 루트일 때(전역 설정 repo를 직접 동기화하는 경우)는 그 하위 **서술형 `.md`(README 등)** 만 수정 가능. 이 경우에도 전역 `CLAUDE.md`·`SKILL.md`·훅 스크립트·`settings.json` 은 자동 수정 금지 → AskUserQuestion으로 제안만.
    - `.git/**`, `node_modules/**`, `dist/**`, `build/**`, `target/**`, `venv/**`, `__pycache__/**`
    - 작업 폴더 *외부*의 어떤 파일도
 3. **git 명령은 read-only만**: `diff`, `log`, `show`, `status`, `rev-parse`, `ls-files`, `for-each-ref` 허용. `add`/`commit`/`push`/`reset`/`checkout`/`rebase`/`merge`/`tag` 등 mutating 명령 금지.

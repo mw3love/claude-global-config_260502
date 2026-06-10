@@ -70,7 +70,7 @@
 
 **사후(안전망)** — `git push` 가 성공하면 PostToolUse hook(`~/.claude/doc-sync-hook.ps1`)이 자동 발화한다. 주입되는 `[doc-sync hook]` 컨텍스트를 받으면 `doc-sync` 스킬을 호출해 사전 단계에서 누락된 게 없는지 한 번 더 확인한다. 사전이 성실히 됐다면 "변경 없음"으로 끝난다.
 
-스킬은 작업 폴더 하위 `.md` 만 수정하며, `~/.claude/**`·코드 파일·git mutating 명령은 절대 건드리지 않는다.
+스킬은 작업 폴더(cwd) 하위 `.md` 만 수정하며, 코드 파일·git mutating 명령은 건드리지 않는다. `~/.claude/**` 도 원칙적으로 금지하되, **예외**: cwd가 `~/.claude` 루트일 때(전역 설정 repo를 직접 동기화)는 그 하위 **서술형 `.md`(README 등)** 만 동기화 가능하고, 전역 `CLAUDE.md`·`SKILL.md`·훅·`settings.json` 같은 행동·설정 파일은 이 경우에도 자동 수정하지 않고 제안만 한다(자기수정 방지).
 
 ---
 
