@@ -10,31 +10,35 @@ if (-not (Get-Command bun -ErrorAction SilentlyContinue)) {
     }
 }
 
-# 2) claude: 항상 로컬 모드. 텔레그램 폴링은 ctg에서만.
+# 2) claude: 항상 로컬 모드. 텔레그램 폴링은 tel에서만.
 function claude {
     & claude.exe @args
 }
 
-# 3) ctg: 명시적 텔레그램 모드. lock으로 중복 활성 시 경고.
-#    Telegram getUpdates는 토큰당 1 consumer만 허용 — 두 번째 ctg가
+# 3) tel: 명시적 텔레그램 모드. lock으로 중복 활성 시 경고.
+#    Telegram getUpdates는 토큰당 1 consumer만 허용 — 두 번째 tel이
 #    뜨면 첫 번째의 폴링을 SIGTERM으로 뺏어감. 경고로 알려줌.
-function ctg {
+#    (옛 이름 ctg는 아래 Set-Alias로 그대로 동작)
+function tel {
     $lock = Join-Path $env:USERPROFILE '.claude\channels-bridge.pid'
 
     if (Test-Path $lock) {
         $existingPid = (Get-Content $lock -ErrorAction SilentlyContinue | Select-Object -First 1) -as [int]
         if ($existingPid -and (Get-Process -Id $existingPid -ErrorAction SilentlyContinue)) {
-            Write-Host "[ctg] 경고: 다른 ctg 세션 활성 (PID $existingPid) · 이 세션이 폴링을 가져갑니다" -ForegroundColor Yellow
+            Write-Host "[tel] 경고: 다른 tel 세션 활성 (PID $existingPid) · 이 세션이 폴링을 가져갑니다" -ForegroundColor Yellow
         } else {
             Remove-Item $lock -Force -ErrorAction SilentlyContinue
         }
     }
 
     $PID | Out-File $lock
-    Write-Host "[ctg] 텔레그램 채널 활성 (PID $PID)" -ForegroundColor Green
+    Write-Host "[tel] 텔레그램 채널 활성 (PID $PID)" -ForegroundColor Green
     try {
         & claude.exe --channels plugin:telegram@claude-plugins-official @args
     } finally {
         Remove-Item $lock -Force -ErrorAction SilentlyContinue
     }
 }
+
+# 옛 이름 호환: ctg → tel
+Set-Alias ctg tel

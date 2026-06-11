@@ -12,7 +12,7 @@
 
 - **bypass 모드 자동 진입** — `defaultMode: bypassPermissions` (settings.json)
 - **Windows toast 알림 + Telegram 발송** — Claude 답변 완료, 질문 대기, 입력 대기 시점에 PC와 폰 양쪽 알림
-- **Telegram 채널 (비상용 원격)** — `ctg` 명령으로 활성 (lock 파일로 한 번에 한 세션만). `claude`는 로컬 전용.
+- **Telegram 채널 (비상용 원격)** — `tel` 명령으로 활성 (lock 파일로 한 번에 한 세션만). `claude`는 로컬 전용. (옛 이름 `ctg`도 별칭으로 동작)
 - **statusline** — 모델명 / 컨텍스트 사용률 / 5시간·7일 레이트리밋을 터미널 상태바에 표시
 - **플러그인 마켓플레이스** — `claude-plugins-official`, `anthropic-agent-skills` 등록
 - **document-skills, telegram 플러그인** 활성화
@@ -37,7 +37,7 @@ bash $env:USERPROFILE\.claude\setup\hooks\post-merge
 # 봇 토큰만 직접 입력 (PC당 1회, 시크릿이라 자동 불가)
 Set-Content "$env:USERPROFILE\.claude\channels\telegram\.env" "TELEGRAM_BOT_TOKEN=<봇 토큰>"
 
-# 끝. 새 PowerShell에서 `claude` (로컬) 또는 `ctg` (텔레그램 채널) 입력
+# 끝. 새 PowerShell에서 `claude` (로컬) 또는 `tel` (텔레그램 채널) 입력
 ```
 
 > BotFather에서 새 봇 만들거나 기존 봇 토큰 재사용. **두 PC가 같은 봇을 동시에 폴링하면 충돌**하니 PC 사용은 순차적으로.
@@ -97,7 +97,7 @@ git -C $env:USERPROFILE\.claude pull
 │   ├── hooks/
 │   │   ├── post-commit       # 커밋 시 변경 이력 자동 기록
 │   │   └── post-merge        # pull 후 환경 자동 점검 (Bun, $PROFILE, 플러그인)
-│   └── profile.ps1           # PowerShell 프로필 — Bun PATH 보정 + claude (로컬) / ctg (텔레그램) 함수
+│   └── profile.ps1           # PowerShell 프로필 — Bun PATH 보정 + claude (로컬) / tel (텔레그램) 함수
 ├── skills/
 │   ├── deep-interview/       # 요구사항 명확화 인터뷰 스킬
 │   ├── doc-sync/             # 푸쉬 전후 문서 동기화 스킬
