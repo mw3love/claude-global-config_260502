@@ -124,6 +124,7 @@ git -C $env:USERPROFILE\.claude pull
 
 | 날짜 | PC | 커밋 메시지 |
 |------|----|------------|
+| 2026-06-11 | moak-minwoo | refactor: 텔레그램 단축어 ctg → tel (ctg는 별칭 유지) |
 | 2026-06-10 | Home-Desktop | refactor(doc-sync): ~/.claude 쓰기금지에 좁은 예외 추가 (전역 repo 서술형 .md 동기화 허용) |
 | 2026-06-10 | Home-Desktop | docs(README): 기능 목록·파일 구조에 harness 스킬 반영 |
 | 2026-06-10 | Home-Desktop | feat: harness 스킬을 전역 personal skill로 포크 + 적합성 사전심사 게이트 추가 |
