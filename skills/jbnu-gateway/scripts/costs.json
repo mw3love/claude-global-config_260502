@@ -1,0 +1,37 @@
+{
+  "_note": "크레딧 단가·추천 카탈로그. 이미지/비디오/TTS 모델·단가는 /models API에 없어 문서·실측 기준으로 유지한다. 단가·추천 변동 시 이 파일만 수정. recommend:true = 기본 추천 모델.",
+  "video": {
+    "unit": "클립당 크레딧",
+    "source": "mindlogic 문서",
+    "approval": "required",
+    "models": {
+      "bytedance/seedance-1-pro": { "cost": 60, "best_for": "최저가, 테스트·시안용" },
+      "minimax/hailuo-02": { "cost": 270, "best_for": "인물·동작 자연스러움" },
+      "xai/grok-imagine-video": { "cost": 300, "best_for": "빠른 생성" },
+      "pixverse/pixverse-v5": { "cost": 300, "best_for": "스타일라이즈드/애니풍" },
+      "kwaivgi/kling-v2.5-turbo-pro": { "cost": 350, "best_for": "역동적 카메라 무빙" },
+      "veo-3.1-fast-generate-preview": { "cost": 600, "recommend": true, "best_for": "품질·비용 균형, 기본 추천" },
+      "veo-3.1-generate-preview": { "cost": 1600, "best_for": "최고 품질·디테일(고가)" }
+    }
+  },
+  "image": {
+    "unit": "장당 크레딧",
+    "source": "문서 미명시 → 이번 세션 실측 추정",
+    "approval": "show_only",
+    "models": {
+      "gemini-2.5-flash-image": { "cost": 60, "recommend": true, "size_param": "--aspect (1:1/16:9/9:16/4:3)", "mode": "sync", "best_for": "일반·빠름·종횡비 자유, 기본 추천" },
+      "gpt-image-2": { "cost": 60, "size_param": "--size (예: 1024x1024)", "mode": "sync", "best_for": "이미지 속 글자/정밀 지시/사실적 묘사" },
+      "black-forest-labs/flux-2-pro": { "cost": null, "mode": "async", "best_for": "고품질 아트(비동기·단가미상)" },
+      "xai/grok-imagine-image": { "cost": null, "mode": "async", "best_for": "빠른 시안(비동기·단가미상)" }
+    }
+  },
+  "tts": {
+    "unit": "10k 토큰당 크레딧",
+    "source": "mindlogic 문서",
+    "approval": "show_only",
+    "models": {
+      "gemini-2.5-flash-preview-tts": { "cost": 0.001, "recommend": true, "best_for": "기본, 저렴·충분한 품질" },
+      "gemini-2.5-pro-preview-tts": { "cost": 0.002, "best_for": "더 높은 품질이 필요할 때" }
+    }
+  }
+}

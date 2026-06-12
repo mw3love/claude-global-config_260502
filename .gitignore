@@ -1,5 +1,6 @@
 # 민감 정보
 .credentials.json
+.secrets/
 telegram.json
 channels/**/.env
 channels/**/approved/
