@@ -55,3 +55,7 @@ tasks/
 .last-cleanup
 .last-update-result.json
 chrome/
+
+# Python 캐시 (스킬 스크립트)
+__pycache__/
+*.pyc
