@@ -126,6 +126,7 @@ git -C $env:USERPROFILE\.claude pull
 
 | 날짜 | PC | 커밋 메시지 |
 |------|----|------------|
+| 2026-06-12 | MW-Lenovo | chore: settings.json — defaultMode auto + harness-marketplace 등록 |
 | 2026-06-12 | MW-Lenovo | chore: jbnu-gateway __pycache__ 추적 제거 + .gitignore에 Python 캐시 추가 |
 | 2026-06-12 | MW-Lenovo | feat: jbnu-gateway 스킬 추가 — 전북대 API Gateway로 이미지·비디오·TTS 생성 |
 | 2026-06-12 | MW-Lenovo | feat(draft): 관련근거 사전확인·접수번호 예외, 전부-인라인 표, 출처 검증표 단계 추가 |
