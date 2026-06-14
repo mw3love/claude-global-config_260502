@@ -55,7 +55,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "bash -c 'powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File ~/.claude/statusline.ps1'"
+    "command": "bash -c 'python -S ~/.claude/statusline.py 2>/dev/null || powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File ~/.claude/statusline.ps1'"
   },
   "enabledPlugins": {
     "document-skills@anthropic-agent-skills": true,
