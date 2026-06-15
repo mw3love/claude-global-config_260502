@@ -1,0 +1,11 @@
+[
+  {
+    "path": ".claude",
+    "desc": "전역 Claude 설정"
+  },
+  {
+    "path": "Dev/youtube_dual_subtitle",
+    "desc": "YouTube 듀얼 자막 확장",
+    "build": "npm install && npm run build"
+  }
+]
