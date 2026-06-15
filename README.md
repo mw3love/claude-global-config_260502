@@ -129,6 +129,7 @@ git -C $env:USERPROFILE\.claude pull
 
 | 날짜 | PC | 커밋 메시지 |
 |------|----|------------|
+| 2026-06-16 | MW-Lenovo | feat: sync-repos 스킬 추가 — 여러 PC git 프로젝트 일괄 pull+빌드 자동화 |
 | 2026-06-14 | Home-Desktop | statusline: PowerShell→python 전환(콜드스타트 단축) + powershell 폴백 |
 | 2026-06-12 | MW-Lenovo | chore: settings.json — defaultMode auto + harness-marketplace 등록 |
 | 2026-06-12 | MW-Lenovo | chore: jbnu-gateway __pycache__ 추적 제거 + .gitignore에 Python 캐시 추가 |
