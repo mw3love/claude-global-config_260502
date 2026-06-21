@@ -137,6 +137,7 @@ git -C $env:USERPROFILE\.claude pull
 
 | 날짜 | PC | 커밋 메시지 |
 |------|----|------------|
+| 2026-06-21 | Home-Desktop | feat: 훅·statusline·sync-repos 크로스플랫폼화 (macOS 지원) |
 | 2026-06-19 | MW-Lenovo | docs(CLAUDE): 규칙 9-b 추가 — 실행 산출물은 건네기 전 직접 실행 |
 | 2026-06-16 | MW-Lenovo | feat: sync-repos 스킬 추가 — 여러 PC git 프로젝트 일괄 pull+빌드 자동화 |
 | 2026-06-14 | Home-Desktop | statusline: PowerShell→python 전환(콜드스타트 단축) + powershell 폴백 |
