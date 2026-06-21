@@ -4,14 +4,17 @@
 
 ## 사전 요건
 
-- **Windows + PowerShell** (Windows PowerShell 5.1 또는 PowerShell 7)
-- **Git for Windows (Git Bash 포함)** — 필수. statusLine 명령이 `bash -c '...'` 래퍼를 사용하기 때문 (라우팅 비결정성 우회).
-- **Bun** — Telegram 채널 플러그인 실행용. post-merge hook이 자동 설치하므로 수동 설치 불필요.
+런타임(훅·statusLine·sync-repos)은 **Windows / macOS / Linux 크로스플랫폼**이다. 디스패처로 `bash`, 구현으로 `python3`(없으면 `.ps1` PowerShell 폴백)를 쓴다.
+
+- **공통** — `bash` + `python3`. statusLine·훅 명령이 `bash -c '...'` 래퍼로 OS를 감지해 분기한다(라우팅 비결정성 우회).
+- **Windows** — PowerShell 5.1/7 + Git for Windows(Git Bash 포함). python 있으면 사용, 없으면 `.ps1` 폴백.
+- **macOS / Linux** — 기본 제공 `bash`·`python3`. 데스크톱 알림은 macOS `osascript` / Linux `notify-send`.
+- **Bun** — Telegram 채널 플러그인 실행용. post-merge hook이 자동 설치(현재 온보딩 자동화는 Windows 기준 — macOS 온보딩 절차는 아직 미자동화).
 
 ## 기능
 
 - **bypass 모드 자동 진입** — `defaultMode: bypassPermissions` (settings.json)
-- **Windows toast 알림 + Telegram 발송** — Claude 답변 완료, 질문 대기, 입력 대기 시점에 PC와 폰 양쪽 알림
+- **데스크톱 알림 + Telegram 발송** — Claude 답변 완료, 질문 대기, 입력 대기 시점에 PC와 폰 양쪽 알림 (Windows toast / macOS osascript / Linux notify-send)
 - **Telegram 채널 (비상용 원격)** — `tel` 명령으로 활성 (lock 파일로 한 번에 한 세션만). `claude`는 로컬 전용. (옛 이름 `ctg`도 별칭으로 동작)
 - **statusline** — 모델명 / 컨텍스트 사용률 / 5시간·7일 레이트리밋을 터미널 상태바에 표시
 - **플러그인 마켓플레이스** — `claude-plugins-official`, `anthropic-agent-skills` 등록
@@ -113,11 +116,16 @@ git -C $env:USERPROFILE\.claude pull
 │       ├── access.json       # 페어링·allowlist (git 동기화)
 │       └── approved/         # 승인된 sender (gitignore, 런타임)
 ├── settings.json             # 전역 설정 (bypass, hooks, statusLine, 마켓플레이스, 채널 활성)
-│                              #   ⚠ statusLine 명령은 `bash -c '...'` 래퍼 형태 유지 (Git Bash 필요).
-│                              #     단순화하면 cmd 라우팅 PC에서 silent fail.
-├── statusline.ps1            # 터미널 상태바 스크립트
-├── toast.ps1                 # Windows toast + Telegram 발송 스크립트
-├── sync-repos.ps1            # 여러 repo 일괄 pull+빌드 엔진 (repos.json 명단 기반)
+│                              #   ⚠ statusLine·훅 명령은 `bash -c '...'` 래퍼로 OS 감지·분기 (Git Bash 필요).
+│                              #     단순화하면 cmd 라우팅 PC에서 silent fail. python 우선 + .ps1 윈도우 폴백.
+├── statusline.py             # 터미널 상태바 (크로스플랫폼, 기본)
+├── statusline.ps1            # 〃 PowerShell 폴백 (python 없는 Windows)
+├── toast.sh                  # 데스크톱 알림 디스패처 (Win→toast.ps1 / mac→osascript / linux→notify-send)
+├── toast.ps1                 # Windows toast + Telegram 발송 (toast.sh 가 호출)
+├── doc-sync-hook.py          # git push 후 doc-sync 트리거 훅 (크로스플랫폼, 기본)
+├── doc-sync-hook.ps1         # 〃 PowerShell 폴백 (python 없는 Windows)
+├── sync-repos.py             # 여러 repo 일괄 pull+빌드 엔진 (크로스플랫폼, 기본)
+├── sync-repos.ps1            # 〃 PowerShell 폴백 (python 없는 Windows)
 ├── repos.json                # sync-repos 동기화 대상 명단 (홈 기준 상대경로 + 빌드명령)
 ├── telegram.json             # 알림용 봇 토큰 (gitignore, PC별 수동)
 └── CLAUDE.md                 # 전역 응답 원칙

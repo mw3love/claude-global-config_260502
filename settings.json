@@ -9,8 +9,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "powershell.exe -NoProfile -Sta -ExecutionPolicy Bypass -File \"$env:USERPROFILE\\.claude\\toast.ps1\"",
-            "shell": "powershell",
+            "command": "bash -c 'bash ~/.claude/toast.sh \"Response complete\"'",
             "async": true
           }
         ]
@@ -22,8 +21,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"$env:USERPROFILE\\.claude\\doc-sync-hook.ps1\"",
-            "shell": "powershell"
+            "command": "bash -c 'python3 ~/.claude/doc-sync-hook.py 2>/dev/null || python ~/.claude/doc-sync-hook.py 2>/dev/null || { case \"$(uname -s)\" in MINGW*|MSYS*|CYGWIN*) exec powershell.exe -NoProfile -ExecutionPolicy Bypass -File ~/.claude/doc-sync-hook.ps1 ;; esac; }'"
           }
         ]
       }
@@ -34,8 +32,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "powershell.exe -NoProfile -Sta -ExecutionPolicy Bypass -File \"$env:USERPROFILE\\.claude\\toast.ps1\" -Message \"Question waiting\"",
-            "shell": "powershell",
+            "command": "bash -c 'bash ~/.claude/toast.sh \"Question waiting\"'",
             "async": true
           }
         ]
@@ -45,8 +42,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "powershell.exe -NoProfile -Sta -ExecutionPolicy Bypass -File \"$env:USERPROFILE\\.claude\\toast.ps1\" -Message \"Plan ready\"",
-            "shell": "powershell",
+            "command": "bash -c 'bash ~/.claude/toast.sh \"Plan ready\"'",
             "async": true
           }
         ]
@@ -55,7 +51,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "bash -c 'python -S ~/.claude/statusline.py 2>/dev/null || powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File ~/.claude/statusline.ps1'"
+    "command": "bash -c 'python3 -S ~/.claude/statusline.py 2>/dev/null || python -S ~/.claude/statusline.py 2>/dev/null || powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File ~/.claude/statusline.ps1'"
   },
   "enabledPlugins": {
     "document-skills@anthropic-agent-skills": true,

@@ -9,11 +9,12 @@ description: 여러 PC에서 쓰는 git 프로젝트들을 한 번에 git pull(+
 
 ## 동작
 
-1. **엔진 스크립트 실행** — PowerShell 도구로 다음을 실행한다:
+1. **엔진 스크립트 실행** — 크로스플랫폼 Python 엔진을 bash 로 실행한다(Windows/macOS 공통). 인터프리터를 먼저 **감지**해 한 번만 실행하고, python 이 없는 PC는 PowerShell 엔진으로 폴백:
    ```
-   & "$env:USERPROFILE\.claude\sync-repos.ps1"
+   bash -c 'for p in python3 python; do command -v "$p" >/dev/null 2>&1 && exec "$p" ~/.claude/sync-repos.py "$@"; done; exec pwsh -File ~/.claude/sync-repos.ps1 "$@"' _
    ```
-   (변경 없어도 빌드 강제: `-BuildAll` / 빌드 건너뛰기: `-NoBuild`)
+   (변경 없어도 빌드 강제: `--build-all` / 빌드 건너뛰기: `--no-build`. 인수는 위 명령 끝 `_` 뒤에 붙인다 — 예: `... ' _ --no-build`. PowerShell 폴백은 `-BuildAll`/`-NoBuild` 형식도 받음.)
+   주의: `python3 ... || python ...` 식의 `||` 체인은 쓰지 말 것 — 엔진이 문제(pull 실패=exit 2, 명단없음=exit 1)로 끝나면 "인터프리터 없음"으로 오해해 다음 인터프리터로 **전체를 재실행**(중복 pull/build)한다.
 
 2. **출력 요약 전달** — 스크립트가 각 repo를 `[v]업데이트 / [=]변경없음 / [-]미클론 / [!]문제`로 찍고 마지막에 요약을 낸다. 그 결과를 사용자에게 그대로 간결히 전한다.
 
@@ -42,7 +43,8 @@ description: 여러 PC에서 쓰는 git 프로젝트들을 한 번에 git pull(+
 ## 터미널에서 직접 (Claude 없이)
 
 정상 루틴이면 Claude 세션 없이 터미널에서 바로 더 빠르게 돌릴 수 있다:
-```powershell
-pwsh -File "$HOME\.claude\sync-repos.ps1"
+```bash
+python3 ~/.claude/sync-repos.py        # macOS / Linux / python 있는 Windows
+pwsh -File ~/.claude/sync-repos.ps1    # python 없는 Windows 폴백
 ```
 스킬은 **문제가 생겨 진단·수정이 필요할 때** 값을 한다.
