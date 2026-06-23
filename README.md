@@ -137,6 +137,7 @@ git -C $env:USERPROFILE\.claude pull
 
 | 날짜 | PC | 커밋 메시지 |
 |------|----|------------|
+| 2026-06-23 | Home-Desktop | chore: sync-repos 명단 AI 사전 경로 수정 (AI_Dictionary_260622 → ai-dictionary) |
 | 2026-06-23 | MW-Lenovo | sync-repos: AI_Dictionary_260622 명단 추가 |
 | 2026-06-21 | Home-Desktop | feat: 훅·statusline·sync-repos 크로스플랫폼화 (macOS 지원) |
 | 2026-06-19 | MW-Lenovo | docs(CLAUDE): 규칙 9-b 추가 — 실행 산출물은 건네기 전 직접 실행 |
