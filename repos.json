@@ -9,7 +9,7 @@
     "build": "npm install && npm run build"
   },
   {
-    "path": "Dev/AI_Dictionary_260622",
+    "path": "Dev/ai-dictionary",
     "desc": "AI 사전 Chrome 확장 (BYOK Gemini/Mindlogic)",
     "build": "npm install && npm run build"
   }
