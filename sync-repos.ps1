@@ -41,13 +41,16 @@ try {
   exit 1
 }
 
+# path 없는 항목 = 참고 전용(reference-repos 스킬용) — 동기화 대상에서 제외.
+$syncTargets = @($repos | Where-Object { $_.path })
+
 Write-Host ""
-Write-Host "=== sync-repos === ($($repos.Count)개 대상)" -ForegroundColor White
+Write-Host "=== sync-repos === ($($syncTargets.Count)개 대상)" -ForegroundColor White
 Write-Host ""
 
 $results = @()
 
-foreach ($r in $repos) {
+foreach ($r in $syncTargets) {
   $rel  = $r.path
   $full = Join-Path $userHome $rel
   $name = if ($r.desc) { $r.desc } else { $rel }

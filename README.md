@@ -19,7 +19,7 @@
 - **statusline** — 모델명 / 컨텍스트 사용률 / 5시간·7일 레이트리밋을 터미널 상태바에 표시
 - **플러그인 마켓플레이스** — `claude-plugins-official`, `anthropic-agent-skills` 등록
 - **document-skills, telegram 플러그인** 활성화
-- **전역 스킬** — `/draft`(KBS 기안문), `/deep-interview`(요구사항 명확화 인터뷰), `/doc-sync`(푸쉬 전후 문서 동기화), `/self-review`(답변을 근거 기반으로 적대적 재검토), `/harness`(에이전트 팀·스킬 구성 — 적합성 사전심사 게이트), `/pick-skill`(계획 적었을 때 어떤 스킬/모드로 진행할지 추천하는 진입점 라우터), `/sync-repos`(여러 PC git 프로젝트를 명단 기반으로 일괄 pull+빌드), `jbnu-gateway`(전북대 API Gateway로 이미지·비디오·TTS 생성 — "이미지/영상 만들어줘" 등에 자동 발동)
+- **전역 스킬** — `/draft`(KBS 기안문), `/deep-interview`(요구사항 명확화 인터뷰), `/doc-sync`(푸쉬 전후 문서 동기화), `/self-review`(답변을 근거 기반으로 적대적 재검토), `/harness`(에이전트 팀·스킬 구성 — 적합성 사전심사 게이트), `/pick-skill`(계획 적었을 때 어떤 스킬/모드로 진행할지 추천하는 진입점 라우터), `/sync-repos`(여러 PC git 프로젝트를 명단 기반으로 일괄 pull+빌드), `/reference-repos`(비자명한 설계 전 비슷한 문제를 푼 기존 git repo를 찾아 참고 — 인덱스는 `repos.json`의 `reference` 필드, remote로 PC 독립 접근), `jbnu-gateway`(전북대 API Gateway로 이미지·비디오·TTS 생성 — "이미지/영상 만들어줘" 등에 자동 발동)
 - **post-merge hook** — `git pull` 후 환경 자동 점검·복구 (Bun 설치, $PROFILE 갱신, 플러그인 다운로드)
 
 ---
@@ -108,6 +108,7 @@ git -C $env:USERPROFILE\.claude pull
 │   ├── harness/              # 에이전트 팀·스킬 구성 메타 스킬 (적합성 사전심사 게이트)
 │   ├── jbnu-gateway/         # 전북대 API Gateway로 이미지·비디오·TTS 생성 (preflight 비용고지)
 │   ├── pick-skill/           # 계획 진입점 라우터 — 어떤 스킬/모드로 갈지 추천
+│   ├── reference-repos/      # 기존 git repo에서 prior art 참고 (인덱스=repos.json reference 필드)
 │   ├── self-review/          # 답변 근거 기반 적대적 재검토 스킬
 │   └── sync-repos/           # 여러 PC git 프로젝트 일괄 pull+빌드 동기화 스킬
 ├── channels/
@@ -126,7 +127,7 @@ git -C $env:USERPROFILE\.claude pull
 ├── doc-sync-hook.ps1         # 〃 PowerShell 폴백 (python 없는 Windows)
 ├── sync-repos.py             # 여러 repo 일괄 pull+빌드 엔진 (크로스플랫폼, 기본)
 ├── sync-repos.ps1            # 〃 PowerShell 폴백 (python 없는 Windows)
-├── repos.json                # sync-repos 동기화 대상 명단 (홈 기준 상대경로 + 빌드명령)
+├── repos.json                # sync-repos 동기화 명단(홈 기준 상대경로+빌드) + reference-repos 인덱스(remote+reference 필드)
 ├── telegram.json             # 알림용 봇 토큰 (gitignore, PC별 수동)
 └── CLAUDE.md                 # 전역 응답 원칙
 ```

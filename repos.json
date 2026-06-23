@@ -1,16 +1,27 @@
 [
   {
     "path": ".claude",
-    "desc": "전역 Claude 설정"
+    "desc": "전역 Claude 설정",
+    "remote": "https://github.com/mw3love/claude-global-config_260502.git",
+    "reference": "Claude Code 하네스 패턴 — 스킬(SKILL.md) 구조, PostToolUse 훅(PowerShell), settings.json, 크로스플랫폼 엔진 스크립트(py+ps1)"
   },
   {
     "path": "Dev/youtube_dual_subtitle",
     "desc": "YouTube 듀얼 자막 확장",
-    "build": "npm install && npm run build"
+    "build": "npm install && npm run build",
+    "remote": "https://github.com/mw3love/youtube_dual_subtitle",
+    "reference": "YouTube content-script 자막 오버레이, 듀얼/점진(노래방형) 자막 렌더, 번역 백엔드 다중(Google무료/Chrome내장/Gemini·Mindlogic BYOK), 번역 캐시, 자막 위치 드래그 저장, secrets·백엔드 호출 패턴"
   },
   {
     "path": "Dev/ai-dictionary",
     "desc": "AI 사전 Chrome 확장 (BYOK Gemini/Mindlogic)",
-    "build": "npm install && npm run build"
+    "build": "npm install && npm run build",
+    "remote": "https://github.com/mw3love/AI_Dictionary_260622.git",
+    "reference": "BYOK LLM 단발 호출(Gemini/Mindlogic), markdown→DOM 안전 렌더러(innerHTML 미사용), 형광펜 DOM 오버레이(렌더텍스트 offset 범위 저장 + domToMarkdown 직렬화 + 모델/사용자 코드 클래스 구분), Notion API 직접 저장(markdown→블록 변환)"
+  },
+  {
+    "desc": "Chrome 주석(형광펜·캡처) 확장 [참고 전용]",
+    "remote": "https://github.com/mw3love/Chrome_Annotation_260614.git",
+    "reference": "웹페이지 형광펜(DOM Range surroundContents·텍스트노드 단위·모델/사용자 마크 클래스 구분·serializeInline로 markdown 직렬화), 영역/영상 캡처(captureVisibleTab+canvas crop·영상 시간축 정렬), Notion DB 적응형 저장(Search API+data_source+타입 시그니처로 DB 이름 자유 발견), 크로스플랫폼 단축키(e.code)"
   }
 ]

@@ -35,10 +35,13 @@ def git(cwd, *args):
     return subprocess.run(["git", "-C", cwd, *args], capture_output=True, text=True, encoding="utf-8")
 
 
-print("\n=== sync-repos === (%d개 대상)\n" % len(repos))
+# path 없는 항목 = 참고 전용(reference-repos 스킬용) — 동기화 대상에서 제외.
+sync_targets = [r for r in repos if r.get("path")]
+
+print("\n=== sync-repos === (%d개 대상)\n" % len(sync_targets))
 
 results = []
-for r in repos:
+for r in sync_targets:
     rel = r.get("path", "")
     full = os.path.join(home, rel.replace("/", os.sep))
     name = r.get("desc") or rel
