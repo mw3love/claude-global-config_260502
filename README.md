@@ -138,6 +138,7 @@ git -C $env:USERPROFILE\.claude pull
 
 | 날짜 | PC | 커밋 메시지 |
 |------|----|------------|
+| 2026-06-24 | Home-Desktop | feat(reference-repos): 라이브 GitHub 스캔 단계 추가 + 지목 우선 |
 | 2026-06-24 | Home-Desktop | feat: reference-repos 스킬 — 기존 git repo prior art 참고 시스템 |
 | 2026-06-23 | Home-Desktop | chore: sync-repos 명단 AI 사전 경로 수정 (AI_Dictionary_260622 → ai-dictionary) |
 | 2026-06-23 | MW-Lenovo | sync-repos: AI_Dictionary_260622 명단 추가 |
