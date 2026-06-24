@@ -138,6 +138,7 @@ git -C $env:USERPROFILE\.claude pull
 
 | 날짜 | PC | 커밋 메시지 |
 |------|----|------------|
+| 2026-06-24 | MW-Lenovo | draft 스킬: 핵심 미확정값 [작성] 전 AskUserQuestion 확인 규칙(8) 추가 |
 | 2026-06-24 | MW-Lenovo | chore: sync-repos 명단 AI 사전 경로 복원 (ai-dictionary → AI_Dictionary_260622) + tui fullscreen |
 | 2026-06-24 | Home-Desktop | feat(reference-repos): 라이브 GitHub 스캔 단계 추가 + 지목 우선 |
 | 2026-06-24 | Home-Desktop | feat: reference-repos 스킬 — 기존 git repo prior art 참고 시스템 |
