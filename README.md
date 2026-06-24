@@ -138,6 +138,7 @@ git -C $env:USERPROFILE\.claude pull
 
 | 날짜 | PC | 커밋 메시지 |
 |------|----|------------|
+| 2026-06-24 | Home-Desktop | fix(README): 변경이력 중복 행 제거 (post-commit 훅과 doc-sync 수동기록 충돌) |
 | 2026-06-24 | Home-Desktop | chore: sync-repos 명단 AI 사전 경로 날짜-우선 통일 (AI_Dictionary_260622 → 260622_AI_Dictionary) |
 | 2026-06-24 | MW-Lenovo | repos.json: Chrome Annotation repo rename 반영 (→ Reading_Highlighter_260614) |
 | 2026-06-24 | MW-Lenovo | chore: TUI를 classic 렌더러로 복귀 (fullscreen·DISABLE_MOUSE 제거) |
