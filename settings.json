@@ -82,9 +82,5 @@
   "autoUpdatesChannel": "latest",
   "skipDangerousModePermissionPrompt": true,
   "remoteControlAtStartup": false,
-  "agentPushNotifEnabled": true,
-  "tui": "fullscreen",
-  "env": {
-    "CLAUDE_CODE_DISABLE_MOUSE": "1"
-  }
+  "agentPushNotifEnabled": true
 }
