@@ -20,8 +20,8 @@
     "reference": "BYOK LLM 단발 호출(Gemini/Mindlogic), markdown→DOM 안전 렌더러(innerHTML 미사용), 형광펜 DOM 오버레이(렌더텍스트 offset 범위 저장 + domToMarkdown 직렬화 + 모델/사용자 코드 클래스 구분), Notion API 직접 저장(markdown→블록 변환)"
   },
   {
-    "desc": "Chrome 주석(형광펜·캡처) 확장 [참고 전용]",
-    "remote": "https://github.com/mw3love/Chrome_Annotation_260614.git",
+    "desc": "Reading Highlighter — Chrome 주석(형광펜·캡처) 확장 [참고 전용]",
+    "remote": "https://github.com/mw3love/Reading_Highlighter_260614.git",
     "reference": "웹페이지 형광펜(DOM Range surroundContents·텍스트노드 단위·모델/사용자 마크 클래스 구분·serializeInline로 markdown 직렬화), 영역/영상 캡처(captureVisibleTab+canvas crop·영상 시간축 정렬), Notion DB 적응형 저장(Search API+data_source+타입 시그니처로 DB 이름 자유 발견), 크로스플랫폼 단축키(e.code)"
   }
 ]
