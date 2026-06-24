@@ -83,5 +83,8 @@
   "skipDangerousModePermissionPrompt": true,
   "remoteControlAtStartup": false,
   "agentPushNotifEnabled": true,
-  "tui": "fullscreen"
+  "tui": "fullscreen",
+  "env": {
+    "CLAUDE_CODE_DISABLE_MOUSE": "1"
+  }
 }
