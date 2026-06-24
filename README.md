@@ -139,6 +139,7 @@ git -C $env:USERPROFILE\.claude pull
 | 날짜 | PC | 커밋 메시지 |
 |------|----|------------|
 | 2026-06-24 | Home-Desktop | chore: sync-repos 명단 AI 사전 경로 날짜-우선 통일 (AI_Dictionary_260622 → 260622_AI_Dictionary) |
+| 2026-06-24 | Home-Desktop | chore: sync-repos 명단 AI 사전 경로 날짜-우선 통일 (AI_Dictionary_260622 → 260622_AI_Dictionary) |
 | 2026-06-24 | MW-Lenovo | repos.json: Chrome Annotation repo rename 반영 (→ Reading_Highlighter_260614) |
 | 2026-06-24 | MW-Lenovo | chore: TUI를 classic 렌더러로 복귀 (fullscreen·DISABLE_MOUSE 제거) |
 | 2026-06-24 | MW-Lenovo | chore: fullscreen TUI에서 마우스 캡처 비활성화 (CLAUDE_CODE_DISABLE_MOUSE=1) |
