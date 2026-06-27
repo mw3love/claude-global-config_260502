@@ -23,5 +23,10 @@
     "desc": "Reading Highlighter — Chrome 주석(형광펜·캡처) 확장 [참고 전용]",
     "remote": "https://github.com/mw3love/Reading_Highlighter_260614.git",
     "reference": "웹페이지 형광펜(DOM Range surroundContents·텍스트노드 단위·모델/사용자 마크 클래스 구분·serializeInline로 markdown 직렬화), 영역/영상 캡처(captureVisibleTab+canvas crop·영상 시간축 정렬), Notion DB 적응형 저장(Search API+data_source+타입 시그니처로 DB 이름 자유 발견), 크로스플랫폼 단축키(e.code)"
+  },
+  {
+    "desc": "PasteFlow — 순차 붙여넣기 클립보드 매니저 (PyQt6, Windows) [참고 전용]",
+    "remote": "https://github.com/mw3love/Paste_flow.git",
+    "reference": "Gemini 웹검색 grounding(폐기된 google-generativeai→신 google-genai SDK 이전·google_search 도구로 실시간 질문 답변·검색 무료할당량 없는 모델 429→안전망 모델 자동 폴백), LLM 이중 백엔드(공식 google-genai / OpenAI호환 게이트웨이 base_url 분기·모델 화이트리스트·model_not_found 자동 폴백·멀티모달 이미지질의), 순차 붙여넣기(클립보드 교체+Ctrl+V SendInput 주입·suppress 금지가 핵심), WH_KEYBOARD_LL 저수준 키보드 훅 전역 단축키(RegisterHotKey 우회·suppress·입력기전환 마스킹), 마그네틱 영역 캡처(UIA ElementFromPoint+클릭통과 오버레이+크로스DPI 멀티모니터 합성), DPAPI 시크릿 저장(win32crypt·enc:v1: 포맷·idempotent), 드래그→외부앱 붙여넣기(앱 클래스별 분기 WM_PASTE/AttachThreadInput+SendInput/파일저장), winocr WinRT OCR 동기 래퍼, Qt 마크다운 렌더+형광펜(요소색 char 포맷·position 범위 마크)"
   }
 ]
