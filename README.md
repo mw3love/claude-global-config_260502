@@ -140,6 +140,7 @@ git -C $env:USERPROFILE\.claude pull
 
 | 날짜 | PC | 커밋 메시지 |
 |------|----|------------|
+| 2026-06-29 | Home-Desktop | feat: OMC 연구 반영 — git-trailers 커밋 규칙(9-c) + skillify 스킬 |
 | 2026-06-28 | Home-Desktop | Reference: PasteFlow에 QGraphicsItem 회전·크기조절 핸들 기법 키워드 추가 |
 | 2026-06-27 | Home-Desktop | docs(CLAUDE.md): 죽은 참조 /goal 제거, repos.json 필드명 reference/remote로 보정 |
 | 2026-06-27 | Home-Desktop | Add PasteFlow to reference-repos index |
