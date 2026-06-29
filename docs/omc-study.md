@@ -12,8 +12,10 @@
 - [x] 2차: 에이전트 19종 프롬프트 구조, 실행엔진(ultrawork/ralph/autopilot) 구조
 - [x] 3차: B(.claude/rules) 메커니즘 소스 확인 → 보류 확정. A(git trailers)·C(skillify) 설계안 작성 (§7)
 - [x] 4차: **A 구현 완료** (CLAUDE.md 규칙 9-c). **C 구현 완료** (`skills/skillify/SKILL.md` 생성).
-- [x] 5차: ① deep-interview 비교 ② self-improve 내부 ③ 에이전트 프롬프트 정독 ④ skillify 비교 — **분석 완료, 적용 후보 §8에 정리(사용자 승인 대기)**
-- [ ] 6차(다음): §8 승인된 후보 구현 / skillify 실사용 후 다듬기(실사용 발생 시)
+- [x] 5차: ① deep-interview 비교 ② self-improve 내부 ③ 에이전트 프롬프트 정독 ④ skillify 비교 — 분석 완료. ①③ 적용·② 스킵·④ 보류(§8).
+- [x] **연구 종결 (2026-06-29).** 핵심 수확 완료: A(커밋 트레일러 9-c)·C(skillify)·①(deep-interview 프레임 챌린지)·③(skillify 나쁜-예 패턴). 남은 건 B급(수확 체감)이라 닫음.
+  - **미검증으로 남김:** ①③ 두 스킬 변경은 문구 추가라 다음 실사용 때 발화 확인 필요(일부러 작업 안 만듦).
+  - **서랍 보관(필요 시 재개):** ④ Directive 트레일러(실제 "의도된 코드 오수정" 사건 시), D(메모리 린트 — 모순·stale 메모 탐지), self-improve(벤치 있는 최적화 작업 시 prior art).
 
 ---
 
