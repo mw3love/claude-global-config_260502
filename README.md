@@ -140,6 +140,7 @@ git -C $env:USERPROFILE\.claude pull
 
 | 날짜 | PC | 커밋 메시지 |
 |------|----|------------|
+| 2026-06-30 | Home-Desktop | repos.json: AI 사전 reference에 오버레이 전환 기법 추가 |
 | 2026-06-29 | Home-Desktop | docs: OMC 연구 종결 표기 (핵심 수확 완료, 잔여는 서랍 보관) |
 | 2026-06-29 | Home-Desktop | feat: OMC 5차 연구 반영 — deep-interview 프레임 챌린지 + skillify 나쁜-예 패턴 |
 | 2026-06-29 | Home-Desktop | feat: OMC 연구 반영 — git-trailers 커밋 규칙(9-c) + skillify 스킬 |
