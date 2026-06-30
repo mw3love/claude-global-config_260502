@@ -13,7 +13,7 @@
     "reference": "YouTube content-script 자막 오버레이, 듀얼/점진(노래방형) 자막 렌더, 번역 백엔드 다중(Google무료/Chrome내장/Gemini·Mindlogic BYOK), 번역 캐시, 자막 위치 드래그 저장, secrets·백엔드 호출 패턴"
   },
   {
-    "path": "Dev/260622_AI_Dictionary",
+    "path": "Dev/AI_Dictionary_260622",
     "desc": "AI 사전 Chrome 확장 (BYOK Gemini/Mindlogic)",
     "build": "npm install && npm run build",
     "remote": "https://github.com/mw3love/AI_Dictionary_260622.git",
