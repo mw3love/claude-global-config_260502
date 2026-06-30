@@ -32,6 +32,8 @@ case "$(uname -s)" in
     ;;
   Darwin)
     /usr/bin/osascript -e "display notification \"$msg\" with title \"Claude Code\"" >/dev/null 2>&1
+    # 배너가 권한/집중모드로 막혀도 최소한 소리로 알림 (의존성 없음, Windows 무관)
+    afplay /System/Library/Sounds/Glass.aiff >/dev/null 2>&1 &
     send_telegram "$msg" &
     ;;
   *)
