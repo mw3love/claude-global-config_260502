@@ -8,7 +8,7 @@
 
 - **공통** — `bash` + `python3`. statusLine·훅 명령이 `bash -c '...'` 래퍼로 OS를 감지해 분기한다(라우팅 비결정성 우회).
 - **Windows** — PowerShell 5.1/7 + Git for Windows(Git Bash 포함). python 있으면 사용, 없으면 `.ps1` 폴백.
-- **macOS / Linux** — 기본 제공 `bash`·`python3`. 데스크톱 알림은 macOS `osascript` / Linux `notify-send`.
+- **macOS / Linux** — 기본 제공 `bash`·`python3`. 데스크톱 알림은 macOS `osascript`(+ `afplay` 소리) / Linux `notify-send`.
 - **Bun** — Telegram 채널 플러그인 실행용. post-merge hook이 자동 설치(현재 온보딩 자동화는 Windows 기준 — macOS 온보딩 절차는 아직 미자동화).
 
 ## 기능
@@ -123,7 +123,7 @@ git -C $env:USERPROFILE\.claude pull
 │                              #     단순화하면 cmd 라우팅 PC에서 silent fail. python 우선 + .ps1 윈도우 폴백.
 ├── statusline.py             # 터미널 상태바 (크로스플랫폼, 기본)
 ├── statusline.ps1            # 〃 PowerShell 폴백 (python 없는 Windows)
-├── toast.sh                  # 데스크톱 알림 디스패처 (Win→toast.ps1 / mac→osascript / linux→notify-send)
+├── toast.sh                  # 데스크톱 알림 디스패처 (Win→toast.ps1 / mac→osascript+afplay / linux→notify-send)
 ├── toast.ps1                 # Windows toast + Telegram 발송 (toast.sh 가 호출)
 ├── doc-sync-hook.py          # git push 후 doc-sync 트리거 훅 (크로스플랫폼, 기본)
 ├── doc-sync-hook.ps1         # 〃 PowerShell 폴백 (python 없는 Windows)
