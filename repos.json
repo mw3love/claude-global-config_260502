@@ -17,7 +17,7 @@
     "desc": "AI 사전 Chrome 확장 (BYOK Gemini/Mindlogic)",
     "build": "npm install && npm run build",
     "remote": "https://github.com/mw3love/AI_Dictionary_260622.git",
-    "reference": "BYOK LLM 단발 호출(Gemini/Mindlogic), markdown→DOM 안전 렌더러(innerHTML 미사용), 형광펜 DOM 오버레이(렌더텍스트 offset 범위 저장 + domToMarkdown 직렬화 + 모델/사용자 코드 클래스 구분), Notion API 직접 저장(markdown→블록 변환)"
+    "reference": "BYOK LLM 단발 호출(Gemini/Mindlogic), markdown→DOM 안전 렌더러(innerHTML 미사용), 형광펜 DOM 오버레이(렌더텍스트 offset 범위 저장 + domToMarkdown 직렬화 + 모델/사용자 코드 클래스 구분), Notion API 직접 저장(markdown→블록 변환), 브라우저 액션 팝업→콘텐츠 iframe 오버레이 전환(activeTab+scripting executeScript로 현재 탭 주입·func 직렬화 자기완결 부트스트랩), HTML5 전체화면 위 패널 유지(fullscreenchange→fullscreenElement 재부착), iframe 자동 높이(내부 ResizeObserver→postMessage→부모가 iframe height 조정·rAF 합치기), 오버레이 위치 드래그 저장+📖 아이콘 최소화(클릭/드래그 4px 임계 구분), translateZ 합성 레이어 격리로 영상 위 페인트 버벅임 완화, crxjs 팝업 HTML은 manifest 엔트리 아니면 vite rollupOptions.input에 등록해야 변환됨"
   },
   {
     "desc": "Reading Highlighter — Chrome 주석(형광펜·캡처) 확장 [참고 전용]",
