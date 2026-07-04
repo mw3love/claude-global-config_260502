@@ -1,4 +1,4 @@
-param([string]$Message = 'Response complete')
+﻿param([string]$Message = 'Response complete')
 
 [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null
 [Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime] | Out-Null
@@ -23,3 +23,9 @@ if (Test-Path $tgConfig) {
             -Body $body -TimeoutSec 5 | Out-Null
     } catch { }
 }
+
+# 활성 모니터 정중앙 팝업 (우하단 토스트와 함께 — 놓침 방지). 실패해도 무시.
+try {
+    $centerScript = Join-Path $env:USERPROFILE '.claude\center-toast.ps1'
+    if (Test-Path $centerScript) { & $centerScript -Message $Message }
+} catch { }

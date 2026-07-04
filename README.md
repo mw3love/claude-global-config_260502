@@ -14,7 +14,7 @@
 ## 기능
 
 - **bypass 모드 자동 진입** — `defaultMode: bypassPermissions` (settings.json)
-- **데스크톱 알림 + Telegram 발송** — Claude 답변 완료, 질문 대기, 입력 대기 시점에 PC와 폰 양쪽 알림 (Windows toast / macOS osascript / Linux notify-send)
+- **데스크톱 알림 + Telegram 발송** — Claude 답변 완료, 질문 대기, 입력 대기 시점에 PC와 폰 양쪽 알림 (Windows toast + 활성 모니터 중앙 팝업 / macOS osascript / Linux notify-send)
 - **Telegram 채널 (비상용 원격)** — `tel` 명령으로 활성 (lock 파일로 한 번에 한 세션만). `claude`는 로컬 전용. (옛 이름 `ctg`도 별칭으로 동작)
 - **statusline** — 모델명 / 컨텍스트 사용률 / 5시간·7일 레이트리밋을 터미널 상태바에 표시
 - **플러그인 마켓플레이스** — `claude-plugins-official`, `anthropic-agent-skills` 등록
@@ -124,7 +124,8 @@ git -C $env:USERPROFILE\.claude pull
 ├── statusline.py             # 터미널 상태바 (크로스플랫폼, 기본)
 ├── statusline.ps1            # 〃 PowerShell 폴백 (python 없는 Windows)
 ├── toast.sh                  # 데스크톱 알림 디스패처 (Win→toast.ps1 / mac→osascript+afplay / linux→notify-send)
-├── toast.ps1                 # Windows toast + Telegram 발송 (toast.sh 가 호출)
+├── toast.ps1                 # Windows toast + Telegram 발송 + 중앙 팝업 호출 (toast.sh 가 호출)
+├── center-toast.ps1          # Windows: 활성 모니터(포커스 창) 정중앙 팝업 (toast.ps1 이 호출 · UTF-8 BOM 필수)
 ├── doc-sync-hook.py          # git push 후 doc-sync 트리거 훅 (크로스플랫폼, 기본)
 ├── doc-sync-hook.ps1         # 〃 PowerShell 폴백 (python 없는 Windows)
 ├── sync-repos.py             # 여러 repo 일괄 pull+빌드 엔진 (크로스플랫폼, 기본)
