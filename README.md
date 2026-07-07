@@ -141,6 +141,7 @@ git -C $env:USERPROFILE\.claude pull
 
 | 날짜 | PC | 커밋 메시지 |
 |------|----|------------|
+| 2026-07-07 | Home-Desktop | tweak(center-toast): 중앙 팝업 투명도 0.97 → 0.90 (뒤 배경 더 비치게) |
 | 2026-07-07 | Home-Desktop | docs: 4-c 후속 정합 — doc-sync 문구·memory 상호참조·harness reference |
 | 2026-07-07 | Home-Desktop | feat(reference-repos): 참고 가치 자동 기록(쓰기 측) 추가 |
 | 2026-07-04 | Home-Desktop | feat: 완료 알림에 활성 모니터 중앙 팝업 추가 (Windows) |
