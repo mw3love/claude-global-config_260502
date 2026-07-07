@@ -141,6 +141,7 @@ git -C $env:USERPROFILE\.claude pull
 
 | 날짜 | PC | 커밋 메시지 |
 |------|----|------------|
+| 2026-07-07 | Home-Desktop | feat(reference-repos): 참고 가치 자동 기록(쓰기 측) 추가 |
 | 2026-07-04 | Home-Desktop | feat: 완료 알림에 활성 모니터 중앙 팝업 추가 (Windows) |
 | 2026-07-04 | Home-Desktop | Docs: PasteFlow reference 갱신 — 입력-소유 자석 캡처·창-스코프 accHitTest·핀 제자리·깜빡임 repaint |
 | 2026-06-30 | Home-Desktop | repos.json: AI 사전 reference에 오버레이 전환 기법 추가 |
