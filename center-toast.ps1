@@ -40,7 +40,7 @@ public static extern bool SetWindowPos(System.IntPtr hWnd, System.IntPtr hWndIns
     $form.TopMost         = $true
     $form.BackColor       = $accent                            # 바깥 = 코랄 테두리 색
     $form.Padding         = New-Object System.Windows.Forms.Padding(4)  # 4px 테두리 두께
-    $form.Opacity         = 0.97
+    $form.Opacity         = 0.90
     $form.Size            = New-Object System.Drawing.Size(520, 160)
 
     $b = $screen.Bounds
