@@ -3,7 +3,7 @@
     "path": ".claude",
     "desc": "전역 Claude 설정",
     "remote": "https://github.com/mw3love/claude-global-config_260502.git",
-    "reference": "Claude Code 하네스 패턴 — 스킬(SKILL.md) 구조, PostToolUse 훅(PowerShell), settings.json, 크로스플랫폼 엔진 스크립트(py+ps1)"
+    "reference": "Claude Code 하네스 패턴 — 스킬(SKILL.md) 구조, PostToolUse 훅(PowerShell), settings.json, 크로스플랫폼 엔진 스크립트(py+ps1), 자동실행 트리거는 항상-로드 위치(전역 CLAUDE.md)에 둬야 발화 — SKILL.md는 호출돼야 떠서 self-trigger 불가(self-review 자동실행·reference 자동기록이 같은 방식)"
   },
   {
     "path": "Dev/youtube_dual_subtitle",
