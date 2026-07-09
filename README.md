@@ -99,7 +99,7 @@ git -C $env:USERPROFILE\.claude pull
 ├── setup/
 │   ├── hooks/
 │   │   └── post-merge        # pull 후 환경 자동 점검 (Bun, $PROFILE, 플러그인)
-│   └── profile.ps1           # PowerShell 프로필 — Bun PATH 보정 + claude (로컬) / tel (텔레그램) 함수
+│   └── profile.ps1           # PowerShell 프로필 — Bun PATH 보정 + claude (로컬) / tel (텔레그램) 함수 + core.hooksPath 점검(경고)
 ├── skills/
 │   ├── deep-interview/       # 요구사항 명확화 인터뷰 스킬
 │   ├── doc-sync/             # 푸쉬 전후 문서 동기화 스킬

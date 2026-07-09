@@ -42,3 +42,14 @@ function tel {
 
 # 옛 이름 호환: ctg → tel
 Set-Alias ctg tel
+
+# 4) git 훅 경로 점검 — .git/hooks 그림자 복사본이 추적본 대신 발화하는 것 방지
+#    (wiki: claude-config-git훅-그림자복사본). core.hooksPath는 push 안 되는
+#    PC-로컬 설정이라 자동 보정하지 않고 경고만 띄운다.
+if (Get-Command git -ErrorAction SilentlyContinue) {
+    $claudeDir = Join-Path $env:USERPROFILE '.claude'
+    if ((& git -C $claudeDir config core.hooksPath 2>$null) -ne 'setup/hooks') {
+        Write-Host "[claude] core.hooksPath 미설정 — .git/hooks 로컬 복사본이 대신 발화할 수 있습니다." -ForegroundColor Yellow
+        Write-Host "         고치려면: git -C `$env:USERPROFILE\.claude config core.hooksPath setup/hooks" -ForegroundColor Yellow
+    }
+}
