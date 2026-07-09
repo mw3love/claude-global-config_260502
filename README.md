@@ -141,6 +141,7 @@ git -C $env:USERPROFILE\.claude pull
 
 | 날짜 | PC | 커밋 메시지 |
 |------|----|------------|
+| 2026-07-09 | Home-Desktop | refactor(reference): 함정 위키를 repos.json 블롭에서 wiki/*.md로 분리 |
 | 2026-07-09 | Home-Desktop | Docs: PasteFlow reference에 Qt 모달 범위 함정 추가 |
 | 2026-07-09 | Home-Desktop | Docs: PasteFlow reference에 Qt 콤보/포커스 함정 + 게이트웨이 모델 스윕 기법 추가 |
 | 2026-07-08 | Home-Desktop | chore(ref): PasteFlow 마그네틱 캡처 창 스냅 — DWM 확장프레임 경계 기법 기록 |
