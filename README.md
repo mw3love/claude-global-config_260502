@@ -141,6 +141,7 @@ git -C $env:USERPROFILE\.claude pull
 
 | 날짜 | PC | 커밋 메시지 |
 |------|----|------------|
+| 2026-07-09 | Home-Desktop | Docs: PasteFlow reference에 Qt 콤보/포커스 함정 + 게이트웨이 모델 스윕 기법 추가 |
 | 2026-07-08 | Home-Desktop | chore(ref): PasteFlow 마그네틱 캡처 창 스냅 — DWM 확장프레임 경계 기법 기록 |
 | 2026-07-07 | Home-Desktop | reference: Notion PDF Preview에 v3 기법 추가(DB 편집 크롬 제거·iframe 재현 CSS 격리 디버깅) |
 | 2026-07-07 | Home-Desktop | tweak(center-toast): 중앙 팝업 투명도 0.97 → 0.90 (뒤 배경 더 비치게) |
