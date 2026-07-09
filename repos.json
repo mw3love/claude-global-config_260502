@@ -17,7 +17,7 @@
     "desc": "AI 사전 Chrome 확장 (BYOK Gemini/Mindlogic)",
     "build": "npm install && npm run build",
     "remote": "https://github.com/mw3love/AI_Dictionary_260622.git",
-    "reference": "BYOK LLM 단발 호출(Gemini/Mindlogic), markdown→DOM 안전 렌더러(innerHTML 미사용), 형광펜 DOM 오버레이(렌더텍스트 offset 범위 저장 + domToMarkdown 직렬화 + 모델/사용자 코드 클래스 구분), Notion API 직접 저장(markdown→블록 변환), 브라우저 액션 팝업→콘텐츠 iframe 오버레이 전환(activeTab+scripting executeScript로 현재 탭 주입·func 직렬화 자기완결 부트스트랩), HTML5 전체화면 위 패널 유지(fullscreenchange→fullscreenElement 재부착), iframe 자동 높이(내부 ResizeObserver→postMessage→부모가 iframe height 조정·rAF 합치기), 오버레이 위치 드래그 저장+📖 아이콘 최소화(클릭/드래그 4px 임계 구분), translateZ 합성 레이어 격리로 영상 위 페인트 버벅임 완화, crxjs 팝업 HTML은 manifest 엔트리 아니면 vite rollupOptions.input에 등록해야 변환됨, crxjs 매니페스트 아이콘 경로는 <root>/경로→없으면 <publicDir>/경로 순으로 찾아 해싱 없이 그대로 dist에 출력(public 자동복사와 이중 emit 겹치지 않게 아이콘은 루트 icons/에 둠), SVG→PNG 래스터화 도구(ImageMagick/inkscape/sharp) 없을 때 해법: file:// 내비는 브라우저가 차단·js도구의 base64 반환은 [BLOCKED]로 차단되고 결과도 truncation돼 바이트를 컨텍스트로 못 빼오므로 → claude-in-chrome을 http 페이지(example.com 등)로 보내 SVG를 Image에 로드 후 canvas drawImage로 원하는 px마다 렌더하고, 로컬 node http 서버를 띄워 페이지가 각 PNG를 fetch POST(text/plain base64 body)로 보내 서버가 Buffer.from(body,'base64')로 디스크에 직접 기록(브라우저→디스크 직행이라 내 컨텍스트·truncation·base64차단 모두 우회, 서버가 렌더 HTML도 같은 origin으로 서빙하면 mixed-content·CORS도 회피), 텍스트 글리프는 캔버스가 시스템폰트(Georgia 등)로 래스터화하므로 폰트변환 불필요"
+    "reference": "BYOK LLM(Gemini/Mindlogic) 단발 호출 Chrome 확장(crxjs/Vite). markdown→DOM 안전 렌더러(innerHTML 미사용). 상세 함정→해법은 wiki/ — 크롬확장 오버레이 주입(ai_dictionary-*), crxjs 빌드 함정, 형광펜(shared-형광펜-dom-range), SVG→PNG 래스터화(shared-svg-png), Notion 저장(notion-페이지-덮어쓰기)"
   },
   {
     "desc": "Reading Highlighter — Chrome 주석(형광펜·캡처) 확장 [참고 전용]",
