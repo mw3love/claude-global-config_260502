@@ -26,7 +26,6 @@ description: 푸쉬 전후로 호출되어 코드 변경이 핵심 문서(CLAUDE
    - 작업 폴더 *외부*의 어떤 파일도
 3. **git 명령은 read-only만**: `diff`, `log`, `show`, `status`, `rev-parse`, `ls-files`, `for-each-ref` 허용. `add`/`commit`/`push`/`reset`/`checkout`/`rebase`/`merge`/`tag` 등 mutating 명령 금지.
 4. **자동 커밋 금지**: 문서 수정 후 git add/commit 하지 않는다. 사용자가 직접 다음 커밋에 포함.
-5. **변경 이력 표 수정 금지**: README의 "변경 이력"(`| 날짜 | PC | 커밋 메시지 |`) 표는 `post-commit` 훅이 커밋마다 자동 기록하므로 이 스킬이 수동 편집하지 않는다(편집 시 훅 자동행과 **중복**). doc-sync는 서술형 문서 *내용*(기능 설명·구조도·스펙 등) 동기화에만 관여한다.
 
 ---
 
