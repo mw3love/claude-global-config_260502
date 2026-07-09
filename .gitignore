@@ -19,6 +19,7 @@ paste-cache/
 plans/
 plugins/
 projects/
+ref-cache/
 session-env/
 sessions/
 shell-snapshots/
