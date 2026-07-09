@@ -112,6 +112,7 @@ git -C $env:USERPROFILE\.claude pull
 │   ├── self-review/          # 답변 근거 기반 적대적 재검토 스킬
 │   ├── skillify/             # 세션의 반복 절차를 재사용 스킬로 굳히기 (품질 게이트)
 │   └── sync-repos/           # 여러 PC git 프로젝트 일괄 pull+빌드 동기화 스킬
+├── wiki/                     # reference-repos 함정 위키 — repo별 스턱루프→해법 (<repo>-<기법>.md, 여러 repo 공유는 shared-*)
 ├── docs/                     # 연구·분석 노트 (예: omc-study.md — OMC 비교 분석)
 ├── channels/
 │   └── telegram/
