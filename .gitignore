@@ -39,6 +39,7 @@ image-cache/
 # 로그 / 임시 파일
 history.jsonl
 hook_test.txt
+stuck-loop-hook.log
 mcp-needs-auth-cache.json
 stats-cache.json
 .last-cleanup

@@ -26,6 +26,16 @@
         ]
       }
     ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'python3 ~/.claude/stuck-loop-hook.py 2>>~/.claude/stuck-loop-hook.log || python ~/.claude/stuck-loop-hook.py 2>>~/.claude/stuck-loop-hook.log'"
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "AskUserQuestion",
@@ -81,6 +91,7 @@
   "effortLevel": "high",
   "autoUpdatesChannel": "latest",
   "skipDangerousModePermissionPrompt": true,
+  "theme": "dark",
   "remoteControlAtStartup": false,
   "agentPushNotifEnabled": true
 }
