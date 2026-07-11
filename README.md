@@ -135,6 +135,7 @@ projects/<이 PC의 키>/memory  ──(정크션)──►  ~/.claude/memory/  
 │   ├── skillify/             # 세션의 반복 절차를 재사용 스킬로 굳히기 (품질 게이트)
 │   └── sync-repos/           # 여러 PC git 프로젝트 일괄 pull+빌드 동기화 스킬
 ├── wiki/                     # reference-repos 함정 위키 — repo별 스턱루프→해법 (<repo>-<기법>.md, 여러 repo 공유는 shared-*)
+├── tools/                    # 유지보수 유틸 (audit_rules.py — 규칙 발화율 감사, 지문 기반)
 ├── docs/                     # 연구·분석 노트 (예: omc-study.md — OMC 비교 분석)
 ├── channels/
 │   └── telegram/
@@ -151,6 +152,7 @@ projects/<이 PC의 키>/memory  ──(정크션)──►  ~/.claude/memory/  
 ├── center-toast.ps1          # Windows: 활성 모니터(포커스 창) 정중앙 팝업 (toast.ps1 이 호출 · UTF-8 BOM 필수)
 ├── doc-sync-hook.py          # git push 후 doc-sync 트리거 훅 (크로스플랫폼, 기본)
 ├── doc-sync-hook.ps1         # 〃 PowerShell 폴백 (python 없는 Windows)
+├── stuck-loop-hook.py        # UserPromptSubmit 훅 — 좌절 어휘 2회째 감지해 규칙 11-b 트립와이어 주입 (안전망)
 ├── sync-repos.py             # 여러 repo 일괄 pull+빌드 엔진 (크로스플랫폼, 기본)
 ├── sync-repos.ps1            # 〃 PowerShell 폴백 (python 없는 Windows)
 ├── repos.json                # sync-repos 동기화 명단(홈 기준 상대경로+빌드) + reference-repos 인덱스(remote+reference 필드)
