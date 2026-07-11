@@ -28,15 +28,28 @@
 import json
 import os
 import re
+import sys
 import glob
 import collections
 from datetime import date
+
+# 출력에 ⏳·✓·✗가 섞인다. Windows 콘솔 기본 cp949로는 인코딩 불가라
+# UnicodeEncodeError로 죽는다(2026-07-11 실측: '⏳ 판정보류'가 처음 출력되며 크래시).
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+except Exception:
+    pass
 
 ROOT = os.path.expanduser("~/.claude/projects")
 TODAY = date.today().isoformat()
 
 # ── 측정할 규칙: (라벨, CLAUDE.md 추가일, 지문, 플래그) ────────────────────────
 #   지문 종류: ("skill", 스킬명) | ("cmd", "/슬래시명령") | ("re", 정규식 → assistant 발언에서)
+#            | ("tool", 도구명 → assistant tool_use, 예: AskUserQuestion)
+#   함정 (3): 도구를 ("skill", …)로 적으면 영영 0이다. skills는 name=="Skill"인 tool_use만
+#            담고 input.skill로 세므로, AskUserQuestion처럼 이름이 곧 도구인 것은 못 잡는다.
+#            0으로 잡히면 '사문화'로 오판해 멀쩡한 규칙을 자르게 된다 → 반드시 ("tool", …).
+#   ("re", …)는 re.M으로 돈다 — ^…$ 앵커가 줄 단위로 걸린다.
 #   플래그(선택):
 #     "goal_zero" — 0이 성공인 줄. 사용자가 손으로 개입한 횟수 같은 것.
 #                   (이걸 '사문화'로 찍으면 정반대로 읽힌다)
@@ -52,6 +65,16 @@ RULES = [
     ("규칙11-b '🔁 스턱루프' 블록",     "2026-07-11", ("re", r"🔁 ?스턱루프")),
     ("규칙7 '검토한 대안:' 한 줄",      "2026-07-11", ("re", r"검토한 대안\s*:")),
     ("규칙10-b '세션 상태:' 한 줄",     "2026-07-11", ("re", r"세션 상태\s*:")),
+    # ── 2026-07-11 저녁 2차: 10-b 블록의 내부 형식. '세션 상태:'가 발화한 뒤
+    #    그 안이 규격대로인지를 잰다. 세션 상태 발화 수보다 적으면 형식이 새는 것.
+    ("규칙10-b '커밋 상태:' 마지막 줄", "2026-07-11", ("re", r"커밋 상태\s*:")),
+    ("  └ 권장 항목 '프롬프트:' 라벨",  "2026-07-11", ("re", r"^\s*프롬프트\s*:\s*$")),
+    ("  └ 선택창 '지금 이어서'",        "2026-07-11", ("tool", "AskUserQuestion:이어서")),
+    # 버린 지문 2개(2026-07-11 실측) — 오염돼 '거짓 살아있음'을 만든다:
+    #   ("re", r"\*\*\d+\.\s")  굵은 수동 번호 → 추가 前 이미 200회(평소 쓰는 굵은 번호 목록을 다 먹음)
+    #   ("tool", "AskUserQuestion") 통째로 → 추가 前 이미 260회(아무 질문에나 쓰는 범용 도구)
+    # 그래서 선택창은 질문 문구('지금 이어서')로 좁혀 10-b 전용 지문만 센다. 넓은 지문은
+    # 규칙이 죽어도 높게 나와 '거짓 안심'을 만든다 — 함정 (1)과 같은 오염이다.
     # ── 기존 규칙(대조군)
     ("규칙11 self-review 자동실행",   "2026-06-24", ("skill", "self-review")),
     ("  └ 사용자 수동 /self-review",  "2026-06-24", ("cmd", "/self-review"), "goal_zero"),
@@ -74,6 +97,9 @@ def load():
     cmds = collections.defaultdict(collections.Counter)
     sessions = collections.defaultdict(set)
     tools = collections.Counter()
+    # 일자별 tool_use 이름. skills와 별개다 — skills는 name=="Skill"인 것만 담고
+    # input.skill로 세는데, AskUserQuestion 같은 '도구 그 자체'는 거기 안 잡힌다.
+    tools_day = collections.defaultdict(collections.Counter)
 
     for f in glob.glob(os.path.join(ROOT, "**", "*.jsonl"), recursive=True):
         with open(f, encoding="utf-8", errors="replace") as fh:
@@ -101,8 +127,15 @@ def load():
                         elif b.get("type") == "tool_use":
                             name = b.get("name", "")
                             tools[name] += 1
+                            tools_day[day][name] += 1
                             if name == "Skill":
                                 skills[day][(b.get("input") or {}).get("skill", "?")] += 1
+                            elif name == "AskUserQuestion":
+                                # 도구 이름만으로는 못 센다 — 아무 질문에나 쓰므로.
+                                # 규칙 10-b 선택창은 질문 문구가 '지금 이어서 …'다. 그것만 센다.
+                                q = json.dumps(b.get("input") or {}, ensure_ascii=False)
+                                if "지금 이어서" in q:
+                                    tools_day[day]["AskUserQuestion:이어서"] += 1
 
                 elif d.get("type") == "user":
                     txt = ""
@@ -114,32 +147,35 @@ def load():
                     for c in re.findall(r"<command-name>(/[a-z-]+)</command-name>", txt or ""):
                         cmds[day][c] += 1
 
-    return atext, skills, cmds, sessions, tools
+    return atext, skills, cmds, sessions, tools, tools_day
 
 
-def window(atext, skills, cmds, sessions, start, end):
+def window(atext, skills, cmds, tools_day, sessions, start, end):
     days = [d for d in sessions if start <= d < end]
     txt = "\n".join(t for d in days for t in atext[d])
-    sk, cm = collections.Counter(), collections.Counter()
+    sk, cm, tl = collections.Counter(), collections.Counter(), collections.Counter()
     for d in days:
         sk.update(skills[d])
         cm.update(cmds[d])
-    return txt, sk, cm, len({f for d in days for f in sessions[d]})
+        tl.update(tools_day[d])
+    return txt, sk, cm, tl, len({f for d in days for f in sessions[d]})
 
 
-def value(metric, txt, sk, cm):
+def value(metric, txt, sk, cm, tl):
     kind, arg = metric
     if kind == "re":
-        return len(re.findall(arg, txt))
+        return len(re.findall(arg, txt, re.M))
     if kind == "skill":
         return sk[arg]
     if kind == "cmd":
         return cm[arg]
+    if kind == "tool":
+        return tl[arg]
     raise ValueError(kind)
 
 
 def main():
-    atext, skills, cmds, sessions, tools = load()
+    atext, skills, cmds, sessions, tools, tools_day = load()
     total = len({f for d in sessions for f in sessions[d]})
     print(f"세션 {total}개 · 도구 호출 {sum(tools.values())}건\n")
 
@@ -148,18 +184,18 @@ def main():
     print("-" * 92)
     for label, added, metric, *rest in RULES:
         flag = rest[0] if rest else ""
-        pre = window(atext, skills, cmds, sessions, "2026-01-01", added)
-        post = window(atext, skills, cmds, sessions, added, TODAY)
-        a, b = value(metric, *pre[:3]), value(metric, *post[:3])
-        ra = a / pre[3] if pre[3] else 0
-        rb = b / post[3] if post[3] else 0
+        pre = window(atext, skills, cmds, tools_day, sessions, "2026-01-01", added)
+        post = window(atext, skills, cmds, tools_day, sessions, added, TODAY)
+        a, b = value(metric, *pre[:4]), value(metric, *post[:4])
+        ra = a / pre[4] if pre[4] else 0
+        rb = b / post[4] if post[4] else 0
 
         if flag == "goal_zero":
             # 0이 성공인 줄 — 사문화로 찍으면 정반대로 읽힌다.
             mark = "✓ 목표달성(0)" if b == 0 else f"⚠ 아직 {b}회 개입"
-        elif post[3] < MIN_SESSIONS:
+        elif post[4] < MIN_SESSIONS:
             # 갓 심은 규칙. 발화 0이어도 죽었다고 단정하면 멀쩡한 규칙을 자른다.
-            mark = f"⏳ 판정보류 (도입 후 {post[3]}세션)"
+            mark = f"⏳ 판정보류 (도입 후 {post[4]}세션)"
         elif b == 0:
             mark = "✗ 사문화"
         elif rb > ra * 2:
