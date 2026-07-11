@@ -20,7 +20,8 @@
 - **플러그인 마켓플레이스** — `claude-plugins-official`, `anthropic-agent-skills` 등록
 - **document-skills, telegram 플러그인** 활성화
 - **전역 스킬** — `/draft`(KBS 기안문), `/deep-interview`(요구사항 명확화 인터뷰), `/doc-sync`(푸쉬 전후 문서 동기화), `/self-review`(답변을 근거 기반으로 적대적 재검토), `/harness`(에이전트 팀·스킬 구성 — 적합성 사전심사 게이트), `/pick-skill`(계획 적었을 때 어떤 스킬/모드로 진행할지 추천하는 진입점 라우터), `/sync-repos`(여러 PC git 프로젝트를 명단 기반으로 일괄 pull+빌드), `/reference-repos`(비자명한 설계 전 비슷한 문제를 푼 기존 git repo를 찾아 참고(읽기) + 어렵게 뚫은 해법·재사용 기법을 묻지 말고 인덱스에 자동 기록(쓰기, CLAUDE.md 4-c) — 사용자 지목 우선 + `repos.json` 인덱스, 모자라면 GitHub 공개 API 라이브 스캔(gh 불요), remote로 PC 독립 접근), `/skillify`(세션에서 잘 통한 반복 절차를 재사용 스킬로 굳히기 — 품질 게이트 + memory(사실)와 경계), `jbnu-gateway`(전북대 API Gateway로 이미지·비디오·TTS 생성 — "이미지/영상 만들어줘" 등에 자동 발동)
-- **post-merge hook** — `git pull` 후 환경 자동 점검·복구 (Bun 설치, $PROFILE 갱신, 플러그인 다운로드)
+- **post-merge hook** — `git pull` 후 환경 자동 점검·복구 (Bun 설치, $PROFILE 갱신, 플러그인 다운로드, memory 연결)
+- **memory PC 간 공유** — 자동 memory를 `memory/`에 두고 git으로 동기화 (아래 "memory 동기화")
 
 ---
 
@@ -91,14 +92,36 @@ git -C $env:USERPROFILE\.claude pull
 
 ---
 
+## memory 동기화 (PC 간)
+
+Claude Code의 자동 memory는 원래 **PC에 갇힌다.** 하네스가 memory를 `projects/<작업경로 인코딩>/memory/`에서 읽는데, 그 폴더명이 **절대경로를 인코딩**하기 때문이다(영숫자가 아닌 문자 → `-`). 사용자 폴더명이 PC마다 다르면 키가 달라져, 파일을 git으로 옮겨도 **다른 PC에서는 읽히지 않는다.**
+
+```
+C:\Users\7make\.claude  →  projects/C--Users-7make--claude/memory/   ← PC A
+C:\Users\길동\.claude    →  projects/C--Users----claude/memory/       ← PC B (키가 다름!)
+```
+
+**해결:** 실제 파일은 repo 루트 `memory/`에 두고(git 추적), 각 PC가 **자기 키 자리에 정크션**(디렉터리 링크)을 걸어 하네스가 보는 경로를 repo로 잇는다. 정크션은 `post-merge` hook이 pull 때 자동 생성하며, **관리자 권한이 필요 없다**(심볼릭 링크와 다름).
+
+```
+projects/<이 PC의 키>/memory  ──(정크션)──►  ~/.claude/memory/   ← git이 추적하는 실체
+```
+
+- 정크션 자체는 `projects/` 아래라 gitignore되어 **커밋되지 않는다** — PC마다 자기 것을 만든다.
+- 이미 그 자리에 **로컬 memory 파일이 있으면 훅이 덮어쓰지 않고 경고**한다. 직접 병합할 것.
+- ⚠ memory는 **프로젝트별**이다. 이 방식이 공유하는 것은 `~/.claude` 프로젝트의 memory뿐이며, 다른 프로젝트(예: `~/Dev/foo`)의 memory는 각자 자기 repo에서 따로 다뤄야 한다.
+
+---
+
 
 ## 파일 구조
 
 ```
 ~/.claude/
+├── memory/                   # 자동 memory 실체 (PC 간 공유) — 아래 "memory 동기화" 참조
 ├── setup/
 │   ├── hooks/
-│   │   └── post-merge        # pull 후 환경 자동 점검 (Bun, $PROFILE, 플러그인)
+│   │   └── post-merge        # pull 후 환경 자동 점검 (Bun, $PROFILE, 플러그인, memory 정크션)
 │   └── profile.ps1           # PowerShell 프로필 — Bun PATH 보정 + claude (로컬) / tel (텔레그램) 함수 + core.hooksPath 점검(경고)
 ├── skills/
 │   ├── deep-interview/       # 요구사항 명확화 인터뷰 스킬

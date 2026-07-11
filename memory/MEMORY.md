@@ -1,0 +1,4 @@
+- [reference 위키 이관](project_reference_wiki_migration.md) — repos.json 블롭→wiki/*.md 재설계, Notion 페이지나눔만 남음
+- [전역 규칙 감사 (2026-07-11)](project_rules_audit_2026-07-11.md) — 173세션 측정 → 규칙 19개로 개편(형태가 발화를 가른다). ⚠ 남은 일: **재감사 2026-08 중순**(지문 7개 심어둠)·pick-skill 거취
+- [답변 형식 선호](feedback_answer_shape.md) — A-B-A(결론·내용·결론), 목록 항목 사이 빈 줄, 프롬프트엔 "프롬프트:" 라벨
+- [커밋 자동·답변 간결](feedback_commit_and_brevity.md) — 코드 완료 시 커밋 자동(푸시만 사용자), 답변은 diff 재나열 없이 결론+한 것+할 것

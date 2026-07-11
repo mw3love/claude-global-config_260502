@@ -82,6 +82,43 @@ else
     ANY_TODO=1
 fi
 
+# 5) memory 정크션 — PC마다 프로젝트 키가 달라 git으로 그냥 못 옮긴다.
+#    memory는 하네스가 projects/<작업경로 인코딩>/memory/ 에서 읽는데, 그 폴더명이
+#    절대경로를 인코딩하므로(영숫자 아닌 문자 → '-') PC가 바뀌면 키가 달라진다.
+#    → 실제 파일은 repo 루트 memory/ 에 두고(추적됨), 각 PC가 자기 키 자리에
+#      정크션을 걸어 하네스가 보는 경로를 repo로 잇는다. 정크션은 관리자 권한 불필요.
+if [ -d "$CLAUDE_DIR/memory" ]; then
+    MEM_OUT=$(powershell.exe -NoProfile -ExecutionPolicy Bypass -Command '
+      $root = Join-Path $env:USERPROFILE ".claude"
+      $tgt  = Join-Path $root "memory"
+      $key  = ($root -replace "[^a-zA-Z0-9]", "-")
+      $link = Join-Path $root ("projects\" + $key + "\memory")
+      $item = Get-Item -LiteralPath $link -Force -ErrorAction SilentlyContinue
+      if ($item -and ($item.Attributes -band [IO.FileAttributes]::ReparsePoint)) {
+        "OK|이미 repo memory/ 로 연결됨"; exit
+      }
+      if ($item) {
+        $n = @(Get-ChildItem -LiteralPath $link -File -ErrorAction SilentlyContinue).Count
+        if ($n -gt 0) {
+          "TODO|이 PC에 로컬 memory 파일 $n개가 이미 있습니다. 덮어쓰지 않았습니다 — 직접 병합하세요: $link -> $tgt"
+          exit
+        }
+        Remove-Item -LiteralPath $link -Recurse -Force
+      }
+      New-Item -ItemType Directory -Path (Split-Path $link -Parent) -Force | Out-Null
+      New-Item -ItemType Junction -Path $link -Target $tgt -ErrorAction Stop | Out-Null
+      "NEW|memory 연결 생성: 하네스 경로 -> repo memory/"
+    ' 2>/dev/null | tr -d "\r")
+    MEM_STATUS="${MEM_OUT%%|*}"
+    MEM_MSG="${MEM_OUT#*|}"
+    case "$MEM_STATUS" in
+        OK)   echo "  ✅ memory 동기화 OK" ;;
+        NEW)  echo "  ✅ $MEM_MSG" ;;
+        TODO) echo "  ⚠  $MEM_MSG"; ANY_TODO=1 ;;
+        *)    echo "  ⚠  memory 정크션 생성 실패 — memory가 이 PC에만 남습니다"; ANY_TODO=1 ;;
+    esac
+fi
+
 echo ""
 if [ "$ANY_TODO" -eq 0 ]; then
     echo "[post-merge] ✅ 모두 정상. 추가 작업 없음."
