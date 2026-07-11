@@ -61,3 +61,7 @@ chrome/
 # Python 캐시 (스킬 스크립트)
 __pycache__/
 *.pyc
+
+# Windows 폴더뷰 메타데이터 (추적 불필요)
+desktop.ini
+Thumbs.db
