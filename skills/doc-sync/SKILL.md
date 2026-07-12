@@ -129,24 +129,26 @@ AskUserQuestion으로 묶어서 물어본다. 각 질문은:
 
 ### 6단계 — 보고
 
-마지막에 한 번에 정리:
-```
-doc-sync 결과
-- 자동 수정: N건
-  · <file>: <한 줄 요약>
-- 질문 응답 반영: M건
-- 변경 없음(검토는 함): K건
-- 스킬 가드로 스킵: L건 (있다면 사유 표시)
+마지막에 한 번에 정리한다(코드펜스로 감싸지 않는다 — 펜스는 복붙용 프롬프트 전용이고, 이 보고는 지금 읽으라고 내는 것이라 감싸면 대괄호·백틱이 안 렌더된다):
 
-git status:
-  modified:   <list>
+`[doc-sync 결과]`
+자동 수정: N건 (건별로 `<file>`: 한 줄 요약)
 
-wiki 미기록: P건 (스턱루프인데 ~/.claude/wiki/ 항목 없음 — 메인 claude가 reference-repos로 기록)
+질문 응답 반영: M건
 
-다음 단계:
-- 사전(A) 호출이었으면 → 같은 커밋에 stage하여 함께 push.
-- 사후(B)/수동(C)이었고 변경이 발생했으면 → follow-up 커밋(예: `Docs: <원 커밋 subject> 후속 동기화`)으로 묶어 push.
-```
+변경 없음(검토는 함): K건
+
+스킬 가드로 스킵: L건 (있다면 사유 표시)
+
+`[git status]`
+modified: `<list>`
+
+`[wiki 미기록]`
+P건 (스턱루프인데 ~/.claude/wiki/ 항목 없음 — 메인 claude가 reference-repos로 기록)
+
+`[다음 단계]`
+사전(A) 호출이었으면 → 같은 커밋에 stage하여 함께 push.
+사후(B)·수동(C)이었고 변경이 발생했으면 → follow-up 커밋(예: `Docs: <원 커밋 subject> 후속 동기화`)으로 묶어 push.
 
 ### 6-b. 미기록 함정 상기 (reference-repos 연계)
 
