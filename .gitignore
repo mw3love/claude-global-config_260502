@@ -40,6 +40,8 @@ image-cache/
 history.jsonl
 hook_test.txt
 stuck-loop-hook.log
+pre-push-doc-sync-hook.log
+.doc-sync-ready
 mcp-needs-auth-cache.json
 stats-cache.json
 .last-cleanup
