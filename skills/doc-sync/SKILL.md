@@ -1,6 +1,6 @@
 ---
 name: doc-sync
-description: 푸쉬 전후로 호출되어 코드 변경이 핵심 문서(CLAUDE.md, 계획/설계/스펙 문서)에 반영되었는지 검토하고 문서를 동기화한다. 메인 경로는 `git push` 실행 전 메인 claude의 사전 호출(같은 커밋에 흡수). PostToolUse hook(doc-sync-hook.ps1)이 push 성공 시 자동 호출되는 것은 사후 안전망. 수동 /doc-sync도 가능.
+description: 푸쉬 전후로 호출되어 코드 변경이 핵심 문서(CLAUDE.md, 계획/설계/스펙 문서)에 반영되었는지 검토하고 문서를 동기화한다. 메인 경로는 `git push` 실행 전 메인 claude의 사전 호출(같은 커밋에 흡수). PostToolUse hook(doc-sync-hook.py, Windows 폴백 .ps1)이 push 성공 시 자동 호출되는 것은 사후 안전망. 수동 /doc-sync도 가능.
 ---
 
 # doc-sync — 푸쉬 전후 문서 동기화 검토
