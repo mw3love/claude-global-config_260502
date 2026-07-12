@@ -60,6 +60,15 @@ def g(d, *keys):
         d = d.get(k)
     return d
 
+def model_setting():
+    # settings.json 의 "model" 필드(opusplan 등 별칭) — stdin JSON엔 해석된 모델만 오므로 별도 확인
+    import os
+    try:
+        with open(os.path.join(os.path.expanduser("~"), ".claude", "settings.json"), encoding="utf-8") as f:
+            return json.load(f).get("model")
+    except Exception:
+        return None
+
 Sep = " | "
 parts = []
 
@@ -73,7 +82,8 @@ if cwd:
 # 모델 + 컨텍스트 창 크기
 model = g(data, "model", "display_name") or g(data, "model", "id") or "Claude"
 short = re.sub(r"\s", "", re.sub(r"^Claude\s*", "", model)) or "Claude"
-parts.append(short + fmt_ctxsize(g(data, "context_window", "context_window_size")))
+tag = " [opusplan]" if str(model_setting() or "").startswith("opusplan") else ""
+parts.append(short + tag + fmt_ctxsize(g(data, "context_window", "context_window_size")))
 
 # 컨텍스트 사용률
 used = g(data, "context_window", "used_percentage")

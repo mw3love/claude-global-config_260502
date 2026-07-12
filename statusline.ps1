@@ -67,7 +67,16 @@ $model = if ($data.model.display_name) { $data.model.display_name }
 $short = $model -replace '^Claude\s*', '' -replace '\s', ''
 if (-not $short) { $short = "Claude" }
 $ctxSize = Format-CtxSize $data.context_window.context_window_size
-$modelPart = "${short}${ctxSize}"
+
+# settings.json 의 "model" 필드(opusplan 등 별칭) — stdin JSON엔 해석된 모델만 오므로 별도 확인
+$tag = ""
+try {
+    $settingsPath = Join-Path $env:USERPROFILE ".claude\settings.json"
+    $modelSetting = (Get-Content $settingsPath -Raw | ConvertFrom-Json).model
+    if ($modelSetting -like "opusplan*") { $tag = " [opusplan]" }
+} catch {}
+
+$modelPart = "${short}${tag}${ctxSize}"
 
 # Context usage
 $used = $data.context_window.used_percentage

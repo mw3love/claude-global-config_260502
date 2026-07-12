@@ -16,7 +16,7 @@
 - **bypass 모드 자동 진입** — `defaultMode: bypassPermissions` (settings.json)
 - **데스크톱 알림 + Telegram 발송** — Claude 답변 완료, 질문 대기, 입력 대기 시점에 PC와 폰 양쪽 알림 (Windows toast + 활성 모니터 중앙 팝업 / macOS osascript / Linux notify-send)
 - **Telegram 채널 (비상용 원격)** — `tel` 명령으로 활성 (lock 파일로 한 번에 한 세션만). `claude`는 로컬 전용. (옛 이름 `ctg`도 별칭으로 동작)
-- **statusline** — 모델명 / 컨텍스트 사용률 / 5시간·7일 레이트리밋을 터미널 상태바에 표시
+- **statusline** — 모델명(`opusplan` 설정 시 `[opusplan]` 태그 병기) / 컨텍스트 사용률 / 5시간·7일 레이트리밋을 터미널 상태바에 표시
 - **플러그인 마켓플레이스** — `claude-plugins-official`, `anthropic-agent-skills` 등록
 - **document-skills, telegram 플러그인** 활성화
 - **전역 스킬** — `/draft`(KBS 기안문), `/deep-interview`(요구사항 명확화 인터뷰), `/doc-sync`(푸쉬 전후 문서 동기화), `/self-review`(답변을 근거 기반으로 적대적 재검토), `/harness`(에이전트 팀·스킬 구성 — 적합성 사전심사 게이트), `/pick-skill`(계획 적었을 때 어떤 스킬/모드로 진행할지 추천하는 진입점 라우터), `/sync-repos`(여러 PC git 프로젝트를 명단 기반으로 일괄 pull+빌드), `/reference-repos`(비자명한 설계 전 비슷한 문제를 푼 기존 git repo를 찾아 참고(읽기) + 어렵게 뚫은 해법·재사용 기법을 묻지 말고 인덱스에 자동 기록(쓰기, CLAUDE.md 4-c) — 사용자 지목 우선 + `repos.json` 인덱스, 모자라면 GitHub 공개 API 라이브 스캔(gh 불요), remote로 PC 독립 접근), `/skillify`(세션에서 잘 통한 반복 절차를 재사용 스킬로 굳히기 — 품질 게이트 + memory(사실)와 경계), `jbnu-gateway`(전북대 API Gateway로 이미지·비디오·TTS 생성 — "이미지/영상 만들어줘" 등에 자동 발동)
@@ -135,6 +135,7 @@ projects/<이 PC의 키>/memory  ──(정크션)──►  ~/.claude/memory/  
 │   ├── self-review/          # 답변 근거 기반 적대적 재검토 스킬
 │   ├── skillify/             # 세션의 반복 절차를 재사용 스킬로 굳히기 (품질 게이트)
 │   └── sync-repos/           # 여러 PC git 프로젝트 일괄 pull+빌드 동기화 스킬
+├── agents/                   # 커스텀 서브에이전트 override (예: Explore.md → model: haiku, 비용 절감용)
 ├── wiki/                     # reference-repos 함정 위키 — repo별 스턱루프→해법 (<repo>-<기법>.md, 여러 repo 공유는 shared-*)
 ├── tools/                    # 유지보수 유틸 (audit_rules.py — 규칙 발화율 감사, 지문 기반)
 ├── docs/                     # 연구·분석 노트 (예: omc-study.md — OMC 비교 분석)
