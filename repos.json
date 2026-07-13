@@ -6,6 +6,12 @@
     "reference": "Claude Code 하네스 패턴 — 스킬(SKILL.md) 구조, PostToolUse 훅(PowerShell), settings.json, 크로스플랫폼 엔진 스크립트(py+ps1), 자동실행 트리거는 항상-로드 위치(전역 CLAUDE.md)에 둬야 발화 — SKILL.md는 호출돼야 떠서 self-trigger 불가(self-review 자동실행·reference 자동기록이 같은 방식)"
   },
   {
+    "path": "Dev/KBS_Monitoring_v2_260418",
+    "desc": "KBS 16채널 방송 모니터링 v2 (운영 중)",
+    "remote": "https://github.com/mw3love/KBS_Monitoring_v2_260418.git",
+    "reference": "PySide6 방송 모니터링. multiprocessing 3프로세스 분리(UI/Watchdog/Detection) + SharedMemory 프레임 전달 + Queue 메시지 계약(docs_ipc_spec.md). 장기가동 시 UI 프로세스만 힙 손상되어 순수 파이썬 __init__ 전멸하는 사고 4회 — 관측 계측(HEALTH/excepthook/PYTHONMALLOC)으로는 범인 특정 실패, 제거 실험(bisect)으로 전환. 손상된 프로세스는 requests를 못 쓰므로 파일 플래그로 건강한 프로세스에 통보 대행시키는 패턴. 상세: fix/260526_설정다이얼로그_TypeError_재현불가.md"
+  },
+  {
     "path": "Dev/youtube_dual_subtitle",
     "desc": "YouTube 듀얼 자막 확장",
     "build": "npm install && npm run build",
