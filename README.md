@@ -129,6 +129,7 @@ projects/<이 PC의 키>/memory  ──(정크션)──►  ~/.claude/memory/  
 │   ├── doc-sync/             # 푸쉬 전후 문서 동기화 스킬
 │   ├── draft/                # KBS 기안문 작성 스킬
 │   ├── harness/              # 에이전트 팀·스킬 구성 메타 스킬 (적합성 사전심사 게이트)
+│   ├── hwp-from-data/        # 데이터로 한글(.hwp) 양식 표 칸 채우기 (COM+HWPML2X, Windows+한글 전용)
 │   ├── jbnu-gateway/         # 전북대 API Gateway로 이미지·비디오·TTS 생성 (preflight 비용고지)
 │   ├── pick-skill/           # 계획 진입점 라우터 — 어떤 스킬/모드로 갈지 추천
 │   ├── reference-repos/      # 기존 git repo prior art 참고(읽기)+참고 가치 자동 기록(쓰기, CLAUDE.md 4-c) (인덱스=repos.json reference 필드)
