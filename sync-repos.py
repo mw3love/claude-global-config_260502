@@ -5,7 +5,7 @@
 #   경로는 홈(~) 기준 상대경로 -> PC마다 사용자명이 달라도 동작.
 #   pull 로 실제 변경이 생긴 repo 만 build 명령을 실행.
 # 사용:  python3 ~/.claude/sync-repos.py [--build-all] [--no-build]
-import sys, os, json, subprocess
+import sys, os, json, subprocess, shutil
 
 # 콘솔 코드페이지와 무관하게 한글 출력 안전(Windows cp949 깨짐 방지). macOS/Linux 는 원래 UTF-8.
 try:
@@ -33,6 +33,25 @@ except Exception as e:
 
 def git(cwd, *args):
     return subprocess.run(["git", "-C", cwd, *args], capture_output=True, text=True, encoding="utf-8")
+
+
+# fnm(Fast Node Manager)로 node 를 깔면 node/npm 이 대화형 셸 활성화(eval "$(fnm env)")에만 PATH 로 들어온다.
+# sync-repos 의 빌드 서브프로세스는 비대화형이라 그 활성화가 없어 npm 을 못 찾는다(macOS 실측).
+# fnm 이 있으면 빌드 명령 앞에 활성화를 붙여 이 구멍을 메운다. Windows 는 .ps1 엔진 담당이라 손대지 않는다.
+def find_fnm():
+    if os.name == "nt":
+        return None
+    p = shutil.which("fnm")
+    if p:
+        return p
+    for cand in ("~/.local/bin/fnm", "~/.fnm/fnm"):
+        cp = os.path.expanduser(cand)
+        if os.path.isfile(cp):
+            return cp
+    return None
+
+
+fnm_path = find_fnm()
 
 
 # path 없는 항목 = 참고 전용(reference-repos 스킬용) — 동기화 대상에서 제외.
@@ -79,7 +98,12 @@ for r in sync_targets:
     if should_build:
         print("  [~] %-22s 빌드 중: %s" % (name, r["build"]))
         try:
-            b = subprocess.run(r["build"], shell=True, cwd=full)
+            build_cmd = r["build"]
+            run_kwargs = {"shell": True, "cwd": full}
+            if fnm_path:  # fnm node 를 PATH 로 끌어와 비대화형 빌드에서도 npm 이 잡히게 한다.
+                build_cmd = 'eval "$(%s env --shell bash)"; %s' % (fnm_path, build_cmd)
+                run_kwargs["executable"] = "/bin/bash"
+            b = subprocess.run(build_cmd, **run_kwargs)
             if b.returncode != 0:
                 entry.update(status="builderror", detail="업데이트됨, 빌드 실패")
             else:
