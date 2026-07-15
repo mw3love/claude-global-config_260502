@@ -31,7 +31,8 @@
     "reference": "웹페이지 형광펜(DOM Range surroundContents·텍스트노드 단위·모델/사용자 마크 클래스 구분·serializeInline로 markdown 직렬화), 영역/영상 캡처(captureVisibleTab+canvas crop·영상 시간축 정렬), Notion DB 적응형 저장(Search API+data_source+타입 시그니처로 DB 이름 자유 발견), 크로스플랫폼 단축키(e.code)"
   },
   {
-    "desc": "PasteFlow — 순차 붙여넣기 클립보드 매니저 (PyQt6, Windows) [참고 전용]",
+    "path": "Dev/Paste_flow",
+    "desc": "PasteFlow — 순차 붙여넣기 클립보드 매니저 (PyQt6, Windows)",
     "remote": "https://github.com/mw3love/Paste_flow.git",
     "reference": "순차 붙여넣기 클립보드 매니저(PyQt6/Win32). 상세 함정→해법은 wiki/pasteflow-*.md — 마그네틱 영역캡처, QGraphicsItem 회전·크기조절 핸들, Qt 위젯 입력 함정, Qt 모달 범위, 게이트웨이 모델능력 스윕, Win32 입력주입"
   },
