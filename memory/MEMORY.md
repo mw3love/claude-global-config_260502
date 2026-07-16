@@ -2,3 +2,4 @@
 - [전역 규칙 감사 (2026-07-11)](project_rules_audit_2026-07-11.md) — 173세션 측정 → 규칙 19개로 개편(형태가 발화를 가른다). ⚠ 남은 일: **재감사 2026-08 중순**(지문 7개 심어둠)·pick-skill 거취
 - [답변 형식 선호](feedback_answer_shape.md) — A-B-A(결론·내용·결론), 목록 항목 사이 빈 줄, 프롬프트엔 `[프롬프트]` 라벨
 - [커밋 확인 후·답변 간결](feedback_commit_and_brevity.md) — 커밋은 물어보고 승인 후(2026-07-12 자동→수동 되돌림), 답변은 diff 재나열 없이 결론+한 것+할 것
+- [sync-repos 로그온 자동실행](reference_sync_repos_autostart.md) — HKCU Run 키 + 숨김 VBS (이 PC 한정, Task Scheduler는 관리자 필요해 회피)
