@@ -37,6 +37,12 @@
     "reference": "순차 붙여넣기 클립보드 매니저(PyQt6/Win32). 상세 함정→해법은 wiki/pasteflow-*.md — 마그네틱 영역캡처, QGraphicsItem 회전·크기조절 핸들, Qt 위젯 입력 함정, Qt 모달 범위, 게이트웨이 모델능력 스윕, Win32 입력주입"
   },
   {
+    "path": "Dev/Easy_CAD_260718",
+    "desc": "Easy CAD — 순서도/간단도면 작성기 (PyQt6, PDF·DXF 목표)",
+    "remote": "https://github.com/mw3love/Easy_CAD_260718",
+    "reference": "빠른 순서도/간단도면 작성기(PyQt6 무한캔버스). pasteflow 주석 편집기를 verbatim 이식해 승격 — QGraphicsScene 스냅+베지어 화살표. 화살표 지속연결(고정 부착점), 다중선택 그룹 변형(회전·스케일·미러·crossing stretch), o-snap 토글, .ecad(JSON) 저장, PDF 출력(A4~A1). 목표: DXF 왜복(ezdxf, 베지어→SPLINE). GUI라 offscreen 스모크는 프록시검증일 뿐 — 실조건은 python run.py 필요"
+  },
+  {
     "desc": "Notion 페이지나눔 미리보기 — 내보내기 전 A4/A3 페이지 경계 미리보기 크롬 확장(MV3) [참고 전용]",
     "remote": "https://github.com/mw3love/Notion_PDF_Preview_260706.git",
     "reference": "내보내기 전 A4/A3 페이지 경계를 미리보는 MV3 크롬 확장(브라우저 클라이언트사이드 HTML→PDF 자체 페이지 분할). 상세 함정→해법은 wiki/ — 페이지 분할기+인쇄 주석 앵커링(notion-페이지분할기), 에디터/DB 편집 크롬 제거(notion-에디터-크롬-제거), 동일출처 스냅샷·이미지 인라인(notion-스냅샷-이미지인라인), CSS 격리 디버깅(notion-css-격리-디버깅), 미리보기 레일·스크롤 UX(notion-미리보기-스크롤-ux); 공유 함정은 형광펜(shared-형광펜-dom-range-직렬화), 툴바 아이콘 SVG→PNG(shared-svg-png-래스터화-우회), 인쇄물 육안 검증(shared-headless-pdf-인쇄검증)"
