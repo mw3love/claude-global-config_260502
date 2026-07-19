@@ -19,7 +19,7 @@
 - **statusline** — 모델명(`opusplan` 설정 시 `[opusplan]` 태그 병기) / 컨텍스트 사용률 / 5시간·7일 레이트리밋을 터미널 상태바에 표시
 - **플러그인 마켓플레이스** — `claude-plugins-official`, `anthropic-agent-skills` 등록
 - **document-skills, telegram 플러그인** 활성화
-- **전역 스킬** — `/draft`(KBS 기안문), `/deep-interview`(요구사항 명확화 인터뷰), `/doc-sync`(푸쉬 전후 문서 동기화), `/self-review`(답변을 근거 기반으로 적대적 재검토), `/harness`(에이전트 팀·스킬 구성 — 적합성 사전심사 게이트), `/pick-skill`(계획 적었을 때 어떤 스킬/모드로 진행할지 추천하는 진입점 라우터), `/sync-repos`(여러 PC git 프로젝트를 명단 기반으로 일괄 pull+빌드), `/reference-repos`(비자명한 설계 전 비슷한 문제를 푼 기존 git repo를 찾아 참고(읽기) + 어렵게 뚫은 해법·재사용 기법을 묻지 말고 인덱스에 자동 기록(쓰기, CLAUDE.md 4-c) — 사용자 지목 우선 + `repos.json` 인덱스, 모자라면 GitHub 공개 API 라이브 스캔(gh 불요), remote로 PC 독립 접근), `/skillify`(세션에서 잘 통한 반복 절차를 재사용 스킬로 굳히기 — 품질 게이트 + memory(사실)와 경계), `jbnu-gateway`(전북대 API Gateway로 이미지·비디오·TTS 생성 — "이미지/영상 만들어줘" 등에 자동 발동)
+- **전역 스킬** — `/draft`(KBS 기안문), `/deep-interview`(요구사항 명확화 인터뷰), `/doc-sync`(푸쉬 전후 문서 동기화), `/self-review`(답변을 근거 기반으로 적대적 재검토), `/sync-repos`(여러 PC git 프로젝트를 명단 기반으로 일괄 pull+빌드), `/reference-repos`(비자명한 설계 전 비슷한 문제를 푼 기존 git repo를 찾아 참고(읽기) + 어렵게 뚫은 해법·재사용 기법을 묻지 말고 인덱스에 자동 기록(쓰기, CLAUDE.md 4-c) — 사용자 지목 우선 + `repos.json` 인덱스, 모자라면 GitHub 공개 API 라이브 스캔(gh 불요), remote로 PC 독립 접근), `/skillify`(세션에서 잘 통한 반복 절차를 재사용 스킬로 굳히기 — 품질 게이트 + memory(사실)와 경계), `jbnu-gateway`(전북대 API Gateway로 이미지·비디오·TTS 생성 — "이미지/영상 만들어줘" 등에 자동 발동)
 - **post-merge hook** — `git pull` 후 환경 자동 점검·복구 (Bun 설치, $PROFILE 갱신, 플러그인 다운로드, memory 연결)
 - **pre-push doc-sync 게이트** — `git push` 전 doc-sync 사전 검토를 기계로 강제(PreToolUse 훅). 센티널(`.doc-sync-ready`, 1회용·30분 유효)이 없으면 push 자체가 거부됨
 - **memory PC 간 공유** — 자동 memory를 `memory/`에 두고 git으로 동기화 (아래 "memory 동기화")
@@ -128,10 +128,8 @@ projects/<이 PC의 키>/memory  ──(정크션)──►  ~/.claude/memory/  
 │   ├── deep-interview/       # 요구사항 명확화 인터뷰 스킬
 │   ├── doc-sync/             # 푸쉬 전후 문서 동기화 스킬
 │   ├── draft/                # KBS 기안문 작성 스킬
-│   ├── harness/              # 에이전트 팀·스킬 구성 메타 스킬 (적합성 사전심사 게이트)
 │   ├── hwp-from-data/        # 데이터로 한글(.hwp) 양식 표 칸 채우기 (COM+HWPML2X, Windows+한글 전용)
 │   ├── jbnu-gateway/         # 전북대 API Gateway로 이미지·비디오·TTS 생성 (preflight 비용고지)
-│   ├── pick-skill/           # 계획 진입점 라우터 — 어떤 스킬/모드로 갈지 추천
 │   ├── reference-repos/      # 기존 git repo prior art 참고(읽기)+참고 가치 자동 기록(쓰기, CLAUDE.md 4-c) (인덱스=repos.json reference 필드)
 │   ├── self-review/          # 답변 근거 기반 적대적 재검토 스킬
 │   ├── skillify/             # 세션의 반복 절차를 재사용 스킬로 굳히기 (품질 게이트)
