@@ -69,7 +69,10 @@ def main() -> None:
             "permissionDecisionReason": (
                 "[pre-push doc-sync] push 전 doc-sync 사전 검토(규칙 10)가 아직 확인되지 않았다. "
                 "절차: 1) doc-sync 스킬을 호출해 문서 동기화를 검토하고(변경이 있으면 같은 커밋에 포함) "
-                "2) `touch ~/.claude/.doc-sync-ready` 실행 후 3) 이 push를 재시도한다. "
+                "2) `touch ~/.claude/.doc-sync-ready`를 별도 Bash 호출로 실행한 뒤 "
+                "3) 그 다음 Bash 호출로 push를 재시도한다. "
+                "⚠ touch와 push를 한 명령에 && 로 묶지 말 것 — 이 훅은 PreToolUse라 명령이 "
+                "실행되기 전에 센티널을 검사하므로, 묶으면 touch가 실행되기도 전에 거부된다. "
                 "이번 대화에서 doc-sync 사전 검토를 이미 마쳤다면 2)~3)만 하면 된다."
             ),
         }
