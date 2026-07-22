@@ -11,10 +11,11 @@ description: 여러 PC에서 쓰는 git 프로젝트들을 한 번에 git pull(+
 
 1. **엔진 스크립트 실행** — 크로스플랫폼 Python 엔진을 bash 로 실행한다(Windows/macOS 공통). 인터프리터를 먼저 **감지**해 한 번만 실행하고, python 이 없는 PC는 PowerShell 엔진으로 폴백:
    ```
-   bash -c 'for p in python3 python; do command -v "$p" >/dev/null 2>&1 && exec "$p" ~/.claude/sync-repos.py "$@"; done; exec pwsh -File ~/.claude/sync-repos.ps1 "$@"' _
+   bash -c 'for p in python3 python; do "$p" -c "" >/dev/null 2>&1 && exec "$p" ~/.claude/sync-repos.py "$@"; done; exec pwsh -File ~/.claude/sync-repos.ps1 "$@"' _
    ```
    (변경 없어도 빌드 강제: `--build-all` / 빌드 건너뛰기: `--no-build`. 인수는 위 명령 끝 `_` 뒤에 붙인다 — 예: `... ' _ --no-build`. PowerShell 폴백은 `-BuildAll`/`-NoBuild` 형식도 받음.)
    주의: `python3 ... || python ...` 식의 `||` 체인은 쓰지 말 것 — 엔진이 문제(pull 실패=exit 2, 명단없음=exit 1)로 끝나면 "인터프리터 없음"으로 오해해 다음 인터프리터로 **전체를 재실행**(중복 pull/build)한다.
+   ⚠ **`command -v "$p"`로만 감지하지 말 것**(2026-07-22 MW-Lenovo 실측 버그) — Windows의 `python3`가 실제 인터프리터 없이 Microsoft Store로 유도하는 App Execution Alias 스텁으로 등록된 경우, `command -v python3`는 **존재한다고(성공) 응답**하지만 실제 실행하면 `Python`만 찍고 exit 49로 죽는다. 위처럼 `"$p" -c ""`(빈 스크립트 실제 실행)로 감지해야 이 스텁을 걸러내고 `python`(진짜 인터프리터)으로 폴백한다.
 
 2. **출력 요약 전달** — 스크립트가 각 repo를 `[v]업데이트 / [=]변경없음 / [-]미클론 / [!]문제`로 찍고 마지막에 요약을 낸다. 그 결과를 사용자에게 그대로 간결히 전한다.
 
@@ -38,7 +39,9 @@ description: 여러 PC에서 쓰는 git 프로젝트들을 한 번에 git pull(+
 
 - `git pull`은 **`--ff-only`**(fast-forward 전용)로만 한다. 분기된 경우 자동 머지하지 않고 문제로 보고 → 사용자와 처리 방향 결정.
 - `git reset`, `git checkout -- `, force push 등 되돌리기 어려운 명령은 **자동 실행 금지**, 진단·제안만.
-- 스크립트가 `.claude`를 pull 하면 이번 실행에는 옛 스크립트가 돌고 있으므로, 명단/스크립트 자체가 갱신됐다면 다음 실행부터 반영된다고 안내한다.
+- **[자기업데이트]**(2026-07-22, `sync-repos.py`만) — 본 로직 전에 `.claude`(스크립트+`repos.json`)를 먼저 pull하고, 바뀌었으면 같은 인자로 자동 재실행한다. 파이썬은 파일을 이미 메모리에 읽은 뒤라 pull만으론 반영이 안 되기 때문 — 이제 "다음 실행부터 반영"을 기다릴 필요 없이 이번 실행부터 새 코드/명단이 적용된다. `.ps1` 폴백 엔진은 이 로직이 없다(python 없는 PC 한정 폴백이라 우선순위 낮음).
+- **[완료 알림]**(2026-07-22, Windows만) — 실행이 끝나면 항상 풍선알림(`NotifyIcon`)이 뜬다(업데이트/변경없음/문제 세 갈래로 내용만 다름). 전체를 넓은 `try/except`로 감싸 코드 안 예외도 최소 "실패" 알림 한 줄은 뜨게 한다 — "알림이 아예 안 뜸"이 곧 "자동실행 자체가 안 됨"의 신호가 되도록 설계(로그온 자동실행에서 특히 중요, 로그: `%LOCALAPPDATA%\sync-repos\startup.log`). WinRT 토스트는 이 PC에서 실측 실패해 `System.Windows.Forms.NotifyIcon`으로 대체.
+- **[로그온 자동실행]**(이 PC 한정 — 메모리 `reference-sync-repos-autostart` 참조) — HKCU Run 키 `sync-repos-on-logon` + `%LOCALAPPDATA%\sync-repos\startup.vbs`(60초 대기 후 숨김 실행). git 동기화 대상 아님(PC마다 재설정 필요).
 
 ## 터미널에서 직접 (Claude 없이)
 
