@@ -40,7 +40,7 @@ description: 여러 PC에서 쓰는 git 프로젝트들을 한 번에 git pull(+
 - `git pull`은 **`--ff-only`**(fast-forward 전용)로만 한다. 분기된 경우 자동 머지하지 않고 문제로 보고 → 사용자와 처리 방향 결정.
 - `git reset`, `git checkout -- `, force push 등 되돌리기 어려운 명령은 **자동 실행 금지**, 진단·제안만.
 - **[자기업데이트]**(2026-07-22, `sync-repos.py`만) — 본 로직 전에 `.claude`(스크립트+`repos.json`)를 먼저 pull하고, 바뀌었으면 같은 인자로 자동 재실행한다. 파이썬은 파일을 이미 메모리에 읽은 뒤라 pull만으론 반영이 안 되기 때문 — 이제 "다음 실행부터 반영"을 기다릴 필요 없이 이번 실행부터 새 코드/명단이 적용된다. `.ps1` 폴백 엔진은 이 로직이 없다(python 없는 PC 한정 폴백이라 우선순위 낮음).
-- **[완료 알림]**(2026-07-22, Windows만) — 실행이 끝나면 항상 풍선알림(`NotifyIcon`)이 뜬다(업데이트/변경없음/문제 세 갈래로 내용만 다름). 전체를 넓은 `try/except`로 감싸 코드 안 예외도 최소 "실패" 알림 한 줄은 뜨게 한다 — "알림이 아예 안 뜸"이 곧 "자동실행 자체가 안 됨"의 신호가 되도록 설계(로그온 자동실행에서 특히 중요, 로그: `%LOCALAPPDATA%\sync-repos\startup.log`). WinRT 토스트는 이 PC에서 실측 실패해 `System.Windows.Forms.NotifyIcon`으로 대체.
+- **[완료 알림]**(2026-07-22) — 실행이 끝나면 항상 알림이 뜬다(업데이트/변경없음/문제 세 갈래로 내용만 다름). 전체를 넓은 `try/except`로 감싸 코드 안 예외도 최소 "실패" 알림 한 줄은 뜨게 한다 — "알림이 아예 안 뜸"이 곧 "자동실행 자체가 안 됨"의 신호가 되도록 설계(로그온 자동실행에서 특히 중요, 로그: `%LOCALAPPDATA%\sync-repos\startup.log`). **새로 구현하지 않고 기존 `~/.claude/toast.sh` 디스패처를 그대로 호출**한다(Windows 토스트+화면중앙 팝업+Telegram, macOS/Linux 자동 분기 — 이미 있는 걸 처음엔 못 보고 `NotifyIcon`으로 따로 만들었다가 뒤늦게 발견해 교체, 규칙 2 손안의 카드 확인 누락 사례).
 - **[로그온 자동실행]**(이 PC 한정 — 메모리 `reference-sync-repos-autostart` 참조) — HKCU Run 키 `sync-repos-on-logon` + `%LOCALAPPDATA%\sync-repos\startup.vbs`(60초 대기 후 숨김 실행). git 동기화 대상 아님(PC마다 재설정 필요).
 
 ## 터미널에서 직접 (Claude 없이)

@@ -10,10 +10,12 @@
 # 바뀌었으면 같은 인자로 재실행한다 — 파이썬은 파일을 이미 메모리에 읽은 뒤라 pull만으론
 # 반영이 안 되기 때문. 로그온 자동실행처럼 사람이 지켜보지 않는 경로에서 특히 중요.
 #
-# [알림] 실행이 끝나면 항상 Windows 풍선알림(NotifyIcon)을 하나 띄운다(성공/변경없음/문제
-# 구분). "매번 뜬다"는 걸 사용자가 기대하게 만들어, 알림이 아예 안 뜨는 것 자체가
-# "자동화가 실행조차 안 됐다"는 신호가 되게 한다. main() 전체를 try/except로 감싸
-# 코드 안의 어떤 예외가 나든 최소 "실패" 알림 한 줄은 뜨게 한다.
+# [알림] 실행이 끝나면 항상 알림을 하나 띄운다(성공/변경없음/문제 구분). "매번 뜬다"는 걸
+# 사용자가 기대하게 만들어, 알림이 아예 안 뜨는 것 자체가 "자동화가 실행조차 안 됐다"는
+# 신호가 되게 한다. main() 전체를 try/except로 감싸 코드 안의 어떤 예외가 나든 최소 "실패"
+# 알림 한 줄은 뜨게 한다. 알림은 새로 만들지 않고 기존 ~/.claude/toast.sh 디스패처를 재사용
+# (Windows 토스트+화면중앙 팝업+Telegram, macOS/Linux 자동 분기 — 처음엔 이걸 놓치고 별도
+# NotifyIcon 구현을 만들었다가 2026-07-22 뒤늦게 발견해 교체).
 import sys, os, json, subprocess, shutil, datetime, traceback
 
 try:
@@ -41,35 +43,18 @@ def _log(line):
 
 
 def _notify(title, body):
-    """[알림] Windows 풍선말풍선(NotifyIcon) — WinRT 토스트는 이 PC에서 실측 실패(WindowsRuntime
-    타입 로드/컬렉션 열거 예외)해 배제, System.Windows.Forms.NotifyIcon으로 대체(실측 확인 ✓
-    2026-07-22, 스크린샷 확인). 비Windows는 조용히 스킵. Popen 비대기라 부모 프로세스가 먼저
-    끝나도 풍선은 독립적으로 뜬다."""
+    """[알림] 기존 ~/.claude/toast.sh 디스패처 재사용(직접 알림 구현 안 함) — Windows는
+    toast.ps1(토스트+화면중앙 center-toast.ps1+Telegram), macOS/Linux는 osascript/notify-send로
+    이미 분기돼 있다(실측 확인 ✓ 2026-07-22, 중앙·우하단 둘 다 뜸 — 사용자 확인). toast.sh가
+    없는 환경(리포 없이 스크립트만 배포된 경우 등)이면 조용히 스킵."""
     _log("[notify] %s — %s" % (title, body))
-    if os.name != "nt":
+    dispatcher = os.path.join(os.path.dirname(os.path.abspath(__file__)), "toast.sh")
+    if not os.path.isfile(dispatcher):
         return
-    ps = r"""
-Add-Type -AssemblyName System.Windows.Forms
-Add-Type -AssemblyName System.Drawing
-$ni = New-Object System.Windows.Forms.NotifyIcon
-$ni.Icon = [System.Drawing.SystemIcons]::Information
-$ni.Visible = $true
-$ni.BalloonTipTitle = $env:SR_TITLE
-$ni.BalloonTipText = $env:SR_BODY
-$ni.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Info
-$ni.ShowBalloonTip(8000)
-Start-Sleep -Seconds 9
-$ni.Dispose()
-"""
+    bash = shutil.which("bash") or "bash"
+    msg = "%s — %s" % (title, body[:200])
     try:
-        env = dict(os.environ)
-        env["SR_TITLE"] = title
-        env["SR_BODY"] = body[:250]
-        subprocess.Popen(
-            ["powershell.exe", "-NoProfile", "-Command", ps],
-            env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-            creationflags=subprocess.CREATE_NO_WINDOW,
-        )
+        subprocess.Popen([bash, dispatcher, msg], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     except Exception as e:
         _log("notify 실패(무시하고 계속): %s" % e)
 
