@@ -1,7 +1,7 @@
 ﻿param([string]$Message = 'Response complete')
 
 # 활성 모니터(포커스 창이 있는 화면) 정중앙에 뜨는 알림 팝업.
-#   - 기존 WinRT 우하단 토스트(toast.ps1)를 대체하지 않고 '함께' 뜬다.
+#   - 화면 알림의 메인 채널(2026-07-22: 우하단 WinRT 토스트는 제거, 이것 하나로 단일화).
 #   - 포커스를 뺏지 않음(ShowWindow=SW_SHOWNOACTIVATE + SetWindowPos=SWP_NOACTIVATE)
 #     → 사용자가 타이핑 중이어도 방해하지 않는다.
 #   - 자동 2.5초 후 소멸, 클릭 시 즉시 닫힘.

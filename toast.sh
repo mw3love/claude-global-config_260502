@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
 # Cross-platform Claude Code 알림 디스패처 (toast.ps1 의 OS 분기 래퍼).
-#   Windows  -> toast.ps1 (Windows 토스트 + Telegram, 기존 동작 그대로)
+#   Windows  -> toast.ps1 (중앙 팝업+알림음 기본, 2번째 인자가 "persist"면 우하단 토스트도 추가)
 #   macOS    -> osascript display notification + (옵션) Telegram
 #   Linux    -> notify-send + (옵션) Telegram
 # settings.json 의 훅에서 `bash -c '~/.claude/toast.sh "<메시지>"'` 로 호출된다.
+# sync-repos처럼 사람이 안 지켜보는 저빈도 자동화는 `toast.sh "<메시지>" persist`로 호출해
+# 알림센터에 남는 우하단 토스트를 추가로 띄운다(2026-07-22) — macOS/Linux는 원래부터 알림센터
+# 저장이 기본이라 이 옵션이 필요 없음(무시됨).
 msg="${1:-Response complete}"
 msg="${msg//\"/}"                 # osascript/JSON 안전: 큰따옴표 제거 (메시지는 고정 문자열)
+persist="${2:-}"
 claude_dir="$HOME/.claude"
 
 send_telegram() {
@@ -27,8 +31,12 @@ PYEOF
 
 case "$(uname -s)" in
   MINGW*|MSYS*|CYGWIN*)
-    # Windows: 기존 toast.ps1 이 토스트 + Telegram 을 모두 처리 (변경 없음)
-    powershell.exe -NoProfile -Sta -ExecutionPolicy Bypass -File "$claude_dir/toast.ps1" -Message "$msg" >/dev/null 2>&1 &
+    # Windows: toast.ps1 이 중앙 팝업+알림음+Telegram 처리, persist면 우하단 토스트도 추가
+    if [ "$persist" = "persist" ]; then
+      powershell.exe -NoProfile -Sta -ExecutionPolicy Bypass -File "$claude_dir/toast.ps1" -Message "$msg" -Persist >/dev/null 2>&1 &
+    else
+      powershell.exe -NoProfile -Sta -ExecutionPolicy Bypass -File "$claude_dir/toast.ps1" -Message "$msg" >/dev/null 2>&1 &
+    fi
     ;;
   Darwin)
     /usr/bin/osascript -e "display notification \"$msg\" with title \"Claude Code\"" >/dev/null 2>&1

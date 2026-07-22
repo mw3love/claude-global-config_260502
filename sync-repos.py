@@ -44,17 +44,22 @@ def _log(line):
 
 def _notify(title, body):
     """[알림] 기존 ~/.claude/toast.sh 디스패처 재사용(직접 알림 구현 안 함) — Windows는
-    toast.ps1(토스트+화면중앙 center-toast.ps1+Telegram), macOS/Linux는 osascript/notify-send로
-    이미 분기돼 있다(실측 확인 ✓ 2026-07-22, 중앙·우하단 둘 다 뜸 — 사용자 확인). toast.sh가
-    없는 환경(리포 없이 스크립트만 배포된 경우 등)이면 조용히 스킵."""
+    toast.ps1(화면중앙 center-toast.ps1+알림음+Telegram), macOS/Linux는 osascript/notify-send로
+    이미 분기돼 있다(실측 확인 ✓ 2026-07-22). toast.sh가 없는 환경(리포 없이 스크립트만
+    배포된 경우 등)이면 조용히 스킵. title/body 사이에 줄바꿈을 넣는 이유: 한 줄로 이어붙이면
+    중앙 팝업의 자동 줄바꿈이 문구 중간에서 꺾여 가독성이 떨어짐(2026-07-22 실측 발견) —
+    일반 알림(Response complete 등)은 짧은 단문이라 이 문제가 없고 sync-repos만 해당."""
     _log("[notify] %s — %s" % (title, body))
     dispatcher = os.path.join(os.path.dirname(os.path.abspath(__file__)), "toast.sh")
     if not os.path.isfile(dispatcher):
         return
     bash = shutil.which("bash") or "bash"
-    msg = "%s — %s" % (title, body[:200])
+    msg = "%s\n%s" % (title, body[:200])
+    # persist: 로그온 자동실행처럼 사람이 안 지켜보는 저빈도 호출이라, 중앙 팝업을 놓치면
+    # 대안이 없다 — 우하단 토스트도 같이 띄워 알림센터에 남긴다(toast.sh -Persist, Windows만
+    # 의미 있음). 일반 응답완료 알림(고빈도)은 이 플래그를 안 쓴다.
     try:
-        subprocess.Popen([bash, dispatcher, msg], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        subprocess.Popen([bash, dispatcher, msg, "persist"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     except Exception as e:
         _log("notify 실패(무시하고 계속): %s" % e)
 
