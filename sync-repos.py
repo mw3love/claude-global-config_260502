@@ -53,13 +53,25 @@ def _notify(title, body):
     dispatcher = os.path.join(os.path.dirname(os.path.abspath(__file__)), "toast.sh")
     if not os.path.isfile(dispatcher):
         return
-    bash = shutil.which("bash") or "bash"
     msg = "%s\n%s" % (title, body[:200])
     # persist: 로그온 자동실행처럼 사람이 안 지켜보는 저빈도 호출이라, 중앙 팝업을 놓치면
-    # 대안이 없다 — 우하단 토스트도 같이 띄워 알림센터에 남긴다(toast.sh -Persist, Windows만
+    # 대안이 없다 — 우하단 토스트도 같이 띄워 알림센터에 남긴다(-Persist, Windows만
     # 의미 있음). 일반 응답완료 알림(고빈도)은 이 플래그를 안 쓴다.
+    # [Windows] bash를 경유하지 않고 toast.ps1을 powershell로 직접 부른다 — 부팅 PATH엔
+    # Git bash가 없어 `bash`가 WSL 런처(system32\bash.exe)로 잡히고, WSL은 Windows 경로를
+    # 이해 못 해 toast.sh를 못 찾고(exit 127) uname도 Linux라 Windows 분기를 못 탄다.
+    # Popen은 fire-and-forget이라 이 실패가 로그에도 안 남아 알림이 조용히 사라졌다
+    # (2026-07-23 MW-Lenovo 부팅에서 발견). toast.sh의 Windows 분기가 하던 일과 동일.
     try:
-        subprocess.Popen([bash, dispatcher, msg, "persist"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if sys.platform == "win32":
+            ps1 = os.path.join(os.path.dirname(os.path.abspath(__file__)), "toast.ps1")
+            subprocess.Popen(["powershell.exe", "-NoProfile", "-Sta",
+                              "-ExecutionPolicy", "Bypass", "-File", ps1,
+                              "-Message", msg, "-Persist"],
+                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        else:
+            bash = shutil.which("bash") or "bash"
+            subprocess.Popen([bash, dispatcher, msg, "persist"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     except Exception as e:
         _log("notify 실패(무시하고 계속): %s" % e)
 
