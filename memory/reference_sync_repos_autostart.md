@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: reference
   originSessionId: c0c086e5-8abf-4b73-88e3-7c42862d98f3
-  modified: 2026-07-22T01:18:51.248Z
+  modified: 2026-07-22T23:17:50.893Z
 ---
 
 **Windows 로그온 시 sync-repos.py를 자동 실행**하는 PC가 2대 있다 — 전 repo(`.claude` 포함, repos.json 첫 항목)를 `git pull --ff-only`.
@@ -25,5 +25,7 @@ metadata:
 **왜 Task Scheduler가 아니라 Run 키인가:** 이 PC들에서 Task Scheduler 작업 *생성*이 관리자 권한을 요구해 `Register-ScheduledTask`(CIM/pwsh·5.1 둘 다)와 `schtasks` 모두 0x80070005로 거부됨. HKCU Run 키는 사용자 영역이라 관리자 불요 — PasteFlow 자동시작과 동일 패턴. Task Scheduler를 쓰려면 elevated 터미널 필요.
 
 **끄기/되돌리기:** Run 키 값 삭제 하나 (`reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v sync-repos-on-logon /f`).
+
+- **[2026-07-23 정정] 부팅 알림이 처음부터 조용히 깨져 있었다** — `_notify()`가 `bash toast.sh`를 부르는데, 무인 부팅 프로세스 PATH엔 Git bash가 없어 `shutil.which("bash")`가 WSL 런처(`system32\bash.exe`)로 잡힌다. WSL은 Windows 경로를 이해 못 해 `toast.sh`를 못 찾고(exit 127), `uname`도 `Linux`라 Windows 분기(`toast.ps1`)를 못 탄다. `Popen`이 fire-and-forget이라 로그엔 `[notify]`만 남고 실패는 안 찍혀 **실행은 정상인데 알림만 사라졌다**(그래서 "안 돌았다"고 오인). 위 "실측 확인 ✓"는 Git bash가 PATH에 있던 Claude 터미널/다른 PC 조건이었던 것으로 추정. **수정(커밋 793bbc4):** `sync-repos.py`가 `sys.platform=="win32"`이면 `toast.ps1`을 `powershell`로 직접 호출(bash 우회). 자기업데이트 relaunch가 있어 다른 PC(HOME-DESKTOP)도 다음 부팅 때 pull→재실행으로 자동 반영될 것(단 그 PC 실부팅 검증은 미완).
 
 **PC마다 별도 세팅 필요** — 레지스트리·VBS는 git 동기화 대상이 아님(repos.json 명단만 동기화됨). 새 프로젝트 추가는 repos.json만 고치면 수동/자동 양쪽이 자동 반영 → 이 자동화는 재설정 불필요. 관련: [[project-reference-wiki-migration]]
