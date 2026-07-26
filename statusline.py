@@ -69,6 +69,86 @@ def model_setting():
     except Exception:
         return None
 
+def git_status_part(cwd):
+    # fetch 없이 @{upstream} 캐시로만 비교 + FETCH_HEAD mtime 으로 그 캐시가 언제 기준인지 라벨링
+    # (참고: github.com/ykdojo/claude-code-tips Tip 0 context-bar.sh)
+    if not cwd:
+        return None
+    import subprocess, os
+    try:
+        def run(args):
+            try:
+                r = subprocess.run(["git", "-C", cwd] + args, capture_output=True, text=True, timeout=2)
+            except Exception:
+                return None
+            return r.stdout.strip() if r.returncode == 0 else None
+
+        branch = run(["branch", "--show-current"])
+        if not branch:
+            return None
+
+        try:
+            status_out = subprocess.run(
+                ["git", "-C", cwd, "--no-optional-locks", "status", "--porcelain", "-uall"],
+                capture_output=True, text=True, timeout=2
+            ).stdout
+        except Exception:
+            status_out = ""
+        lines = [l for l in status_out.splitlines() if l.strip()]
+        file_count = len(lines)
+
+        upstream = run(["rev-parse", "--abbrev-ref", "@{upstream}"])
+        ahead = behind = 0
+        fetch_ago = ""
+        if upstream:
+            counts = run(["rev-list", "--left-right", "--count", "HEAD...@{upstream}"])
+            if counts:
+                pieces = counts.split()
+                if len(pieces) == 2:
+                    ahead, behind = int(pieces[0]), int(pieces[1])
+            fetch_head = os.path.join(cwd, ".git", "FETCH_HEAD")
+            if os.path.isfile(fetch_head):
+                diff = int(time.time() - os.path.getmtime(fetch_head))
+                if diff < 60:
+                    fetch_ago = "<1m"
+                elif diff < 3600:
+                    fetch_ago = "{}m".format(diff // 60)
+                elif diff < 86400:
+                    fetch_ago = "{}h".format(diff // 3600)
+                else:
+                    fetch_ago = "{}d".format(diff // 86400)
+            if ahead == 0 and behind == 0:
+                sync = "synced"
+            elif ahead > 0 and behind == 0:
+                sync = "{} ahead".format(ahead)
+            elif behind > 0 and ahead == 0:
+                sync = "{} behind".format(behind)
+            else:
+                sync = "{} ahead, {} behind".format(ahead, behind)
+            if fetch_ago:
+                sync += " ({} ago)".format(fetch_ago)
+        else:
+            sync = "no upstream"
+
+        if file_count == 0:
+            detail = "clean, {}".format(sync)
+        elif file_count == 1:
+            fname = lines[0][3:].strip() if len(lines[0]) > 3 else lines[0]
+            detail = "{} uncommitted, {}".format(fname, sync)
+        else:
+            detail = "{} files uncommitted, {}".format(file_count, sync)
+
+        if behind > 0:
+            gcolor = Red
+        elif file_count > 0 or ahead > 0:
+            gcolor = Orange
+        else:
+            gcolor = Green
+
+        return "{}{}{} ({})".format(gcolor, branch, Reset, detail)
+    except Exception:
+        return None
+
 Sep = " | "
 parts = []
 
@@ -78,6 +158,11 @@ if cwd:
     leaf = re.split(r"[\\/]+", str(cwd).rstrip("\\/"))[-1]
     if leaf:
         parts.append(Cyan + leaf + Reset)
+
+# git 브랜치 + 미커밋 + 동기화 상태
+git_part = git_status_part(cwd)
+if git_part:
+    parts.append(git_part)
 
 # 모델 + 컨텍스트 창 크기
 model = g(data, "model", "display_name") or g(data, "model", "id") or "Claude"
