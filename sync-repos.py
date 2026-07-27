@@ -217,9 +217,9 @@ def main():
         sys.exit(2)
 
     if ok:
-        _notify("sync-repos 완료", "%d개 업데이트, %d개 변경없음, %d개 미클론" % (ok, noch, skip))
+        _notify("sync-repos", "업데이트%d 변경없음%d 미클론%d" % (ok, noch, skip))
     else:
-        _notify("sync-repos: 변경없음", "%d개 전부 최신 상태(미클론 %d)" % (noch, skip))
+        _notify("sync-repos", "전부최신%d 미클론%d" % (noch, skip))
     sys.exit(0)
 
 
