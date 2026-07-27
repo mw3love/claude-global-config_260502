@@ -50,6 +50,63 @@ function Format-CtxSize($tokens) {
     return ""
 }
 
+function Get-GitPart($cwd) {
+    # fetch 없이 @{upstream} 캐시로만 비교 + FETCH_HEAD mtime 으로 그 캐시가 언제 기준인지 라벨링
+    # (참고: github.com/ykdojo/claude-code-tips Tip 0 context-bar.sh)
+    if (-not $cwd -or -not (Test-Path $cwd)) { return $null }
+    try {
+        $branch = (& git -C $cwd branch --show-current 2>$null)
+        if (-not $branch) { return $null }
+
+        $statusOut = & git -C $cwd --no-optional-locks status --porcelain -uall 2>$null
+        $lines = @($statusOut | Where-Object { $_ -and $_.Trim() -ne "" })
+        $fileCount = $lines.Count
+
+        $upstream = (& git -C $cwd rev-parse --abbrev-ref '@{upstream}' 2>$null)
+        $ahead = 0; $behind = 0; $fetchAgo = ""
+        if ($upstream) {
+            $counts = (& git -C $cwd rev-list --left-right --count 'HEAD...@{upstream}' 2>$null)
+            if ($counts) {
+                $pieces = $counts -split '\s+' | Where-Object { $_ -ne "" }
+                if ($pieces.Count -ge 2) { $ahead = [int]$pieces[0]; $behind = [int]$pieces[1] }
+            }
+            $fetchHead = Join-Path $cwd ".git\FETCH_HEAD"
+            if (Test-Path $fetchHead) {
+                $fetchTime = (Get-Item $fetchHead).LastWriteTimeUtc
+                $diff = [int]([DateTimeOffset]::UtcNow - [DateTimeOffset]$fetchTime).TotalSeconds
+                if ($diff -lt 60) { $fetchAgo = "<1m" }
+                elseif ($diff -lt 3600) { $fetchAgo = "$([math]::Floor($diff/60))m" }
+                elseif ($diff -lt 86400) { $fetchAgo = "$([math]::Floor($diff/3600))h" }
+                else { $fetchAgo = "$([math]::Floor($diff/86400))d" }
+            }
+            if ($ahead -eq 0 -and $behind -eq 0) { $sync = "synced" }
+            elseif ($ahead -gt 0 -and $behind -eq 0) { $sync = "$ahead ahead" }
+            elseif ($behind -gt 0 -and $ahead -eq 0) { $sync = "$behind behind" }
+            else { $sync = "$ahead ahead, $behind behind" }
+            if ($fetchAgo) { $sync = "$sync (${fetchAgo} ago)" }
+        } else {
+            $sync = "no upstream"
+        }
+
+        if ($fileCount -eq 0) {
+            $detail = "clean, $sync"
+        } elseif ($fileCount -eq 1) {
+            $fname = $lines[0].Substring([Math]::Min(3, $lines[0].Length)).Trim()
+            $detail = "$fname uncommitted, $sync"
+        } else {
+            $detail = "$fileCount files uncommitted, $sync"
+        }
+
+        if ($behind -gt 0) { $col = $Red }
+        elseif ($fileCount -gt 0 -or $ahead -gt 0) { $col = $Orange }
+        else { $col = $Green }
+
+        return "${col}${branch}${Reset} (${detail})"
+    } catch {
+        return $null
+    }
+}
+
 $Sep = " | "
 
 # Current folder name (leaf only)
@@ -59,6 +116,9 @@ if ($cwd) {
     $leaf = Split-Path $cwd -Leaf
     if ($leaf) { $folderPart = "${Cyan}${leaf}${Reset}" }
 }
+
+# git 브랜치 + 미커밋 + 동기화 상태
+$gitPart = Get-GitPart $cwd
 
 # Model + context window size
 $model = if ($data.model.display_name) { $data.model.display_name }
@@ -107,11 +167,14 @@ if ($null -ne $weekPct) {
     $weekPart = "7d: ${col}${w}%${Reset} $rem".TrimEnd()
 }
 
-$parts = @()
-if ($folderPart) { $parts += $folderPart }
-$parts += $modelPart
-if ($ctxPart)  { $parts += $ctxPart }
-if ($fivePart) { $parts += $fivePart }
-if ($weekPart) { $parts += $weekPart }
+$line1 = @()
+if ($folderPart) { $line1 += $folderPart }
+if ($gitPart)    { $line1 += $gitPart }
 
-[Console]::Write($parts -join $Sep)
+$line2 = @()
+$line2 += $modelPart
+if ($ctxPart)  { $line2 += $ctxPart }
+if ($fivePart) { $line2 += $fivePart }
+if ($weekPart) { $line2 += $weekPart }
+
+[Console]::Write(($line1 -join $Sep) + "`n" + ($line2 -join $Sep))

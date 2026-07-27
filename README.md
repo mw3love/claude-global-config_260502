@@ -16,12 +16,13 @@
 - **bypass 모드 자동 진입** — `defaultMode: bypassPermissions` (settings.json)
 - **데스크톱 알림 + Telegram 발송** — Claude 답변 완료, 질문 대기, 입력 대기 시점에 PC와 폰 양쪽 알림 (Windows 활성 모니터 중앙 팝업 기본, 사람이 안 지켜보는 저빈도 자동화는 알림센터에 남는 우하단 토스트도 추가 / macOS osascript / Linux notify-send)
 - **Telegram 채널 (비상용 원격)** — `tel` 명령으로 활성 (lock 파일로 한 번에 한 세션만). `claude`는 로컬 전용. (옛 이름 `ctg`도 별칭으로 동작)
-- **statusline** — 모델명(`opusplan` 설정 시 `[opusplan]` 태그 병기) / 컨텍스트 사용률 / 5시간·7일 레이트리밋을 터미널 상태바에 표시
+- **statusline** — 폴더 / git 브랜치(미커밋 개수·GitHub 동기화 상태, fetch 없이 `@{upstream}` 캐시 비교 + 마지막 fetch 경과시간 표시) / 모델명(`opusplan` 설정 시 `[opusplan]` 태그 병기) / 컨텍스트 사용률 / 5시간·7일 레이트리밋을 터미널 상태바에 표시
 - **플러그인 마켓플레이스** — `claude-plugins-official`, `anthropic-agent-skills` 등록
 - **document-skills, telegram 플러그인** 활성화
 - **전역 스킬** — `/draft`(KBS 기안문), `/deep-interview`(요구사항 명확화 인터뷰), `/doc-sync`(푸쉬 전후 문서 동기화), `/self-review`(답변을 근거 기반으로 적대적 재검토), `/sync-repos`(여러 PC git 프로젝트를 명단 기반으로 일괄 pull+빌드), `/reference-repos`(비자명한 설계 전 비슷한 문제를 푼 기존 git repo를 찾아 참고(읽기) + 어렵게 뚫은 해법·재사용 기법을 묻지 말고 인덱스에 자동 기록(쓰기, CLAUDE.md 4-c) — 사용자 지목 우선 + `repos.json` 인덱스, 모자라면 GitHub 공개 API 라이브 스캔(gh 불요), remote로 PC 독립 접근), `/skillify`(세션에서 잘 통한 반복 절차를 재사용 스킬로 굳히기 — 품질 게이트 + memory(사실)와 경계), `jbnu-gateway`(전북대 API Gateway로 이미지·비디오·TTS 생성 — "이미지/영상 만들어줘" 등에 자동 발동)
 - **post-merge hook** — `git pull` 후 환경 자동 점검·복구 (Bun 설치, $PROFILE 갱신, 플러그인 다운로드, memory 연결)
 - **pre-push doc-sync 게이트** — `git push` 전 doc-sync 사전 검토를 기계로 강제(PreToolUse 훅). 센티널(`.doc-sync-ready`, 1회용·30분 유효)이 없으면 push 자체가 거부됨
+- **settings.json의 `model` 필드 git churn 차단** — `/model` 전환마다 `settings.json`(여러 PC 동기화 대상)이 dirty해지는 문제를 git clean 필터로 해결. 로컬 파일은 그대로 두고 git이 볼 때만 `model` 키를 제거(`.gitattributes` + PC별 로컬 `git config` 등록 필요 — 아래 온보딩 참조)
 - **memory PC 간 공유** — 자동 memory를 `memory/`에 두고 git으로 동기화 (아래 "memory 동기화")
 
 ---
@@ -38,6 +39,10 @@ git -C $env:USERPROFILE\.claude config core.hooksPath setup/hooks
 
 # post-merge hook 첫 실행 (Bun 설치 + $PROFILE 갱신 + 플러그인 다운로드 자동)
 bash $env:USERPROFILE\.claude\setup\hooks\post-merge
+
+# settings.json의 model 필드 git churn 차단 필터 등록 (PC당 1회, git config라 커밋 안 됨)
+git -C $env:USERPROFILE\.claude config filter.modelstrip.clean 'python3 -S "$HOME/.claude/git-settings-model-filter.py" 2>/dev/null || python -S "$HOME/.claude/git-settings-model-filter.py"'
+git -C $env:USERPROFILE\.claude config filter.modelstrip.smudge cat
 
 # 봇 토큰만 직접 입력 (PC당 1회, 시크릿이라 자동 불가)
 Set-Content "$env:USERPROFILE\.claude\channels\telegram\.env" "TELEGRAM_BOT_TOKEN=<봇 토큰>"
@@ -70,6 +75,10 @@ git -C $env:USERPROFILE\.claude config core.hooksPath setup/hooks
 
 # post-merge hook 첫 실행
 bash $env:USERPROFILE\.claude\setup\hooks\post-merge
+
+# settings.json의 model 필드 git churn 차단 필터 등록 (PC당 1회, git config라 커밋 안 됨)
+git -C $env:USERPROFILE\.claude config filter.modelstrip.clean 'python3 -S "$HOME/.claude/git-settings-model-filter.py" 2>/dev/null || python -S "$HOME/.claude/git-settings-model-filter.py"'
+git -C $env:USERPROFILE\.claude config filter.modelstrip.smudge cat
 
 # 봇 토큰 (PC당 1회)
 Set-Content "$env:USERPROFILE\.claude\channels\telegram\.env" "TELEGRAM_BOT_TOKEN=<봇 토큰>"
@@ -146,6 +155,9 @@ projects/<이 PC의 키>/memory  ──(정크션)──►  ~/.claude/memory/  
 ├── settings.json             # 전역 설정 (bypass, hooks, statusLine, 마켓플레이스, 채널 활성)
 │                              #   ⚠ statusLine·훅 명령은 `bash -c '...'` 래퍼로 OS 감지·분기 (Git Bash 필요).
 │                              #     단순화하면 cmd 라우팅 PC에서 silent fail. python 우선 + .ps1 윈도우 폴백.
+│                              #   model 필드는 .gitattributes+git-settings-model-filter.py로 git엔 항상 안 보임
+├── .gitattributes            # settings.json → filter=modelstrip 지정 (실제 필터 명령은 PC별 로컬 git config)
+├── git-settings-model-filter.py  # git clean 필터 — settings.json의 model 키를 git 인덱스에서만 제거
 ├── statusline.py             # 터미널 상태바 (크로스플랫폼, 기본)
 ├── statusline.ps1            # 〃 PowerShell 폴백 (python 없는 Windows)
 ├── toast.sh                  # 데스크톱 알림 디스패처 (Win→toast.ps1 / mac→osascript+afplay / linux→notify-send)
