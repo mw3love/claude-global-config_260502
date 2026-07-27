@@ -150,31 +150,31 @@ def git_status_part(cwd):
         return None
 
 Sep = " | "
-parts = []
+line1 = []
+line2 = []
 
-# 현재 폴더(leaf)
+# 1행: 현재 폴더(leaf) + git 브랜치/미커밋/동기화 상태
 cwd = g(data, "workspace", "current_dir") or data.get("cwd")
 if cwd:
     leaf = re.split(r"[\\/]+", str(cwd).rstrip("\\/"))[-1]
     if leaf:
-        parts.append(Cyan + leaf + Reset)
+        line1.append(Cyan + leaf + Reset)
 
-# git 브랜치 + 미커밋 + 동기화 상태
 git_part = git_status_part(cwd)
 if git_part:
-    parts.append(git_part)
+    line1.append(git_part)
 
-# 모델 + 컨텍스트 창 크기
+# 2행: 모델 + 컨텍스트 창 크기
 model = g(data, "model", "display_name") or g(data, "model", "id") or "Claude"
 short = re.sub(r"\s", "", re.sub(r"^Claude\s*", "", model)) or "Claude"
 tag = " [opusplan]" if str(model_setting() or "").startswith("opusplan") else ""
-parts.append(short + tag + fmt_ctxsize(g(data, "context_window", "context_window_size")))
+line2.append(short + tag + fmt_ctxsize(g(data, "context_window", "context_window_size")))
 
 # 컨텍스트 사용률
 used = g(data, "context_window", "used_percentage")
 if used is not None:
     pct = round(used)
-    parts.append("C: {}{}%{}".format(color(pct), pct, Reset))
+    line2.append("C: {}{}%{}".format(color(pct), pct, Reset))
 
 # 5시간 / 7일 레이트리밋
 for key, label in (("five_hour", "5h"), ("seven_day", "7d")):
@@ -182,6 +182,6 @@ for key, label in (("five_hour", "5h"), ("seven_day", "7d")):
     if p is not None:
         v = round(p)
         rem = fmt_remaining(g(data, "rate_limits", key, "resets_at"))
-        parts.append("{}: {}{}%{} {}".format(label, color(v), v, Reset, rem).rstrip())
+        line2.append("{}: {}{}%{} {}".format(label, color(v), v, Reset, rem).rstrip())
 
-out(Sep.join(parts))
+out(Sep.join(line1) + "\n" + Sep.join(line2))

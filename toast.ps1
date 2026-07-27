@@ -20,9 +20,14 @@ if ($Persist) {
         [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null
         [Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime] | Out-Null
         $APP_ID = '{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\WindowsPowerShell\v1.0\powershell.exe'
-        $escaped = [System.Security.SecurityElement]::Escape($Message)
+        # 알림센터 압축 미리보기는 <text> 노드 수와 무관하게 딱 2줄(제목+본문 1줄)만 보여주고
+        # 나머지 노드는 통째로 버린다(2026-07-27 실측: 3노드로 분리해도 3번째가 안 보임 — 처음엔
+        # "줄바꿈 문자가 한 노드 안에서 잘린다"고 오판했으나 노드를 쪼개도 동일해 재진단).
+        # 그래서 제목/세부내역을 줄바꿈 대신 " — "로 합쳐 딱 하나의 본문 줄에 다 담는다.
+        $bodyLine = ($Message -split "`n" | Where-Object { $_ -ne '' }) -join ' — '
+        $textNodes = "<text>Claude Code</text><text>$([System.Security.SecurityElement]::Escape($bodyLine))</text>"
         $xml = New-Object Windows.Data.Xml.Dom.XmlDocument
-        $xml.LoadXml("<toast><visual><binding template=`"ToastGeneric`"><text>Claude Code</text><text>$escaped</text></binding></visual></toast>")
+        $xml.LoadXml("<toast><visual><binding template=`"ToastGeneric`">$textNodes</binding></visual></toast>")
         $toast = [Windows.UI.Notifications.ToastNotification]::new($xml)
         [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier($APP_ID).Show($toast)
     } catch { }

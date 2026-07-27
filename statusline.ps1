@@ -167,12 +167,14 @@ if ($null -ne $weekPct) {
     $weekPart = "7d: ${col}${w}%${Reset} $rem".TrimEnd()
 }
 
-$parts = @()
-if ($folderPart) { $parts += $folderPart }
-if ($gitPart)    { $parts += $gitPart }
-$parts += $modelPart
-if ($ctxPart)  { $parts += $ctxPart }
-if ($fivePart) { $parts += $fivePart }
-if ($weekPart) { $parts += $weekPart }
+$line1 = @()
+if ($folderPart) { $line1 += $folderPart }
+if ($gitPart)    { $line1 += $gitPart }
 
-[Console]::Write($parts -join $Sep)
+$line2 = @()
+$line2 += $modelPart
+if ($ctxPart)  { $line2 += $ctxPart }
+if ($fivePart) { $line2 += $fivePart }
+if ($weekPart) { $line2 += $weekPart }
+
+[Console]::Write(($line1 -join $Sep) + "`n" + ($line2 -join $Sep))
