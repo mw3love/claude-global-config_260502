@@ -72,18 +72,16 @@ function Get-GitPart($cwd) {
             }
             $fetchHead = Join-Path $cwd ".git\FETCH_HEAD"
             if (Test-Path $fetchHead) {
-                $fetchTime = (Get-Item $fetchHead).LastWriteTimeUtc
-                $diff = [int]([DateTimeOffset]::UtcNow - [DateTimeOffset]$fetchTime).TotalSeconds
-                if ($diff -lt 60) { $fetchAgo = "<1m" }
-                elseif ($diff -lt 3600) { $fetchAgo = "$([math]::Floor($diff/60))m" }
-                elseif ($diff -lt 86400) { $fetchAgo = "$([math]::Floor($diff/3600))h" }
-                else { $fetchAgo = "$([math]::Floor($diff/86400))d" }
+                $fetchTime = (Get-Item $fetchHead).LastWriteTime
+                $now = Get-Date
+                if ($fetchTime.Date -eq $now.Date) { $fetchAgo = $fetchTime.ToString("HH:mm") }
+                else { $fetchAgo = $fetchTime.ToString("MM/dd HH:mm") }
             }
             if ($ahead -eq 0 -and $behind -eq 0) { $sync = "synced" }
             elseif ($ahead -gt 0 -and $behind -eq 0) { $sync = "$ahead ahead" }
             elseif ($behind -gt 0 -and $ahead -eq 0) { $sync = "$behind behind" }
             else { $sync = "$ahead ahead, $behind behind" }
-            if ($fetchAgo) { $sync = "$sync (${fetchAgo} ago)" }
+            if ($fetchAgo) { $sync = "$sync (${fetchAgo})" }
         } else {
             $sync = "no upstream"
         }

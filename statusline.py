@@ -108,15 +108,13 @@ def git_status_part(cwd):
                     ahead, behind = int(pieces[0]), int(pieces[1])
             fetch_head = os.path.join(cwd, ".git", "FETCH_HEAD")
             if os.path.isfile(fetch_head):
-                diff = int(time.time() - os.path.getmtime(fetch_head))
-                if diff < 60:
-                    fetch_ago = "<1m"
-                elif diff < 3600:
-                    fetch_ago = "{}m".format(diff // 60)
-                elif diff < 86400:
-                    fetch_ago = "{}h".format(diff // 3600)
+                mtime = os.path.getmtime(fetch_head)
+                lt = time.localtime(mtime)
+                now_lt = time.localtime()
+                if (lt.tm_year, lt.tm_yday) == (now_lt.tm_year, now_lt.tm_yday):
+                    fetch_ago = time.strftime("%H:%M", lt)
                 else:
-                    fetch_ago = "{}d".format(diff // 86400)
+                    fetch_ago = time.strftime("%m/%d %H:%M", lt)
             if ahead == 0 and behind == 0:
                 sync = "synced"
             elif ahead > 0 and behind == 0:
@@ -126,7 +124,7 @@ def git_status_part(cwd):
             else:
                 sync = "{} ahead, {} behind".format(ahead, behind)
             if fetch_ago:
-                sync += " ({} ago)".format(fetch_ago)
+                sync += " ({})".format(fetch_ago)
         else:
             sync = "no upstream"
 

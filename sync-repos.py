@@ -217,7 +217,8 @@ def main():
         sys.exit(2)
 
     if ok:
-        _notify("sync-repos", "업데이트%d 변경없음%d 미클론%d" % (ok, noch, skip))
+        updated_names = ", ".join(e["name"] for e in results if e["status"] in ("built", "updated"))
+        _notify("sync-repos", "업데이트: %s / 변경없음%d 미클론%d" % (updated_names, noch, skip))
     else:
         _notify("sync-repos", "전부최신%d 미클론%d" % (noch, skip))
     sys.exit(0)
