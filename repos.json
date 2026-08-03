@@ -48,8 +48,10 @@
     "reference": "내보내기 전 A4/A3 페이지 경계를 미리보는 MV3 크롬 확장(브라우저 클라이언트사이드 HTML→PDF 자체 페이지 분할). 상세 함정→해법은 wiki/ — 페이지 분할기+인쇄 주석 앵커링(notion-페이지분할기), 에디터/DB 편집 크롬 제거(notion-에디터-크롬-제거), 동일출처 스냅샷·이미지 인라인(notion-스냅샷-이미지인라인), CSS 격리 디버깅(notion-css-격리-디버깅), 미리보기 레일·스크롤 UX(notion-미리보기-스크롤-ux); 공유 함정은 형광펜(shared-형광펜-dom-range-직렬화), 툴바 아이콘 SVG→PNG(shared-svg-png-래스터화-우회), 인쇄물 육안 검증(shared-headless-pdf-인쇄검증)"
   },
   {
-    "desc": "PDF Maker — 우클릭 이미지→PDF 변환·병합, HWP→PDF (Python, 관리자 불요) [참고 전용]",
+    "path": "Dev/PDF_Maker_260406",
+    "desc": "PDF Maker — 우클릭 이미지→PDF 변환·병합, HWP→PDF (Python, 관리자 불요)",
+    "build": "build.bat",
     "remote": "https://github.com/mw3love/PDF_Maker_260406.git",
-    "reference": "탐색기 우클릭 이미지/PDF/HWP→PDF 변환·병합(PyMuPDF+한컴COM, HKCU 레지스트리·관리자 불요). MultiSelectModel 다중선택 세션 수집기(프로세스별 엔트리파일+lock 마스터선출). 상세 함정→해법은 wiki/ — HWP SaveAs PDF 2-up 모아찍기(pdfmaker-hwp-saveas-2up)"
+    "reference": "탐색기 우클릭 이미지/PDF/HWP→PDF 변환·병합(PyMuPDF+한컴COM, HKCU 레지스트리·관리자 불요). MultiSelectModel 다중선택 세션 수집기(프로세스별 엔트리파일+lock 마스터선출). 클라우드 동기화 드라이브(구글 드라이브)에서 실행 시 로컬 디스크 대비 8배 이상 느려짐(2026-08-03 실측) — 로컬 디스크 배포 필수. 상세 함정→해법은 wiki/ — HWP SaveAs PDF 2-up 모아찍기(pdfmaker-hwp-saveas-2up)"
   }
 ]
