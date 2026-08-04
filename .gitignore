@@ -18,7 +18,7 @@ ide/
 paste-cache/
 plans/
 plugins/
-projects/
+/projects/
 ref-cache/
 session-env/
 sessions/
