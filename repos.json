@@ -48,6 +48,11 @@
     "reference": "내보내기 전 A4/A3 페이지 경계를 미리보는 MV3 크롬 확장(브라우저 클라이언트사이드 HTML→PDF 자체 페이지 분할). 상세 함정→해법은 wiki/ — 페이지 분할기+인쇄 주석 앵커링(notion-페이지분할기), 에디터/DB 편집 크롬 제거(notion-에디터-크롬-제거), 동일출처 스냅샷·이미지 인라인(notion-스냅샷-이미지인라인), CSS 격리 디버깅(notion-css-격리-디버깅), 미리보기 레일·스크롤 UX(notion-미리보기-스크롤-ux); 공유 함정은 형광펜(shared-형광펜-dom-range-직렬화), 툴바 아이콘 SVG→PNG(shared-svg-png-래스터화-우회), 인쇄물 육안 검증(shared-headless-pdf-인쇄검증)"
   },
   {
+    "path": "Dev/AROS_Reverse_Eng_260803",
+    "desc": "AROS 프로그램 리버스 엔지니어링",
+    "remote": "https://github.com/mw3love/AROS_Reverse_Eng_260803.git"
+  },
+  {
     "path": "Dev/PDF_Maker_260406",
     "desc": "PDF Maker — 우클릭 이미지→PDF 변환·병합, HWP→PDF (Python, 관리자 불요)",
     "build": "build.bat",
