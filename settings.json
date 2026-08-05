@@ -3,6 +3,16 @@
     "defaultMode": "auto"
   },
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'python3 ~/.claude/session-memory-hook.py 2>>~/.claude/session-memory-hook.log || python ~/.claude/session-memory-hook.py 2>>~/.claude/session-memory-hook.log'"
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "hooks": [

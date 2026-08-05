@@ -31,6 +31,7 @@ description: 여러 PC에서 쓰는 git 프로젝트들을 한 번에 git pull(+
 ```
 - `path` — **홈 폴더 기준 상대경로** (절대경로 금지: PC마다 사용자명이 달라짐).
 - `desc` — (선택) 요약에 표시할 이름.
+- `short` — (선택, 2026-08-05) 토스트 알림에 쓸 10자 이내 약어. 없으면 `desc`를 10자로 하드컷.
 - `build` — (선택) pull로 변경이 생겼을 때 repo 폴더에서 실행할 명령. 없으면 pull만.
 
 `.claude` 폴더 자체가 명단 첫 항목이라, `repos.json`을 고쳐 push 해두면 **다른 모든 PC에도 명단이 자동 동기화**된다.
@@ -41,7 +42,9 @@ description: 여러 PC에서 쓰는 git 프로젝트들을 한 번에 git pull(+
 - `git reset`, `git checkout -- `, force push 등 되돌리기 어려운 명령은 **자동 실행 금지**, 진단·제안만.
 - **[자기업데이트]**(2026-07-22, `sync-repos.py`만) — 본 로직 전에 `.claude`(스크립트+`repos.json`)를 먼저 pull하고, 바뀌었으면 같은 인자로 자동 재실행한다. 파이썬은 파일을 이미 메모리에 읽은 뒤라 pull만으론 반영이 안 되기 때문 — 이제 "다음 실행부터 반영"을 기다릴 필요 없이 이번 실행부터 새 코드/명단이 적용된다. `.ps1` 폴백 엔진은 이 로직이 없다(python 없는 PC 한정 폴백이라 우선순위 낮음).
 - **[완료 알림]**(2026-07-22) — 실행이 끝나면 항상 알림이 뜬다(업데이트/변경없음/문제 세 갈래로 내용만 다름). 전체를 넓은 `try/except`로 감싸 코드 안 예외도 최소 "실패" 알림 한 줄은 뜨게 한다 — "알림이 아예 안 뜸"이 곧 "자동실행 자체가 안 됨"의 신호가 되도록 설계(로그온 자동실행에서 특히 중요, 로그: `%LOCALAPPDATA%\sync-repos\startup.log`). **새로 구현하지 않고 기존 알림기를 재사용**한다(Windows 토스트+화면중앙 팝업+Telegram, macOS/Linux 자동 분기 — 이미 있는 걸 처음엔 못 보고 `NotifyIcon`으로 따로 만들었다가 뒤늦게 발견해 교체, 규칙 2 손안의 카드 확인 누락 사례). **Windows는 `toast.sh`를 우회해 `toast.ps1`을 `powershell`로 직접 호출**한다(2026-07-23) — 부팅 PATH엔 Git bash가 없어 `bash`가 WSL 런처로 잡히고, WSL은 Windows 경로를 이해 못 해 `toast.sh`를 못 찾고(exit 127) `uname`도 `Linux`라 Windows 분기를 못 탄다. `Popen`이 fire-and-forget이라 이 실패가 로그에도 안 남아 **로그온 자동실행 알림이 조용히 사라져 있었다**(MW-Lenovo에서 발견). macOS/Linux는 종전대로 `toast.sh` 경유.
-- **[로그온 자동실행]**(이 PC 한정 — 메모리 `reference-sync-repos-autostart` 참조) — HKCU Run 키 `sync-repos-on-logon` + `%LOCALAPPDATA%\sync-repos\startup.vbs`(60초 대기 후 숨김 실행). git 동기화 대상 아님(PC마다 재설정 필요).
+- **[로그온 자동실행]**(이 PC 한정 — 메모리 `reference-sync-repos-autostart` 참조) — HKCU Run 키 `sync-repos-on-logon` + `%LOCALAPPDATA%\sync-repos\startup.vbs`(숨김 실행). git 동기화 대상 아님(PC마다 재설정 필요). **[2026-07-31] 대기시간을 VBS에서 python으로 이동 + 1회 자동 마이그레이션** — VBS는 더 이상 자체 Sleep 없이 곧바로 `sync-repos.py --boot-wait`를 실행하고, 실제 대기는 `sync-repos.py`가 관리(git 추적, push로 각 PC에 자동 반영). 구버전 VBS(자체 Sleep)가 남은 PC는 수동으로 손댈 필요 없음 — `_migrate_boot_vbs()`가 자기업데이트 직후 매 실행마다 불리지만 VBS 내용에 `--boot-wait`가 이미 있으면 조용히 스킵하는 멱등 구조라, 구버전이 감지된 첫 실행에서만 새 형식으로 자동 교체하고 이후엔 손대지 않는다(python_path/script_path는 그 PC의 실제 `sys.executable`/`__file__` 값을 써서 설치 경로가 달라도 안전).
+- **[2026-08-04] 고정 sleep → 네트워크 폴링 + 중복대기 버그 수정** — 사용자가 "1분 지나도 안 되다가 한참 뒤에 되는 경우가 있다"고 보고. 로그(`startup.log`) 실측: `os.execv` 자기업데이트 재실행이 `--boot-wait` 플래그를 그대로 물려받아 **부팅대기(30s)를 두 번** 돌고 있었다(30+30=76~85초 실측, 2026-08-03·04). 고정 `time.sleep(BOOT_WAIT_SECONDS)`도 네트워크가 이미 떠 있어도 무조건 다 기다리는 낭비였다. 수정: ⓐ `_wait_for_network()`가 `github.com:443` 접속을 2초 간격 폴링, 붙는 즉시 반환(상한 `BOOT_WAIT_SECONDS`=90, 유선처럼 이미 붙어있으면 0.1~0.2초 만에 통과 — 실측 확인 ✓), ⓑ `SYNC_REPOS_BOOT_WAITED` env 가드로 자기업데이트 재실행 시 중복 대기 차단(`execv`는 현재 프로세스 environ을 그대로 물려받으므로 재실행 후에도 유지 — `SYNC_REPOS_RELAUNCHED` 가드와 동일 패턴).
+- **[2026-08-05] 병렬 pull + 바탕화면 리포트 + 토스트 약어화** — 레포별 `git pull`을 순차로 돌던 걸 `ThreadPoolExecutor`로 병렬화(레포 간 독립적이라 충돌 없음, 실측: 7개 순차 28초 → 8개 병렬 3.2초). 빌드는 리소스 경합 우려로 병렬 대상에서 제외, pull 이후 순차 처리 유지. 실행 결과를 바탕화면에 `YYMMDDHHmm_sync-repos-결과.md`(표, 실행마다 새 파일 — 못 읽고 지나간 전날 리포트가 덮어써지지 않게)로 남겨 토스트가 못 담는 상세를 보완. 토스트 본문도 재구성 — 변경없음은 건수만, 미클론·업데이트는 `repos.json`의 `short` 필드로 이름 나열(기존엔 `desc` 원문이라 여러 레포 업데이트 시 200자 제한에 잘렸음).
 
 ## 터미널에서 직접 (Claude 없이)
 

@@ -23,7 +23,7 @@
 - **post-merge hook** — `git pull` 후 환경 자동 점검·복구 (Bun 설치, $PROFILE 갱신, 플러그인 다운로드, memory 연결)
 - **pre-push doc-sync 게이트** — `git push` 전 doc-sync 사전 검토를 기계로 강제(PreToolUse 훅). 센티널(`.doc-sync-ready`, 1회용·30분 유효)이 없으면 push 자체가 거부됨
 - **settings.json의 `model` 필드 git churn 차단** — `/model` 전환마다 `settings.json`(여러 PC 동기화 대상)이 dirty해지는 문제를 git clean 필터로 해결. 로컬 파일은 그대로 두고 git이 볼 때만 `model` 키를 제거(`.gitattributes` + PC별 로컬 `git config` 등록 필요 — 아래 온보딩 참조)
-- **memory PC 간 공유** — 자동 memory를 `memory/`에 두고 git으로 동기화 (아래 "memory 동기화")
+- **memory PC 간 공유** — 자동 memory를 `memory/`에 두고 git으로 동기화. `.claude` 자신은 정크션(post-merge hook), `repos.json`에 등록된 다른 프로젝트는 `autoMemoryDirectory`(SessionStart hook) (아래 "memory 동기화")
 
 ---
 
@@ -111,15 +111,15 @@ C:\Users\7make\.claude  →  projects/C--Users-7make--claude/memory/   ← PC A
 C:\Users\길동\.claude    →  projects/C--Users----claude/memory/       ← PC B (키가 다름!)
 ```
 
-**해결:** 실제 파일은 repo 루트 `memory/`에 두고(git 추적), 각 PC가 **자기 키 자리에 정크션**(디렉터리 링크)을 걸어 하네스가 보는 경로를 repo로 잇는다. 정크션은 `post-merge` hook이 pull 때 자동 생성하며, **관리자 권한이 필요 없다**(심볼릭 링크와 다름).
+**해결(현재, 2026-08-05):** 실제 파일은 repo 루트 `memory/`에 두고(git 추적), `.claude` 자신을 포함한 **모든 등록 프로젝트**에 Claude Code 공식 설정 **`autoMemoryDirectory`**로 저장 위치를 그리로 돌린다.
 
-```
-projects/<이 PC의 키>/memory  ──(정크션)──►  ~/.claude/memory/   ← git이 추적하는 실체
-```
+- **`session-memory-hook.py`**(`SessionStart` 훅, 매 세션 시작마다 발화) — cwd의 git root를 `repos.json`의 `path`와 대조해, 등록된 레포면 그 레포의 `.claude/settings.local.json`에 `autoMemoryDirectory`를 써넣는다(멱등 — 이미 맞으면 안 건드림). `.claude` 자신은 `memory/` 루트, 다른 프로젝트는 `memory/projects/<이름>`을 **완전한 절대경로**로 써넣는다 — `~/`로 시작하는 값은 Claude Code의 물결표 확장이 구분자를 빠뜨리는 버그가 있어(예: `~/.claude/memory` → `C:\Users\minwoo.claude\memory`, `minwoo`와 `.claude` 사이 `\` 소실 — 2026-08-05 새 세션에서 `/memory`로 실측 발견) 절대경로로 우회한다. 로컬 폴더명이 `repos.json`과 달라졌어도(리네임 등) 매칭 실패로 조용히 스킵되어 오탐이 없다(실측 검증: 이미설정됨/새로씀/git아님/미등록레포/`.claude` 자신 — 5가지 케이스).
+- 실제 파일은 repo 안이라 이미 있는 커밋/push 흐름을 그대로 타고 다른 PC로 넘어간다 — 정크션과 달리 별도 pull 훅이 필요 없다.
+- 각 프로젝트의 `.claude/settings.local.json`은 그 프로젝트 자신의 `.gitignore`에 추가해 그 프로젝트의 공유 레포로 새지 않게 한다.
+- ⚠ 확인 필요: 리다이렉트가 설정 직후 같은 세션에서 바로 적용되는지 다음 세션부터인지는 공식 문서에도 명시가 없어 미검증.
+- PC마다 이미 따로 쌓여있던 로컬 memory는 이 훅이 건드리지 않는다 — 새 PC에서 처음 pull 받은 뒤 기존 로컬 memory와 repo의 `memory/`를 직접 비교해 병합할 것(단순 덮어쓰기 금지, PC마다 다른 내용이 쌓였을 수 있음).
 
-- 정크션 자체는 `projects/` 아래라 gitignore되어 **커밋되지 않는다** — PC마다 자기 것을 만든다.
-- 이미 그 자리에 **로컬 memory 파일이 있으면 훅이 덮어쓰지 않고 경고**한다. 직접 병합할 것.
-- ⚠ memory는 **프로젝트별**이다. 이 방식이 공유하는 것은 `~/.claude` 프로젝트의 memory뿐이며, 다른 프로젝트(예: `~/Dev/foo`)의 memory는 각자 자기 repo에서 따로 다뤄야 한다.
+**과거 방식(레거시, `.claude` 전용) — 아직 남아있지만 이제 불필요:** `post-merge` hook이 pull 때마다 `projects/<이 PC의 키>/memory`에 **정크션**(디렉터리 링크)을 걸어 하네스 경로를 repo `memory/`로 직접 연결하던 방식. 정크션 대상 계산이 **비공식 해시 알고리즘**(문서화 안 됨)에 의존해 Claude Code 버전업 시 조용히 깨질 위험이 있어, 공식 지원 설정인 `autoMemoryDirectory`로 대체했다. 정크션 로직 자체는 위험하지 않고 같은 목적지(`~/.claude/memory/`)를 가리키므로 **안전망으로 그대로 남겨둠** — 굳이 지금 제거하지 않는다.
 
 ---
 
@@ -129,6 +129,7 @@ projects/<이 PC의 키>/memory  ──(정크션)──►  ~/.claude/memory/  
 ```
 ~/.claude/
 ├── memory/                   # 자동 memory 실체 (PC 간 공유) — 아래 "memory 동기화" 참조
+│   └── projects/<이름>/      # repos.json 등록 프로젝트별 memory (autoMemoryDirectory 리다이렉트 대상)
 ├── design-system/            # design-bakeoff가 읽고 쓰는 디자인 취향 축적 문서 (preferences.md + projects/<slug>.md)
 ├── setup/
 │   ├── hooks/
@@ -148,7 +149,7 @@ projects/<이 PC의 키>/memory  ──(정크션)──►  ~/.claude/memory/  
 ├── agents/                   # 커스텀 서브에이전트 override (예: Explore.md → model: haiku, 비용 절감용)
 ├── wiki/                     # reference-repos 함정 위키 — repo별 스턱루프→해법 (<repo>-<기법>.md, 여러 repo 공유는 shared-*)
 ├── tools/                    # 유지보수 유틸 (audit_rules.py — 규칙 발화율 감사, 지문 기반)
-├── docs/                     # 연구·분석 노트 (예: omc-study.md — OMC 비교 분석)
+├── docs/                     # 연구·분석 노트 (예: omc-study.md — OMC 비교 분석, claude-md-cases.md — CLAUDE.md 분리된 실패사례 전문, 자동 로드 안 됨)
 ├── channels/
 │   └── telegram/
 │       ├── .env              # 봇 토큰 (gitignore, PC별 수동)
@@ -168,6 +169,7 @@ projects/<이 PC의 키>/memory  ──(정크션)──►  ~/.claude/memory/  
 ├── doc-sync-hook.py          # git push 후 doc-sync 트리거 훅 (크로스플랫폼, 기본)
 ├── doc-sync-hook.ps1         # 〃 PowerShell 폴백 (python 없는 Windows)
 ├── pre-push-doc-sync-hook.py # PreToolUse 훅 — 센티널(.doc-sync-ready) 없는 git push 거부 (doc-sync 사전 검토 기계 강제)
+├── session-memory-hook.py    # SessionStart 훅 — repos.json 등록 프로젝트의 auto-memory를 memory/projects/<이름>으로 리다이렉트(autoMemoryDirectory)
 ├── stuck-loop-hook.py        # UserPromptSubmit 훅 — 좌절 어휘 2회째 감지해 규칙 11-b 트립와이어 주입 (안전망)
 ├── sync-repos.py             # 여러 repo 일괄 pull+빌드 엔진 (크로스플랫폼, 기본)
 ├── sync-repos.ps1            # 〃 PowerShell 폴백 (python 없는 Windows)

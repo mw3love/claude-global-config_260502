@@ -2,18 +2,21 @@
   {
     "path": ".claude",
     "desc": "전역 Claude 설정",
+    "short": "Claude설정",
     "remote": "https://github.com/mw3love/claude-global-config_260502.git",
     "reference": "Claude Code 하네스 패턴 — 스킬(SKILL.md) 구조, PostToolUse 훅(PowerShell), settings.json, 크로스플랫폼 엔진 스크립트(py+ps1), 자동실행 트리거는 항상-로드 위치(전역 CLAUDE.md)에 둬야 발화 — SKILL.md는 호출돼야 떠서 self-trigger 불가(self-review 자동실행·reference 자동기록이 같은 방식)"
   },
   {
     "path": "Dev/KBS_Monitoring_v2_260418",
     "desc": "KBS 16채널 방송 모니터링 v2 (운영 중)",
+    "short": "KBS모니터링",
     "remote": "https://github.com/mw3love/KBS_Monitoring_v2_260418.git",
     "reference": "PySide6 방송 모니터링. multiprocessing 3프로세스 분리(UI/Watchdog/Detection) + SharedMemory 프레임 전달 + Queue 메시지 계약(docs_ipc_spec.md). 장기가동 시 UI 프로세스만 힙 손상되어 순수 파이썬 __init__ 전멸하는 사고 4회 — 관측 계측(HEALTH/excepthook/PYTHONMALLOC)으로는 범인 특정 실패, 제거 실험(bisect)으로 전환. 손상된 프로세스는 requests를 못 쓰므로 파일 플래그로 건강한 프로세스에 통보 대행시키는 패턴. 상세: fix/260526_설정다이얼로그_TypeError_재현불가.md"
   },
   {
     "path": "Dev/youtube_dual_subtitle",
     "desc": "YouTube 듀얼 자막 확장",
+    "short": "YT듀얼자막",
     "build": "npm install && npm run build",
     "remote": "https://github.com/mw3love/youtube_dual_subtitle",
     "reference": "YouTube content-script 자막 오버레이, 듀얼/점진(노래방형) 자막 렌더, 번역 백엔드 다중(Google무료/Chrome내장/Gemini·Mindlogic BYOK), 번역 캐시, 자막 위치 드래그 저장, secrets·백엔드 호출 패턴"
@@ -21,6 +24,7 @@
   {
     "path": "Dev/AI_Dictionary_260622",
     "desc": "AI 사전 Chrome 확장 (BYOK Gemini/Mindlogic)",
+    "short": "AI사전확장",
     "build": "npm install && npm run build",
     "remote": "https://github.com/mw3love/AI_Dictionary_260622.git",
     "reference": "BYOK LLM(Gemini/Mindlogic) 단발 호출 Chrome 확장(crxjs/Vite). markdown→DOM 안전 렌더러(innerHTML 미사용). 상세 함정→해법은 wiki/ — 크롬확장 오버레이 주입(ai_dictionary-*), crxjs 빌드 함정, 형광펜(shared-형광펜-dom-range), SVG→PNG 래스터화(shared-svg-png), Notion 저장(notion-페이지-덮어쓰기)"
@@ -33,12 +37,14 @@
   {
     "path": "Dev/Paste_flow",
     "desc": "PasteFlow — 순차 붙여넣기 클립보드 매니저 (PyQt6, Windows)",
+    "short": "PasteFlow",
     "remote": "https://github.com/mw3love/Paste_flow.git",
     "reference": "순차 붙여넣기 클립보드 매니저(PyQt6/Win32). 상세 함정→해법은 wiki/pasteflow-*.md — 마그네틱 영역캡처, QGraphicsItem 회전·크기조절 핸들, Qt 위젯 입력 함정, Qt 모달 범위, 게이트웨이 모델능력 스윕, Win32 입력주입"
   },
   {
     "path": "Dev/Easy_CAD_260718",
     "desc": "Easy CAD — 순서도/간단도면 작성기 (PyQt6, PDF·DXF 목표)",
+    "short": "EasyCAD",
     "remote": "https://github.com/mw3love/Easy_CAD_260718",
     "reference": "빠른 순서도/간단도면 작성기(PyQt6 무한캔버스). pasteflow 주석 편집기를 verbatim 이식해 승격 — QGraphicsScene 스냅+베지어 화살표. 화살표 지속연결(고정 부착점), 다중선택 그룹 변형(회전·스케일·미러·crossing stretch), o-snap 토글, .ecad(JSON) 저장, PDF 출력(A4~A1). 목표: DXF 왜복(ezdxf, 베지어→SPLINE). GUI라 offscreen 스모크는 프록시검증일 뿐 — 실조건은 python run.py 필요"
   },
@@ -50,13 +56,22 @@
   {
     "path": "Dev/AROS_Reverse_Eng_260803",
     "desc": "AROS 프로그램 리버스 엔지니어링",
+    "short": "AROS리버싱",
     "remote": "https://github.com/mw3love/AROS_Reverse_Eng_260803.git"
   },
   {
     "path": "Dev/PDF_Maker_260406",
     "desc": "PDF Maker — 우클릭 이미지→PDF 변환·병합, HWP→PDF (Python, 관리자 불요)",
+    "short": "PDF Maker",
     "build": "build.bat",
     "remote": "https://github.com/mw3love/PDF_Maker_260406.git",
     "reference": "탐색기 우클릭 이미지/PDF/HWP→PDF 변환·병합(PyMuPDF+한컴COM, HKCU 레지스트리·관리자 불요). MultiSelectModel 다중선택 세션 수집기(프로세스별 엔트리파일+lock 마스터선출). 클라우드 동기화 드라이브(구글 드라이브)에서 실행 시 로컬 디스크 대비 8배 이상 느려짐(2026-08-03 실측) — 로컬 디스크 배포 필수. 상세 함정→해법은 wiki/ — HWP SaveAs PDF 2-up 모아찍기(pdfmaker-hwp-saveas-2up)"
+  },
+  {
+    "path": "Dev/Moak_PLC_Rerverse_Eng_260804",
+    "desc": "모악산 집수정 PLC 리버스 엔지니어링 — 낙뢰 취약 장비 대체 검토",
+    "short": "PLC리버싱",
+    "remote": "https://github.com/mw3love/Moak_PLC_Rerverse_Eng_260804.git",
+    "reference": "LS산전 MASTER-K120S 래더로직을 배전반 사진·파라미터만으로 리버스 엔지니어링(실기 접근 없이). 무선 구간(Zig485)은 PLC 입장에서 투명한 RS-485 중계라 컨트롤러를 갈아끼워도 기존 무선 인프라를 그대로 재사용 가능 — 이런 '투명 중계 지점'을 찾으면 교체 범위를 하드웨어 계층으로 좁힐 수 있다는 패턴"
   }
 ]
