@@ -1,0 +1,1 @@
+- [UI 심플 원칙](ui-simplicity-principle.md) — 상단 툴바에 종류를 늘리지 말고, 선택 후 컨텍스트 하위목록에서 고르게
