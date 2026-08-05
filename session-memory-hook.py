@@ -74,12 +74,15 @@ def main():
     # 남겨둠 — 두 메커니즘이 같은 목적지를 가리켜도 충돌 없음, 2026-08-05).
     if matched["path"] == ".claude":
         target_dir = os.path.join(home, ".claude", "memory")
-        target_value = "~/.claude/memory"
     else:
         name = os.path.basename(matched["path"].rstrip("/"))
         target_dir = os.path.join(home, ".claude", "memory", "projects", name)
-        target_value = "~/.claude/memory/projects/%s" % name
     os.makedirs(target_dir, exist_ok=True)
+    # ~/ 형태는 Claude Code의 물결표 확장이 구분자를 빠뜨리는 버그가 있어(실측 확인
+    # 2026-08-05: "~/.claude/memory/..."가 "C:\Users\minwoo.claude\memory\..."로 잘못
+    # 펼쳐짐 — home과 .claude 사이 \가 사라짐) 완전한 절대경로를 직접 써넣는다. 문서상
+    # autoMemoryDirectory는 절대경로도 허용.
+    target_value = target_dir
 
     settings_dir = os.path.join(root, ".claude")
     settings_path = os.path.join(settings_dir, "settings.local.json")

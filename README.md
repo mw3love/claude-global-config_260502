@@ -113,7 +113,7 @@ C:\Users\길동\.claude    →  projects/C--Users----claude/memory/       ← PC
 
 **해결(현재, 2026-08-05):** 실제 파일은 repo 루트 `memory/`에 두고(git 추적), `.claude` 자신을 포함한 **모든 등록 프로젝트**에 Claude Code 공식 설정 **`autoMemoryDirectory`**로 저장 위치를 그리로 돌린다.
 
-- **`session-memory-hook.py`**(`SessionStart` 훅, 매 세션 시작마다 발화) — cwd의 git root를 `repos.json`의 `path`와 대조해, 등록된 레포면 그 레포의 `.claude/settings.local.json`에 `autoMemoryDirectory`를 써넣는다(멱등 — 이미 맞으면 안 건드림). `.claude` 자신은 `~/.claude/memory`(루트 그대로), 다른 프로젝트는 `~/.claude/memory/projects/<이름>`. 로컬 폴더명이 `repos.json`과 달라졌어도(리네임 등) 매칭 실패로 조용히 스킵되어 오탐이 없다(실측 검증: 이미설정됨/새로씀/git아님/미등록레포/`.claude` 자신 — 5가지 케이스).
+- **`session-memory-hook.py`**(`SessionStart` 훅, 매 세션 시작마다 발화) — cwd의 git root를 `repos.json`의 `path`와 대조해, 등록된 레포면 그 레포의 `.claude/settings.local.json`에 `autoMemoryDirectory`를 써넣는다(멱등 — 이미 맞으면 안 건드림). `.claude` 자신은 `memory/` 루트, 다른 프로젝트는 `memory/projects/<이름>`을 **완전한 절대경로**로 써넣는다 — `~/`로 시작하는 값은 Claude Code의 물결표 확장이 구분자를 빠뜨리는 버그가 있어(예: `~/.claude/memory` → `C:\Users\minwoo.claude\memory`, `minwoo`와 `.claude` 사이 `\` 소실 — 2026-08-05 새 세션에서 `/memory`로 실측 발견) 절대경로로 우회한다. 로컬 폴더명이 `repos.json`과 달라졌어도(리네임 등) 매칭 실패로 조용히 스킵되어 오탐이 없다(실측 검증: 이미설정됨/새로씀/git아님/미등록레포/`.claude` 자신 — 5가지 케이스).
 - 실제 파일은 repo 안이라 이미 있는 커밋/push 흐름을 그대로 타고 다른 PC로 넘어간다 — 정크션과 달리 별도 pull 훅이 필요 없다.
 - 각 프로젝트의 `.claude/settings.local.json`은 그 프로젝트 자신의 `.gitignore`에 추가해 그 프로젝트의 공유 레포로 새지 않게 한다.
 - ⚠ 확인 필요: 리다이렉트가 설정 직후 같은 세션에서 바로 적용되는지 다음 세션부터인지는 공식 문서에도 명시가 없어 미검증.
