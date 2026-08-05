@@ -57,8 +57,8 @@ def main():
     matched = None
     for r in repos:
         rel = r.get("path")
-        if not rel or rel == ".claude":
-            continue  # .claude 자신은 이미 junction으로 별도 해결됨
+        if not rel:
+            continue
         candidate = os.path.realpath(os.path.join(home_norm, rel.replace("/", os.sep)))
         if candidate == root_norm:
             matched = r
@@ -67,10 +67,19 @@ def main():
     if not matched:
         return  # repos.json에 없는 프로젝트 — 손대지 않는다
 
-    name = os.path.basename(matched["path"].rstrip("/"))
-    target_dir = os.path.join(home, ".claude", "memory", "projects", name)
+    # .claude 자신은 memory/projects/<이름> 서브폴더가 아니라 memory/ 루트를 그대로 쓴다
+    # (이미 memory/MEMORY.md 등 기존 파일이 거기 있음 — 과거엔 post-merge hook의 junction이
+    # 이 역할을 했는데, 그 방식은 비공식 해시 알고리즘에 의존해 버전업 시 깨질 위험이 있어
+    # 이 hook과 같은 공식 autoMemoryDirectory 방식으로 통일한다. junction 자체는 안전하게
+    # 남겨둠 — 두 메커니즘이 같은 목적지를 가리켜도 충돌 없음, 2026-08-05).
+    if matched["path"] == ".claude":
+        target_dir = os.path.join(home, ".claude", "memory")
+        target_value = "~/.claude/memory"
+    else:
+        name = os.path.basename(matched["path"].rstrip("/"))
+        target_dir = os.path.join(home, ".claude", "memory", "projects", name)
+        target_value = "~/.claude/memory/projects/%s" % name
     os.makedirs(target_dir, exist_ok=True)
-    target_value = "~/.claude/memory/projects/%s" % name
 
     settings_dir = os.path.join(root, ".claude")
     settings_path = os.path.join(settings_dir, "settings.local.json")
