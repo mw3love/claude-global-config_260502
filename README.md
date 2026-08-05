@@ -149,7 +149,7 @@ C:\Users\길동\.claude    →  projects/C--Users----claude/memory/       ← PC
 ├── agents/                   # 커스텀 서브에이전트 override (예: Explore.md → model: haiku, 비용 절감용)
 ├── wiki/                     # reference-repos 함정 위키 — repo별 스턱루프→해법 (<repo>-<기법>.md, 여러 repo 공유는 shared-*)
 ├── tools/                    # 유지보수 유틸 (audit_rules.py — 규칙 발화율 감사, 지문 기반)
-├── docs/                     # 연구·분석 노트 (예: omc-study.md — OMC 비교 분석)
+├── docs/                     # 연구·분석 노트 (예: omc-study.md — OMC 비교 분석, claude-md-cases.md — CLAUDE.md 분리된 실패사례 전문, 자동 로드 안 됨)
 ├── channels/
 │   └── telegram/
 │       ├── .env              # 봇 토큰 (gitignore, PC별 수동)
