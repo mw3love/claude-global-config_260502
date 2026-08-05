@@ -232,7 +232,10 @@ def _write_desktop_report(results, ok, noch, skip, bad):
     """[바탕화면 리포트] 토스트는 title+body 200자로 잘려 정보 손실이 크다는 사용자 피드백
     (2026-08-05)에 따라, 매 실행마다 바탕화면에 전체 결과를 표로 남긴다. 사용자가 읽고
     직접 지우는 용도라 파일명을 고정해 실행마다 덮어쓴다. Desktop 폴더가 없는 환경
-    (헤드리스 서버 등)은 조용히 스킵."""
+    (헤드리스 서버 등)은 조용히 스킵.
+
+    상태별로 표를 쪼갠다(사용자 피드백 2026-08-06) — 한 표에 다 몰아넣으면 업데이트/문제
+    항목이 변경없음 사이에 묻힌다. 변경없음 표는 항상 맨 아래(가장 안 중요한 정보)."""
     desktop = os.path.join(os.path.expanduser("~"), "Desktop")
     if not os.path.isdir(desktop):
         return
@@ -244,12 +247,35 @@ def _write_desktop_report(results, ok, noch, skip, bad):
     lines = [
         "# sync-repos 결과 — %s" % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "",
-        "| 레포 | 상태 | 상세 |",
-        "|---|---|---|",
+        "- 업데이트 %d" % ok,
+        "- 미클론 %d" % skip,
+        "- 문제 %d" % len(bad),
+        "- 변경없음 %d" % noch,
+        "",
     ]
+
+    groups = {}
     for e in results:
-        lines.append("| %s | %s | %s |" % (e["name"], _STATUS_LABELS.get(e["status"], e["status"]), e["detail"]))
-    lines += ["", "요약: 업데이트 %d / 변경없음 %d / 미클론 %d / 문제 %d" % (ok, noch, skip, len(bad))]
+        groups.setdefault(e["status"], []).append(e)
+
+    # 표 순서: 업데이트류 → 미클론 → 문제류 → (그 외 알 수 없는 상태) → 변경없음(항상 마지막)
+    priority = ["updated", "built", "skip", "error", "builderror"]
+    order = [s for s in priority if s in groups]
+    order += [s for s in groups if s not in order and s != "nochange"]
+    if "nochange" in groups:
+        order.append("nochange")
+
+    for status in order:
+        entries = groups[status]
+        label = _STATUS_LABELS.get(status, status)
+        lines.append("## %s (%d)" % (label, len(entries)))
+        lines.append("")
+        lines.append("| 레포 | 상세 |")
+        lines.append("|---|---|")
+        for e in entries:
+            lines.append("| %s | %s |" % (e["name"], e["detail"]))
+        lines.append("")
+
     try:
         with open(path, "w", encoding="utf-8") as f:
             f.write("\n".join(lines) + "\n")
