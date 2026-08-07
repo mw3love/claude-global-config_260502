@@ -5,3 +5,4 @@
 - [sync-repos 로그온 자동실행](reference_sync_repos_autostart.md) — HKCU Run 키+VBS(PC 2대: HOME-DESKTOP·MW-Lenovo), 자기업데이트+항상알림(NotifyIcon) 2026-07-22 추가
 - [알림 설계 선호](feedback_notification_design.md) — 백그라운드 자동화는 "조용함=성공"보다 "항상 알림·부재=이상". WinRT 토스트는 이 PC서 실패, NotifyIcon 사용
 - [선택창 선호](feedback_askuserquestion_preference.md) — 모호한 질문은 텍스트보다 AskUserQuestion 기본, 추천안+Other 보완 방식 선호. deep-interview 기본값도 이에 맞춰 수정(2026-08-07)
+- [새 세션 핸드오프 자동화](reference_session_handoff.md) — session-handoff.ps1: 클립보드+새 wt 탭까지 자동, 규칙 10-b가 호출(2026-08-07)
