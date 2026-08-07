@@ -15,5 +15,26 @@ if (-not (Test-Path $PromptFile)) {
 }
 
 $promptText = Get-Content -Raw -Encoding UTF8 $PromptFile
-Set-Clipboard -Value $promptText
-Write-Output "HANDOFF_OK: clipboard set"
+
+$maxAttempts = 5
+$succeeded = $false
+for ($i = 1; $i -le $maxAttempts; $i++) {
+    try {
+        Set-Clipboard -Value $promptText -ErrorAction Stop
+        $verify = Get-Clipboard -Raw -ErrorAction Stop
+        if ($verify -eq $promptText) {
+            $succeeded = $true
+            break
+        }
+    } catch {
+        # Windows 클립보드는 다른 프로세스가 순간적으로 잡고 있으면 흔히 실패한다 - 재시도.
+    }
+    Start-Sleep -Milliseconds 200
+}
+
+if ($succeeded) {
+    Write-Output "HANDOFF_OK: clipboard set and verified"
+} else {
+    Write-Error "HANDOFF_FAILED: clipboard not set after $maxAttempts attempts"
+    exit 1
+}
