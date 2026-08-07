@@ -8,3 +8,4 @@
 - [Google Drive 폴더 삭제 잠금](project_gdrive_folder_lock_on_delete.md) — Drive 동기화 폴더라 rm -rf가 빈 폴더 잠금으로 부분 실패. 재시도 말고 사용자 수동 삭제 요청.
 - [임베디드 오디오 음소거 저절로 풀림](project_embedded_audio_unmute_on_restart.md) — 앱 재시작 시 shared_state mute=0 하드코딩 → 패스스루 소리 새는 창. 관찰 중, 미수정. 다음 발생 시 ui로그 "시작" 줄 확인.
 - [블랙 복구 텔레그램 누락](project_black_recovery_telegram_missing.md) — 진입 알림은 나가는데 복구 알림 누락(확정·미해결). 다음 재발 관측 대기, 진단 로깅 선행. fix/260720 문서.
+- [운영 PC 로그 회수 경로](reference_operating_pc_log_retrieval.md) — 사용자가 H:\내 드라이브\logs로 감시PC 로그를 복사해 전달. 재발/무사고 판정엔 이 로그부터 요청.
