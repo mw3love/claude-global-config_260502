@@ -3,12 +3,37 @@ repo: Easy_CAD_260718
 remote: https://github.com/mw3love/Easy_CAD_260718.git
 stack: [PyQt6, QGraphicsScene, Windows]
 tags: [QGraphicsItem, QGraphicsScene.render, QGraphicsView.grab, setParentItem, 자식 아이템, paint 오버라이드 무시, QPainterPath moveTo lineTo gap, 테두리 trim, offscreen 렌더, 히트테스트 어긋남, 스냅 기하, 시각효과와 기하 분리, 진실 두 벌]
-used: []
+used:
+  - 2026-08-09 Easy_CAD_260718 (§8 항목17 TRIM/EXTEND 계획 — 이 함정이 계획 전체의 최대 리스크라 재검증했고, 아래 "정정"대로 재현되지 않음을 확인)
 ---
 
 # QGraphicsItem: 자식이 있는 아이템은 paint()에서 그린 QPainterPath의 gap이 씬 렌더에 반영 안 됨
 
-## 함정
+## ⚠ 정정 (2026-08-09) — 아래 "함정"의 핵심 전제는 현재 재현되지 않는다
+
+§8 항목17(범용 TRIM/EXTEND) 계획이 이 성질에 통째로 걸려 있어(진짜 분절 렌더가 불가능하면
+모든 도형에 덮어그리기 우회를 확산시켜야 함) 착수 전에 재검증했다. 실제 `_RectItem.paint`를
+분절 렌더로 런타임 교체해 **라벨(진짜 `setParentItem` 자식) 유무 × 채움 유무 × 선택 유무
+8조건 × 두 렌더 경로(`QGraphicsScene.render()` / `QGraphicsView.grab()`)** 를 픽셀 검사한
+결과 **8/8 통과** — 자식이 있어도 gap이 그대로 살아남았다(Qt 6.10.0 / PyQt 6.10.2).
+
+- 프로브 지점이 미트림 상태에서 실제로 검게(darkest=0) 나오는 것까지 확인해 헛도는 검증이
+  아님을 배제했다.
+- **당시 실패를 재현하지도 못했으므로 왜 지금 되는지는 설명 못 한다.** Qt 버전 차이인지,
+  2026-08-03의 진단 자체가 불완전했는지(다른 원인 — 예: 캐시 무효화 누락 — 을 이 결론으로
+  오귀인) 미확정.
+- 되돌아가면 "화면은 잘렸는데 PDF는 안 잘림"이 되므로(같은 `scene.render()`를 PDF 내보내기·
+  선택영역 복사·미니맵이 공유) 회귀 테스트로 고정했다:
+  `test_true_segmented_border_survives_scene_render_and_grab`
+  (`tests/test_part4_ports_fileio.py`).
+
+**그러니 이 문서를 읽는 미래의 나에게** — 새 코드에 덮어그리기 우회를 선제 도입하지 말고,
+먼저 진짜 분절로 짜 보고 위 회귀 테스트를 돌려라. 아래 "함정"·"해법"은 2026-08-03 시점의
+기록으로 남긴다. **다만 아래 "대가" 절의 마지막 항목(시각효과로 기하를 위장하면 진실이 두
+벌이 된다)은 정정과 무관하게 여전히 유효한 교훈이다** — 오히려 그 대가가 5개월 뒤 실제로
+청구됐기 때문에 이 재검증까지 오게 됐다.
+
+## 함정 (2026-08-03 기록 — 위 정정 참조)
 장비(호스트) 아이템이 자식(포트)이 걸친 구간만큼 테두리를 끊어 그리려고, `paint()`를
 오버라이드해 `QPainterPath`를 여러 개의 분리된 subpath(moveTo/lineTo, 중간에 gap)로
 구성해 `painter.drawPath()`로 그렸다.
