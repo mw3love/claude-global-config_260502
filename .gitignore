@@ -65,6 +65,15 @@ chrome/
 __pycache__/
 *.pyc
 
+# jbnu-gateway 생성물 (image/tts/video 스크립트가 --out 으로 떨군 산출물)
+skills/jbnu-gateway/scripts/*.png
+skills/jbnu-gateway/scripts/*.jpg
+skills/jbnu-gateway/scripts/*.jpeg
+skills/jbnu-gateway/scripts/*.mp3
+skills/jbnu-gateway/scripts/*.wav
+skills/jbnu-gateway/scripts/*.mp4
+skills/jbnu-gateway/scripts/*_b64.txt
+
 # Windows 폴더뷰 메타데이터 (추적 불필요)
 desktop.ini
 Thumbs.db
