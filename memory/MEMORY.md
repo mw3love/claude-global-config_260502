@@ -6,3 +6,4 @@
 - [알림 설계 선호](feedback_notification_design.md) — 백그라운드 자동화는 "조용함=성공"보다 "항상 알림·부재=이상". WinRT 토스트는 이 PC서 실패, NotifyIcon 사용
 - [선택창 선호](feedback_askuserquestion_preference.md) — 모호한 질문은 텍스트보다 AskUserQuestion 기본, 추천안+Other 보완 방식 선호. deep-interview 기본값도 이에 맞춰 수정(2026-08-07)
 - [새 세션 핸드오프](reference_session_handoff.md) — 클립보드 자동화 원복(2026-08-07 도입→원복), 프롬프트는 코드블록 제시만, 복사는 사용자가 직접
+- [터미널 한글 폰트](reference_terminal_font_d2coding.md) — 질문창 깨짐 원인은 Cascadia Mono 폴백. HOME-DESKTOP은 D2Coding 적용(2026-08-09), ⚠ MW-Lenovo 미적용
