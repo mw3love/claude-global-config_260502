@@ -48,6 +48,8 @@ git -C $env:USERPROFILE\.claude config filter.modelstrip.smudge cat
 # 봇 토큰만 직접 입력 (PC당 1회, 시크릿이라 자동 불가)
 Set-Content "$env:USERPROFILE\.claude\channels\telegram\.env" "TELEGRAM_BOT_TOKEN=<봇 토큰>"
 
+# 한글 코딩 폰트 — 아래 "공통: 한글 코딩 폰트" 절 실행 (PC당 1회, 폰트라 git 동기화 불가)
+
 # 끝. 새 PowerShell에서 `claude` (로컬) 또는 `tel` (텔레그램 채널) 입력
 ```
 
@@ -83,7 +85,45 @@ git -C $env:USERPROFILE\.claude config filter.modelstrip.smudge cat
 
 # 봇 토큰 (PC당 1회)
 Set-Content "$env:USERPROFILE\.claude\channels\telegram\.env" "TELEGRAM_BOT_TOKEN=<봇 토큰>"
+
+# 한글 코딩 폰트 — 아래 "공통: 한글 코딩 폰트" 절 실행 (PC당 1회, 폰트라 git 동기화 불가)
 ```
+
+---
+
+### 공통: 한글 코딩 폰트 (PC당 1회)
+
+Windows Terminal 기본 글꼴 `Cascadia Mono` 에는 **한글 글리프가 하나도 없다.** 그러면 가변폭 `맑은 고딕` 으로 폴백되어 한글 행의 폭이 ASCII 행과 어긋나고, 특히 `AskUserQuestion` 질문창처럼 **테두리 박스 + 키 입력마다 재렌더** 하는 UI에서 글자가 깨져 보인다(2026-08-09 격자 캡처로 실측). 폰트는 git으로 동기화할 수 없어 PC마다 한 번씩 깔아야 한다.
+
+```powershell
+# D2Coding 설치 (사용자 계정 범위 — 관리자 권한 불필요, 재실행해도 안전)
+$zip="$env:TEMP\d2coding.zip"; $ext="$env:TEMP\d2coding"; $dst="$env:LOCALAPPDATA\Microsoft\Windows\Fonts"
+$url=(Invoke-RestMethod https://api.github.com/repos/naver/d2-coding-font/releases/latest).assets |
+     Where-Object name -like '*.zip' | Select-Object -First 1 -ExpandProperty browser_download_url
+Invoke-WebRequest $url -OutFile $zip; Expand-Archive $zip $ext -Force
+New-Item -ItemType Directory -Force $dst | Out-Null
+Get-ChildItem "$ext\D2Coding\*.ttf" | ForEach-Object {
+  $t = Join-Path $dst $_.Name
+  if (-not (Test-Path $t)) { Copy-Item $_.FullName $t }   # 사용 중이면 덮어쓰기 불가 → 이미 있으면 건너뜀
+  New-ItemProperty 'HKCU:\Software\Microsoft\Windows NT\CurrentVersion\Fonts' `
+    -Name ("D2Coding" + $(if ($_.Name -match 'Bold') { ' Bold' }) + " (TrueType)") `
+    -Value $t -PropertyType String -Force | Out-Null }
+Remove-Item $zip, $ext -Recurse -Force
+```
+
+그다음 Windows Terminal `settings.json` 의 `profiles.defaults` 에 글꼴을 지정한다(설정 UI의 프로필 **기본값 > 모양 > 글꼴** 도 동일). 저장하면 재시작 없이 즉시 적용된다.
+
+```jsonc
+"defaults":
+{
+    "font":
+    {
+        "face": "D2Coding"
+    }
+},
+```
+
+> 폰트로도 안 풀리는 잔여분이 있다: 컬러 이모지는 셀보다 크게 렌더되어 박스 테두리를 덮고, `✓ ✗ ⚠ →` 는 폴백 폰트에서 1칸 폭으로 그려진다. 이건 전역 `CLAUDE.md` 의 이모지 규약(테두리 안에서는 이모지·기호 금지)으로 회피한다.
 
 ---
 
