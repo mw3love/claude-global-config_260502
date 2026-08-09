@@ -97,18 +97,22 @@ Windows Terminal 기본 글꼴 `Cascadia Mono` 에는 **한글 글리프가 하�
 
 ```powershell
 # D2Coding 설치 (사용자 계정 범위 — 관리자 권한 불필요, 재실행해도 안전)
+# codeload 소스 아카이브 사용 — api.github.com/releases/latest 는 IP 레이트리밋에 걸리기 쉬움(2026-08-10 MW-Lenovo 실측)
 $zip="$env:TEMP\d2coding.zip"; $ext="$env:TEMP\d2coding"; $dst="$env:LOCALAPPDATA\Microsoft\Windows\Fonts"
-$url=(Invoke-RestMethod https://api.github.com/repos/naver/d2-coding-font/releases/latest).assets |
-     Where-Object name -like '*.zip' | Select-Object -First 1 -ExpandProperty browser_download_url
-Invoke-WebRequest $url -OutFile $zip; Expand-Archive $zip $ext -Force
+Invoke-WebRequest "https://github.com/naver/d2-coding-font/archive/refs/tags/VER1.3.3.zip" -OutFile $zip
+Expand-Archive $zip $ext -Force
 New-Item -ItemType Directory -Force $dst | Out-Null
-Get-ChildItem "$ext\D2Coding\*.ttf" | ForEach-Object {
+Get-ChildItem "$ext\d2-coding-font-VER1.3.3\fonts\ttf\D2Coding-*.ttf" | ForEach-Object {
   $t = Join-Path $dst $_.Name
   if (-not (Test-Path $t)) { Copy-Item $_.FullName $t }   # 사용 중이면 덮어쓰기 불가 → 이미 있으면 건너뜀
   New-ItemProperty 'HKCU:\Software\Microsoft\Windows NT\CurrentVersion\Fonts' `
     -Name ("D2Coding" + $(if ($_.Name -match 'Bold') { ' Bold' }) + " (TrueType)") `
     -Value $t -PropertyType String -Force | Out-Null }
 Remove-Item $zip, $ext -Recurse -Force
+
+# 이미 켜져 있는 창(WT 등)에도 새 폰트를 즉시 알림 — 없으면 그 창은 재시작 전까지 못 봄
+Add-Type -Namespace Win32 -Name Api -MemberDefinition '[DllImport("user32.dll")] public static extern IntPtr SendMessageTimeout(IntPtr h, uint m, UIntPtr w, IntPtr l, uint f, uint t, out IntPtr r);'
+$r=[IntPtr]::Zero; [Win32.Api]::SendMessageTimeout([IntPtr]0xffff,0x1D,[UIntPtr]::Zero,[IntPtr]::Zero,2,1000,[ref]$r) | Out-Null
 ```
 
 그다음 Windows Terminal `settings.json` 의 `profiles.defaults` 에 글꼴을 지정한다(설정 UI의 프로필 **기본값 > 모양 > 글꼴** 도 동일). 저장하면 재시작 없이 즉시 적용된다.
