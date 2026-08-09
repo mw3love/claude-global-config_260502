@@ -118,6 +118,11 @@ def _self_update_and_relaunch():
     after = git(claude_dir, "rev-parse", "HEAD").stdout.strip()
     if before != after:
         _log("self-update: %s -> %s, 재실행" % (before[:8], after[:8]))
+        # repos.json의 ".claude" 항목이 이 저장소와 동일해, 재실행된 프로세스의 _pull_one()이
+        # rev-parse HEAD를 다시 읽으면 이미 옮겨진 after 값을 before로 오인해 "변경없음"으로
+        # 잘못 보고한다(2026-08-10 실측 — 8개 커밋 fast-forward됐는데 리포트엔 변경없음).
+        # 원래 before를 env로 넘겨 _pull_one()이 그 값을 기준으로 판정하게 한다.
+        os.environ["SYNC_REPOS_SELF_UPDATE_BEFORE"] = before
         os.environ["SYNC_REPOS_RELAUNCHED"] = "1"
         os.execv(sys.executable, [sys.executable, os.path.abspath(__file__)] + sys.argv[1:])
 
@@ -194,7 +199,15 @@ def _pull_one(home, r):
         return entry
 
     dirty = git(full, "status", "--porcelain").stdout.strip()
-    before = git(full, "rev-parse", "HEAD").stdout.strip()
+
+    # [자기업데이트 이중집계 방지] .claude 자신은 이 repo와 동일 저장소라 _self_update_and_relaunch()가
+    # 이미 pull해 HEAD를 옮겨놓은 뒤일 수 있다. 그때는 원래 before(env로 전달)를 기준으로 삼는다.
+    self_update_before = os.environ.get("SYNC_REPOS_SELF_UPDATE_BEFORE")
+    claude_dir = os.path.dirname(os.path.abspath(__file__))
+    if self_update_before and os.path.abspath(full) == os.path.abspath(claude_dir):
+        before = self_update_before
+    else:
+        before = git(full, "rev-parse", "HEAD").stdout.strip()
 
     pull = git(full, "pull", "--ff-only")
     if pull.returncode != 0:
