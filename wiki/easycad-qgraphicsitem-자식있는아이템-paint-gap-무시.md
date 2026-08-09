@@ -2,7 +2,7 @@
 repo: Easy_CAD_260718
 remote: https://github.com/mw3love/Easy_CAD_260718.git
 stack: [PyQt6, QGraphicsScene, Windows]
-tags: [QGraphicsItem, QGraphicsScene.render, QGraphicsView.grab, setParentItem, 자식 아이템, paint 오버라이드 무시, QPainterPath moveTo lineTo gap, 테두리 trim, offscreen 렌더]
+tags: [QGraphicsItem, QGraphicsScene.render, QGraphicsView.grab, setParentItem, 자식 아이템, paint 오버라이드 무시, QPainterPath moveTo lineTo gap, 테두리 trim, offscreen 렌더, 히트테스트 어긋남, 스냅 기하, 시각효과와 기하 분리, 진실 두 벌]
 used: []
 ---
 
@@ -46,3 +46,25 @@ used: []
 - DXF 내보내기처럼 QPainter를 안 거치는 별도 경로(파일 직접 작성)는 이 버그와 무관하므로,
   그쪽은 원래 계획대로 진짜 분절된 세그먼트 데이터(`QPainterPath`를 segment별로 분해)를
   그대로 써도 된다 — 화면 렌더링 우회와 DXF 내보내기 정확성은 서로 독립적인 문제.
+
+- **⚠ 가장 큰 대가(5개월 뒤 2026-08-09에 청구됨): 히트/스냅 기하가 화면과 어긋난다.**
+  "덮어그리기"는 픽셀만 가릴 뿐 **기하는 온전한 원본 그대로**다. 그래서 마우스 히트테스트·
+  스냅·호버는 *화면에 그려지지도 않은* 테두리 조각을 계속 유효한 것으로 본다. 증상:
+  포트 몸통 한가운데에 커서를 둬도 ⓐ 뒤쪽 호스트 테두리 때문에 커넥터(십자) 커서가 뜨고
+  ⓑ 화살표가 그 보이지 않는 선에 실제로 스냅·바인딩됐다.
+
+  **이 증상은 진단이 매우 어렵다** — 커서/미리보기 로직만 보면 "누가 더 가까운가" 경쟁
+  문제로 보여서, 후보 필터·차폐 판정·스냅 반경을 3번 연속 고쳤는데도(전부 스모크 통과)
+  사용자가 같은 스크린샷을 계속 보냈다. **원인이 그 코드에 없었기 때문이다.**
+  결정적 진단은 **커서 모양을 포트 몸통 전체에 조밀 격자로 찍어 지도로 그린 것**
+  (21×21, 줌 배율별). "십자선 영역"이 포트 몸통을 세로로 관통하는 *한 줄*로 보였고,
+  그게 곧 호스트 테두리의 위치였다. 점 하나씩 찍어봤으면 영원히 못 봤을 패턴이다.
+
+  **해법**: `_nearest_border`(기하 원본)는 그대로 두고 — 포트를 테두리에 *부착*하고
+  드래그로 슬라이드시키는 데도 쓰이므로 여기서 트림을 반영하면 포트가 자기가 만든 구간에서
+  밀려난다 — 호버·스냅 호출부만 `_nearest_border_visible`(트림 구간이면 `None`)을 opt-in.
+  트림 구간 판정은 **화면 렌더와 같은 함수**(`_host_outline_local_polygon`/`_port_edge_gap`,
+  `build_trimmed_border_path`가 쓰는 것)로 해서 "그려지는 선"의 정의를 한 벌로 유지한다.
+
+  **교훈**: 시각효과로 기하를 위장하면 그 순간부터 진실이 두 벌이 된다. 위장을 도입할 때
+  **그 기하를 소비하는 곳 전부**(히트테스트·스냅·라우팅·내보내기)를 같이 세어 봐야 한다.
