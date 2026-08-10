@@ -175,7 +175,7 @@ Not-tested: 인증 서버 콜드스타트 >500ms
 
 **10. 푸쉬 시 문서 동기화 (사전 검토가 메인, 훅은 안전망)**
 
-**사전(메인, 훅으로 기계 강제)** — 사용자가 푸쉬를 요청하면 `git push` 실행 *전* 에 `doc-sync` 스킬을 먼저 호출해 핵심 문서(CLAUDE.md, 계획/설계/스펙)에 반영해야 할 변경이 있는지 검토한다. 변경이 있으면 코드 변경과 *한 커밋* 으로 묶어 1회만 푸쉬한다. PreToolUse 훅(`~/.claude/pre-push-doc-sync-hook.py`)이 강제한다: doc-sync 사전 검토를 마친 뒤 `touch ~/.claude/.doc-sync-ready`(1회용 센티널, 30분 유효)를 실행해야 push가 통과되고, 없으면 push가 거부된다. (사례: `docs/claude-md-cases.md#c6-presync-zero`)
+**사전(메인, 훅으로 기계 강제)** — 사용자가 푸쉬를 요청하면 `git push` 실행 *전* 에 `doc-sync` 스킬을 먼저 호출해 핵심 문서(CLAUDE.md, 계획/설계/스펙)에 반영해야 할 변경이 있는지 검토한다. 변경이 있으면 코드 변경과 *한 커밋* 으로 묶어 1회만 푸쉬한다. PreToolUse 훅(`~/.claude/pre-push-doc-sync-hook.py`)이 강제한다: doc-sync 사전 검토를 마친 뒤 `touch ~/.claude/.doc-sync-ready`(1회용 센티널, 30분 유효)를 실행해야 push가 통과되고, 없으면 push가 거부된다. (사례: `docs/claude-md-cases.md#c6-presync-zero`) 단, push 예정 범위에 비-문서 변경이 없거나 저장소에 동기화 후보 문서 자체가 없으면 훅이 자동 통과한다(2026-08-10 필터 추가, `docs/claude-md-cases.md#c15-prepush-filter`).
 
 **사후(안전망)** — `git push` 가 성공하면 PostToolUse hook(`~/.claude/doc-sync-hook.py`, Windows 폴백 `.ps1`)이 자동 발화한다. 주입되는 `[doc-sync hook]` 컨텍스트를 받으면 `doc-sync` 스킬을 호출해 사전 단계에서 누락된 게 없는지 한 번 더 확인한다. 사전이 성실히 됐다면 "변경 없음"으로 끝난다.
 
