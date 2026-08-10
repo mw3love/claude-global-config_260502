@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 166d242f-05d9-4203-8e52-62303f19e93d
-  modified: 2026-08-09T23:43:34.776Z
+  modified: 2026-08-10T00:00:40.237Z
 ---
 
 Windows Terminal에 폰트 지정이 없으면 기본 `Cascadia Mono`가 쓰이는데 여기엔 한글 글리프가 0개라, 가변폭 `맑은 고딕`으로 폴백되어 한글 행의 폭이 ASCII 행과 어긋난다. 질문창(`AskUserQuestion`)처럼 테두리 박스 + 매 키 입력 재렌더인 UI에서만 이게 눈에 띈다.
@@ -18,4 +18,6 @@ Windows Terminal에 폰트 지정이 없으면 기본 `Cascadia Mono`가 쓰이�
 
 폰트로 해결되지 **않는** 잔여 문제: 컬러 이모지는 셀보다 크게 렌더돼 박스 테두리를 덮고, `✓✗⚠→`는 폴백에서 1칸 폭으로 그려진다. 이건 전역 `CLAUDE.md`의 이모지 규약(테두리 안 금지)으로 회피한다.
 
-관련: [[feedback-answer-shape]], [[feedback-askuserquestion-preference]]
+⚠ **폰트로도 안 풀리는 별도 버그 있음** — 글자가 다른 글자로 바뀌는 증상(정렬 어긋남이 아니라)이면 이 파일이 아니라 [[reference-claude-code-cjk-encoding-bug]] 참고. Claude Code 자체의 미해결 Windows 인코딩 버그라 여기 절차로는 안 고쳐진다(2026-08-10 확인).
+
+관련: [[feedback-answer-shape]], [[feedback-askuserquestion-preference]], [[reference-claude-code-cjk-encoding-bug]]
