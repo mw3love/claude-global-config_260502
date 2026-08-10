@@ -7,7 +7,17 @@ CLAUDE.md 규칙 10의 '사전(메인)' 경로가 모델 기억에만 의존해 
 
 동작:
 - Bash 명령에 git push가 없으면 침묵 통과.
-- 센티널(~/.claude/.doc-sync-ready)이 30분 이내면 소비(삭제)하고 통과.
+- 필터(2026-08-10 추가): push 예정 범위 + 미커밋 변경을 훑어 아래 중 하나면
+  doc-sync 의식 없이 자동 통과 — doc-sync 스킬을 불러도 결론이 100% "변경
+  없음"일 게 뻔한 경우이므로 사전에 걸러도 보호 수준이 줄지 않는다.
+    a) 문서 아닌 파일 변경이 0개 (코드가 안 바뀌었으니 동기화할 게 없음)
+    b) 저장소에 동기화 후보 문서 자체가 없음(CLAUDE.md/docs/**/*.md/루트 *.md/
+       .doc-sync.json 전부 없음) — 있어도 갱신할 대상이 없음
+  범위를 못 구하면(신규 repo·이상한 cwd 등) 안전 쪽으로 폴백해 기존 로직대로
+  진행한다(자동 통과하지 않음). post-push 훅(doc-sync-hook.py)의 "비-문서
+  변경 0개면 침묵"과 같은 필터를 사전 쪽에도 대칭으로 이식한 것.
+- 필터를 통과하지 못했으면(=진짜 검토가 필요하면) 센티널(~/.claude/.doc-sync-ready)이
+  30분 이내인지 확인 — 있으면 소비(삭제)하고 통과.
 - 없거나 오래됐으면 push를 deny하고 이유에 절차를 적는다:
   doc-sync 실행 → 센티널 touch → push 재시도.
 
@@ -15,7 +25,9 @@ CLAUDE.md 규칙 10의 '사전(메인)' 경로가 모델 기억에만 의존해 
 (디스패처의 `|| true`와 이 파일의 광역 except가 함께 보장).
 """
 import json
+import os
 import re
+import subprocess
 import sys
 import time
 from pathlib import Path
@@ -43,6 +55,88 @@ def command_has_git_push(command: str) -> bool:
     return False
 
 
+def _git(cwd: str, *args: str):
+    """returncode==0이면 stdout, 아니면 None (실패를 '변경 없음'과 구분)."""
+    try:
+        r = subprocess.run(
+            ["git", "-C", cwd, *args],
+            capture_output=True, text=True, encoding="utf-8", timeout=10,
+        )
+        if r.returncode == 0:
+            return r.stdout
+    except Exception:
+        pass
+    return None
+
+
+def _is_doc(path: str) -> bool:
+    return bool(
+        re.search(r"\.(md|markdown|txt|rst)$", path, re.IGNORECASE)
+        or re.search(r"(^|/)LICENSE$", path)
+        or re.search(r"(^|/)CHANGELOG(\.md)?$", path, re.IGNORECASE)
+    )
+
+
+def _pushed_and_uncommitted_files(cwd: str):
+    """push 예정 범위(unpushed) + 미커밋 변경 파일 목록. 못 구하면 None."""
+    diff_out = _git(cwd, "diff", "--name-only", "@{u}...HEAD")
+    if diff_out is None:
+        diff_out = _git(cwd, "diff", "--name-only", "origin/main...HEAD")
+    if diff_out is None:
+        diff_out = _git(cwd, "diff", "--name-only", "origin/master...HEAD")
+    if diff_out is None:
+        return None  # 범위를 전혀 못 구함 → 안전 쪽 폴백
+
+    files = [f for f in diff_out.splitlines() if f.strip()]
+
+    status_out = _git(cwd, "status", "--porcelain") or ""
+    for line in status_out.splitlines():
+        if len(line) <= 3:
+            continue
+        f = line[3:].strip()
+        if " -> " in f:  # 이름변경: "old -> new"
+            f = f.split(" -> ", 1)[1].strip()
+        if f:
+            files.append(f)
+
+    return files
+
+
+def _has_doc_candidates(cwd: str) -> bool:
+    p = Path(cwd)
+    if (p / "CLAUDE.md").exists() or (p / ".doc-sync.json").exists():
+        return True
+    try:
+        if any(p.glob("*.md")):
+            return True
+    except OSError:
+        pass
+    docs_dir = p / "docs"
+    if docs_dir.is_dir():
+        try:
+            if any(docs_dir.rglob("*.md")):
+                return True
+        except OSError:
+            pass
+    return False
+
+
+def should_skip_enforcement(cwd: str) -> bool:
+    """True면 doc-sync 의식 없이 자동 통과해도 안전(동기화할 게 구조적으로 없음)."""
+    if not cwd or not os.path.isdir(cwd):
+        return False  # cwd 불명 → 안전 쪽 폴백(기존 로직대로 진행)
+
+    files = _pushed_and_uncommitted_files(cwd)
+    if files is None:
+        return False  # 범위 판단 불가 → 안전 쪽 폴백
+
+    non_doc = [f for f in files if not _is_doc(f)]
+    if not non_doc:
+        return True  # 코드 변경 자체가 없음
+
+    return not _has_doc_candidates(cwd)  # 문서 후보가 아예 없으면 스킵
+
+
 def main() -> None:
     try:
         data = json.load(sys.stdin)
@@ -52,6 +146,10 @@ def main() -> None:
         return
     command = (data.get("tool_input") or {}).get("command", "")
     if not command_has_git_push(command):
+        return
+
+    cwd = str(data.get("cwd") or os.getcwd())
+    if should_skip_enforcement(cwd):
         return
 
     try:
