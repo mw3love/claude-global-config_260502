@@ -1,5 +1,5 @@
 - [reference 위키 이관](project_reference_wiki_migration.md) — repos.json 블롭→wiki/*.md 재설계, Notion 페이지나눔만 남음
-- [전역 규칙 감사 (2026-07-11)](project_rules_audit_2026-07-11.md) — 173세션 측정 → 규칙 19개로 개편(형태가 발화를 가른다). ⚠ 남은 일: **재감사 2026-08 중순**(지문 7개 심어둠). pick-skill·harness는 2026-07-19 삭제(미사용)
+- [전역 규칙 감사 (2026-07-11)](project_rules_audit_2026-07-11.md) — 173세션 측정 → 규칙 19개로 개편. 재감사(2026-08-11) 완료: 지문 9개 전부 살아있음, 사문화 0. 세션 로그가 2026-07-14부터만 남아 전/후 비교는 이후 불가(절대율로만 판단)
 - [답변 형식 선호](feedback_answer_shape.md) — A-B-A(결론·내용·결론), 목록 항목 사이 빈 줄, 프롬프트엔 `[프롬프트]` 라벨
 - [커밋 확인 후·답변 간결](feedback_commit_and_brevity.md) — 커밋은 물어보고 승인 후(2026-07-12 자동→수동 되돌림), 답변은 diff 재나열 없이 결론+한 것+할 것
 - [sync-repos 로그온 자동실행](reference_sync_repos_autostart.md) — HKCU Run 키+VBS(PC 2대: HOME-DESKTOP·MW-Lenovo), 자기업데이트+항상알림(NotifyIcon) 2026-07-22 추가

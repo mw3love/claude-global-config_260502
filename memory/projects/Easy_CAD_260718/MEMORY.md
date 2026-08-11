@@ -1,2 +1,3 @@
 - [UI 심플 원칙](ui-simplicity-principle.md) — 상단 툴바에 종류를 늘리지 말고, 선택 후 컨텍스트 하위목록에서 고르게
 - [웹 트랙 병행개발 진행상황](project_web_pivot_experiment.md) — Python·웹 둘 다 완주 목표, 웹이 늦게 시작해 당분간 웹에 집중
+- [캔버스 점 용어](canvas-point-terminology.md) — 큐닷·포트점·리사이즈핸들 등, 점 종류 얘기할 때 이 용어로
