@@ -24,6 +24,16 @@
         ]
       }
     ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'python3 ~/.claude/memory-sync-hook.py 2>>~/.claude/memory-sync-hook.log || python ~/.claude/memory-sync-hook.py 2>>~/.claude/memory-sync-hook.log'"
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Bash",

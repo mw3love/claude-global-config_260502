@@ -118,6 +118,16 @@ if ($cwd) {
 # git 브랜치 + 미커밋 + 동기화 상태
 $gitPart = Get-GitPart $cwd
 
+# 전역(~/.claude) repo 상태 — 프로젝트 세션 중엔 이 상태가 안 보여 미커밋 방치->pull 실패로
+# 이어지던 문제(2026-08-12) 때문에 추가. 깨끗하면(=자동 push가 정상 도는 상태) 숨기고,
+# 뭔가 있을 때만 보여준다(memory-sync-hook.py가 못 밀어낸 경우 등).
+$globalPart = $null
+$claudeHome = Join-Path $env:USERPROFILE ".claude"
+if ($cwd -and ($cwd.TrimEnd('\','/')).ToLowerInvariant() -ne ($claudeHome.TrimEnd('\','/')).ToLowerInvariant()) {
+    $gp = Get-GitPart $claudeHome
+    if ($gp -and $gp -notlike "*clean, synced*") { $globalPart = "global:$gp" }
+}
+
 # Model + context window size
 $model = if ($data.model.display_name) { $data.model.display_name }
          elseif ($data.model.id) { $data.model.id }
@@ -168,6 +178,7 @@ if ($null -ne $weekPct) {
 $line1 = @()
 if ($folderPart) { $line1 += $folderPart }
 if ($gitPart)    { $line1 += $gitPart }
+if ($globalPart) { $line1 += $globalPart }
 
 $line2 = @()
 $line2 += $modelPart
