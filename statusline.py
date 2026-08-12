@@ -1,4 +1,4 @@
-import sys, json, re, math, time
+import sys, json, re, math, time, os
 
 # Claude Code statusLine — statusline.ps1 의 bash/python 포팅(PowerShell 콜드스타트 제거용).
 # stdin 의 세션 JSON 을 받아 "폴더 | 모델 | C:% | 5h:% | 7d:%" 를 ANSI 색으로 출력.
@@ -161,6 +161,15 @@ if cwd:
 git_part = git_status_part(cwd)
 if git_part:
     line1.append(git_part)
+
+# 전역(~/.claude) repo 상태 — 프로젝트 세션 중엔 이 상태가 안 보여 미커밋 방치→pull 실패로
+# 이어지던 문제(2026-08-12) 때문에 추가. 깨끗하면(=자동 push가 정상 도는 상태) 숨기고,
+# 뭔가 있을 때만 보여준다(memory-sync-hook.py가 못 밀어낸 경우 등).
+claude_home = os.path.join(os.path.expanduser("~"), ".claude")
+if cwd and os.path.realpath(str(cwd)) != os.path.realpath(claude_home):
+    global_part = git_status_part(claude_home)
+    if global_part and "clean, synced" not in global_part:
+        line1.append("global:" + global_part)
 
 # 2행: 모델 + 컨텍스트 창 크기
 model = g(data, "model", "display_name") or g(data, "model", "id") or "Claude"

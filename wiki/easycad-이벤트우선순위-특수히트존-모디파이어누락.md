@@ -48,3 +48,29 @@ Alt가 눌려 있으면 이 특수 히트존 자체를 건너뛰고 아래(빈 �
 있는데 안 먹힌다"는 보고는 대개 그 규칙에 도달하기 *전에* 다른 특수 분기가 먼저 가로채고
 있다는 신호다. 그리고 아이템별 특례보다 모디파이어 우선순위 승격 쪽이 항상 특례 지점을
 덜 늘린다.
+
+## 재발 (2026-08-10, §8 항목17 TRIM/EXTEND)
+같은 클래스의 버그가 **한 세션 안에서 3번 더** 나왔다 — 이번엔 모디파이어(Alt)가 아니라
+새 **도구**(`current_tool == "trim"`)가 조기반환 체인을 못 뚫는 문제였음에도 패턴은 동일:
+
+1. `_connect_port_at`(qc-dot 접속점) — 선택된 도형의 qc-dot 근처 press를 도구 무관하게
+   가로채, EXTEND 목표 지점이 그 도형의 qc-dot과 겹치면(흔함 — 원래 붙어있던 자리라서)
+   TRIM/EXTEND 분기에 도달도 못 함.
+2. `mouseDoubleClickEvent`의 라벨편집 분기 — 같은 자리를 빠르게 두 번 누르면(EXTEND
+   재시도가 전형적으로 이럼) Qt가 두 번째 클릭을 `mousePressEvent`가 아니라
+   `mouseDoubleClickEvent`로 보내는데, 그 핸들러의 "선/화살표 더블클릭=라벨편집"이
+   도구 무관하게 먼저 채감.
+3. `_selected_endpoint_item`(선택된 선의 끝점 드래그 핸들) — EXTEND 대상 선이 선택된
+   상태면(방금 자른 직후라 흔함) 그 끝점 핸들이 화면상 정확히 EXTEND를 눌러야 할 그
+   자리를 뒤덮어 클릭을 가로챔.
+
+**셋 다 위 교훈("모든 조기-반환 분기를 먼저 나열")을 진작 적용했으면 한 번에 찾았을
+자리다** — 첫 번째(qc-dot)를 실사용 버그로 발견한 시점에 "도구 무관 조기반환 분기가
+또 있는가"로 `mousePressEvent`/`mouseDoubleClickEvent` 전체를 훑었어야 했는데, 매번
+사용자가 새 증상을 보고한 뒤에야 그 지점만 개별로 찾아 고쳤다. 수정 자체는 항상 같은
+모양(`... and self._owner.current_tool != "trim"` 가드 추가)이었다.
+
+**다음에 새 도구/모드를 추가할 때 체크리스트**: `current_tool`을 확인하지 않는
+early-return 분기를 `mousePressEvent`·`mouseMoveEvent`·`mouseDoubleClickEvent`
+전체에서 먼저 grep(`grab`·`hit is not None`·`return` 패턴)해 새 도구가 통과해야
+하는 우선순위표를 만들고 나서 구현을 시작할 것.
