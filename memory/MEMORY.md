@@ -8,3 +8,4 @@
 - [새 세션 핸드오프](reference_session_handoff.md) — 클립보드 자동화 원복(2026-08-07 도입→원복), 프롬프트는 코드블록 제시만, 복사는 사용자가 직접
 - [터미널 한글 폰트](reference_terminal_font_d2coding.md) — 질문창 정렬 어긋남 원인은 Cascadia Mono 폴백. HOME-DESKTOP·MW-Lenovo 모두 D2Coding 적용 완료(2026-08-10)
 - [Claude Code CJK 인코딩 버그](reference_claude_code_cjk_encoding_bug.md) — 글자 자체가 바뀌는 건 폰트가 아니라 Claude Code 자체 미해결 버그(GitHub #65394/#42899), 코드페이지 조정 무효
+- [전역 메모리 자동 sync 훅](reference_memory_sync_hook.md) — SessionEnd 훅이 memory/만 자동 commit+push(2026-08-12), sync-repos pull 루프와는 의도적으로 무관, statusline에 전역 상태 가시성도 추가
