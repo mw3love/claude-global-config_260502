@@ -12,6 +12,45 @@ $OutputEncoding           = [System.Text.UTF8Encoding]::new($false)
 
 function Exit-Silent { exit 0 }
 
+# 다른 프로젝트 push 시, ~/.claude의 memory/ 외 미반영 변경이 있으면 알림 텍스트를 반환.
+# 자동 commit/push는 하지 않는다 — CLAUDE.md 규칙 12(자기수정 방지) 유지, 알림만 강제.
+# memory/ 는 별도 SessionEnd 훅(memory-sync-hook.py)이 이미 자동 처리하므로 제외.
+function Get-GlobalReminder([string]$PushCwd) {
+    try {
+        $globalDir = [System.IO.Path]::GetFullPath((Join-Path $env:USERPROFILE '.claude'))
+        $cwdNorm = if ($PushCwd) { [System.IO.Path]::GetFullPath($PushCwd) } else { '' }
+        if ($cwdNorm -eq $globalDir -or $cwdNorm.StartsWith($globalDir + [System.IO.Path]::DirectorySeparatorChar)) { return $null }
+        if (-not (Test-Path (Join-Path $globalDir '.git'))) { return $null }
+
+        $changed = New-Object System.Collections.Generic.List[string]
+
+        $status = & git -C $globalDir status --porcelain 2>$null
+        if ($LASTEXITCODE -eq 0 -and $status) {
+            foreach ($line in $status) {
+                if ($line.Length -le 3) { continue }
+                $f = $line.Substring(3).Trim()
+                if ($f -match ' -> ') { $f = ($f -split ' -> ', 2)[1].Trim() }
+                if ($f -and $f -notmatch '^memory[/\\]') { [void]$changed.Add($f) }
+            }
+        }
+
+        $unpushed = & git -C $globalDir log '@{u}..' --name-only --pretty=format: 2>$null
+        if ($LASTEXITCODE -eq 0 -and $unpushed) {
+            foreach ($f0 in $unpushed) {
+                $f = [string]$f0
+                $f = $f.Trim()
+                if ($f -and $f -notmatch '^memory[/\\]' -and -not $changed.Contains($f)) { [void]$changed.Add($f) }
+            }
+        }
+
+        if ($changed.Count -eq 0) { return $null }
+
+        $sample = ($changed | Select-Object -First 15) -join "`n  - "
+        return "[global-reminder] 방금 다른 프로젝트에서 push했는데, 전역 저장소(~/.claude)에도 memory/ 외의 미반영 변경(미커밋 또는 미푸쉬)이 있습니다.`n- 변경 파일($($changed.Count)개):`n  - $sample`n`n자동으로 commit/push하지 마세요(CLAUDE.md 규칙 12 자기수정 방지) - 사용자에게 알리고, 사용자가 원하면 검토 후 ~/.claude에서 직접 처리하세요."
+    }
+    catch { return $null }
+}
+
 # 비 ASCII 문자를 \uXXXX로 escape — PS 5.1 콘솔 인코딩 변환 우회
 function ConvertTo-AsciiSafeJson($obj) {
     $j = $obj | ConvertTo-Json -Depth 10 -Compress
@@ -47,6 +86,28 @@ try {
     # 자기-트리거 방지: hook 스크립트 자신을 호출하는 명령은 스킵
     if ($cmd -match 'doc-sync-hook\.ps1') { Exit-Silent }
 
+    $cwd = [string]$payload.cwd
+    if ([string]::IsNullOrWhiteSpace($cwd) -or -not (Test-Path $cwd)) {
+        $cwd = (Get-Location).Path
+    }
+
+    $gNote = Get-GlobalReminder $cwd
+
+    function Emit-Context {
+        param([string[]]$Parts)
+        $Parts = $Parts | Where-Object { $_ }
+        if (-not $Parts -or $Parts.Count -eq 0) { Exit-Silent }
+        $out = ConvertTo-AsciiSafeJson @{
+            suppressOutput     = $true
+            hookSpecificOutput = @{
+                hookEventName     = 'PostToolUse'
+                additionalContext = ($Parts -join "`n`n---`n`n")
+            }
+        }
+        [Console]::Out.WriteLine($out)
+        exit 0
+    }
+
     # 푸쉬 결과 패턴 추출. raw 텍스트는 JSON 이스케이프된 \n 또는 실제 개행을 포함할 수 있음.
     $newBranch = $false
     $forced    = $false
@@ -67,12 +128,7 @@ try {
         }
     }
 
-    if ($ranges.Count -eq 0) { Exit-Silent }  # up-to-date 등 변경 없음
-
-    $cwd = [string]$payload.cwd
-    if ([string]::IsNullOrWhiteSpace($cwd) -or -not (Test-Path $cwd)) {
-        $cwd = (Get-Location).Path
-    }
+    if ($ranges.Count -eq 0) { Emit-Context @($gNote) }  # up-to-date 등 변경 없음 — 전역 알림만 있으면 그것만 발화
 
     # 푸쉬된 범위의 변경 파일 수집. 재진입 가드로 hook 내부 git 호출은 재발화 없음 (공식).
     $changedFiles = New-Object System.Collections.Generic.List[string]
@@ -95,7 +151,7 @@ try {
     }
 
     $unique = $changedFiles | Where-Object { $_ -and $_.Trim() } | Select-Object -Unique
-    if ($unique.Count -eq 0) { Exit-Silent }
+    if ($unique.Count -eq 0) { Emit-Context @($gNote) }
 
     # 비-문서 코드 변경이 1개라도 있어야 발화 (사용자 요구: 코드 변경 있을 때만)
     $nonDoc = $unique | Where-Object {
@@ -103,7 +159,7 @@ try {
         $_ -notmatch '(^|/)LICENSE$' -and
         $_ -notmatch '(^|/)CHANGELOG(\.md)?$'  # CHANGELOG는 문서로 분류 — 이걸 트리거로 잡지 않음
     }
-    if ($nonDoc.Count -eq 0) { Exit-Silent }
+    if ($nonDoc.Count -eq 0) { Emit-Context @($gNote) }
 
     $rangeSummary = ($ranges | ForEach-Object {
         if ($_ -like '__NEWBRANCH__:*') { "[new branch] $($_ -replace '^__NEWBRANCH__:', '')" }
@@ -125,16 +181,7 @@ try {
 호출 방법: Skill 도구로 'doc-sync' 스킬을 인수 없이 호출하세요.
 "@
 
-    $output = ConvertTo-AsciiSafeJson @{
-        suppressOutput     = $true
-        hookSpecificOutput = @{
-            hookEventName     = 'PostToolUse'
-            additionalContext = $context
-        }
-    }
-
-    [Console]::Out.WriteLine($output)
-    exit 0
+    Emit-Context @($context, $gNote)
 }
 catch {
     [Console]::Error.WriteLine("[doc-sync-hook] error: $($_.Exception.Message)")

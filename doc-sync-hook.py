@@ -4,7 +4,7 @@
 # - PostToolUse 는 성공한 tool 호출에만 발화하므로 success 체크 불필요
 # - tool result 키 이름이 공식 문서에 미명시이므로 raw stdin 텍스트에서 push 결과 패턴을 추출
 # - 푸쉬된 범위에 비-문서 코드 변경이 있을 때만 스킬 호출 지시
-import sys, json, re, subprocess
+import sys, json, re, subprocess, os
 
 
 def exit_silent():
@@ -19,6 +19,55 @@ def git(cwd, *args):
     except Exception:
         pass
     return ""
+
+
+def global_reminder(push_cwd):
+    """다른 프로젝트 push 시, ~/.claude의 memory/ 외 미반영 변경이 있으면 알림 텍스트를 반환.
+    자동 commit/push는 하지 않는다 — CLAUDE.md 규칙 12(자기수정 방지) 유지, 알림만 강제.
+    memory/ 는 별도 SessionEnd 훅(memory-sync-hook.py)이 이미 자동 처리하므로 제외."""
+    try:
+        global_dir = os.path.normpath(os.path.expanduser("~/.claude"))
+        cwd_norm = os.path.normpath(push_cwd or "")
+        if cwd_norm == global_dir or cwd_norm.startswith(global_dir + os.sep):
+            return None  # 전역 저장소 자체를 push 중이면 스킵
+        if not os.path.isdir(os.path.join(global_dir, ".git")):
+            return None
+
+        def is_memory(f):
+            return f.startswith("memory/") or f.startswith("memory\\")
+
+        changed = []
+
+        status = git(global_dir, "status", "--porcelain")
+        for line in status.splitlines():
+            if len(line) <= 3:
+                continue
+            f = line[3:].strip()
+            if " -> " in f:
+                f = f.split(" -> ", 1)[1].strip()
+            if f and not is_memory(f):
+                changed.append(f)
+
+        unpushed = git(global_dir, "log", "@{u}..", "--name-only", "--pretty=format:")
+        for f in unpushed.splitlines():
+            f = f.strip()
+            if f and not is_memory(f) and f not in changed:
+                changed.append(f)
+
+        if not changed:
+            return None
+
+        sample = "\n  - ".join(changed[:15])
+        return (
+            "[global-reminder] 방금 다른 프로젝트에서 push했는데, 전역 저장소(~/.claude)에도 "
+            "memory/ 외의 미반영 변경(미커밋 또는 미푸쉬)이 있습니다.\n"
+            "- 변경 파일(%d개):\n  - %s\n\n"
+            "자동으로 commit/push하지 마세요(CLAUDE.md 규칙 12 자기수정 방지) — 사용자에게 "
+            "알리고, 사용자가 원하면 검토 후 ~/.claude에서 직접 처리하세요."
+            % (len(changed), sample)
+        )
+    except Exception:
+        return None
 
 
 def main():
@@ -47,6 +96,26 @@ def main():
     if re.search(r"doc-sync-hook\.(ps1|py)", cmd):
         exit_silent()
 
+    cwd = str(payload.get("cwd") or "")
+    if not cwd.strip() or not os.path.isdir(cwd):
+        cwd = os.getcwd()
+
+    g_note = global_reminder(cwd)
+
+    def emit(*parts):
+        parts = [p for p in parts if p]
+        if not parts:
+            exit_silent()
+        output = json.dumps({
+            "suppressOutput": True,
+            "hookSpecificOutput": {
+                "hookEventName": "PostToolUse",
+                "additionalContext": "\n\n---\n\n".join(parts),
+            },
+        }, ensure_ascii=True)
+        sys.stdout.write(output + "\n")
+        sys.exit(0)
+
     # 푸쉬 결과 패턴 추출. raw 는 JSON 이스케이프된 \n 또는 실제 개행을 포함할 수 있음.
     new_branch = False
     forced = False
@@ -68,12 +137,7 @@ def main():
             ranges.append("__FORCED__:" + m.group(1))
 
     if not ranges:
-        exit_silent()  # up-to-date 등 변경 없음
-
-    import os
-    cwd = str(payload.get("cwd") or "")
-    if not cwd.strip() or not os.path.isdir(cwd):
-        cwd = os.getcwd()
+        emit(g_note)  # up-to-date 등 변경 없음 — 전역 알림만 있으면 그것만 발화
 
     # 푸쉬된 범위의 변경 파일 수집
     changed = []
@@ -97,7 +161,7 @@ def main():
             seen.add(f)
             unique.append(f)
     if not unique:
-        exit_silent()
+        emit(g_note)
 
     # 비-문서 코드 변경이 1개라도 있어야 발화
     def is_doc(f):
@@ -107,7 +171,7 @@ def main():
 
     non_doc = [f for f in unique if not is_doc(f)]
     if not non_doc:
-        exit_silent()
+        emit(g_note)
 
     def label(r):
         if r.startswith("__NEWBRANCH__:"):
@@ -132,16 +196,8 @@ def main():
         % (cwd, range_summary, new_branch, forced, len(unique), file_sample)
     )
 
-    output = json.dumps({
-        "suppressOutput": True,
-        "hookSpecificOutput": {
-            "hookEventName": "PostToolUse",
-            "additionalContext": context,
-        },
-    }, ensure_ascii=True)
-
-    sys.stdout.write(output + "\n")
-    sys.exit(0)
+    # ensure_ascii=True(emit 내부 기본값) 유지 — Windows 파이프의 cp949 인코딩에도 JSON이 깨지지 않게 ASCII 이스케이프로 내보낸다
+    emit(context, g_note)
 
 
 try:
