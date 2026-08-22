@@ -4,3 +4,4 @@
 - [AI 보조 UI 패턴](ai-assist-ui-pattern.md) — 분리형 입력·수동모드 UI 중복 금지·모델 드롭다운 추천 압축
 - [!프리픽스는 Git Bash](bang-prefix-runs-gitbash-not-powershell.md) — 사용자 `!`입력은 PowerShell 아님, env var 안내 시 export 문법으로
 - [AI 게이트웨이 키 위치](ai-gateway-key-location.md) — ~/.claude/.secrets/easycad-gateway.key, jbnu-gateway.key와 다른 계정이니 혼용 금지
+- [Qt 다이얼로그 크래시는 진짜 클릭으로 재현](qt-dialog-crash-debug-real-click.md) — reject()는 closeEvent() 안 거침, 스크립트 close()≠진짜 X클릭, PowerShell 실클릭 재현법
