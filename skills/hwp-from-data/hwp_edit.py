@@ -93,6 +93,14 @@ class HwpDoc:
                .encode("utf-8")
         )
         self._index_cells()
+        self._black_shape_cache = {}
+        self._tight_pshape_cache = {}
+        self._charshape_by_id = {
+            e.get("Id"): e for e in self.root.iter() if _ln(e.tag) == "CHARSHAPE"
+        }
+        self._parashape_by_id = {
+            e.get("Id"): e for e in self.root.iter() if _ln(e.tag) == "PARASHAPE"
+        }
         return self
 
     def _index_cells(self):
@@ -123,13 +131,81 @@ class HwpDoc:
             raise KeyError("셀 없음: (%s, %s)" % (row, col))
         return self._cell_text(cell)
 
+    @staticmethod
+    def _bump_list_count(parent):
+        """CHARSHAPELIST/PARASHAPELIST 등은 Count 속성으로 항목 수를 명시한다 —
+        늘어난 실제 자식 수와 어긋나면 한글이 새로 추가한 항목을 무시할 수 있다."""
+        if parent.get("Count") is not None:
+            parent.set("Count", str(len(parent)))
+
+    def _black_charshape_id(self, shape_id):
+        """양식의 안내문구(placeholder)는 보통 회색 CharShape를 쓴다.
+        그 서식을 그대로 복제해 채우면 실제 입력값도 회색으로 남으므로,
+        같은 서식에서 TextColor만 검정(0)으로 바꾼 변형을 만들어 재사용한다."""
+        if shape_id is None:
+            return shape_id
+        cached = self._black_shape_cache.get(shape_id)
+        if cached is not None:
+            return cached
+        src = self._charshape_by_id.get(shape_id)
+        if src is None or src.get("TextColor") == "0":
+            self._black_shape_cache[shape_id] = shape_id
+            return shape_id
+        new = copy.deepcopy(src)
+        new_id = str(max(int(i) for i in self._charshape_by_id) + 1)
+        new.set("Id", new_id)
+        new.set("TextColor", "0")
+        parent = src.getparent()
+        parent.append(new)
+        self._bump_list_count(parent)
+        self._charshape_by_id[new_id] = new
+        self._black_shape_cache[shape_id] = new_id
+        return new_id
+
+    def _tight_parashape_id(self, shape_id, cap=130):
+        """안내문구는 보통 한두 줄만 예상하고 줄간격을 넉넉히(150~160%) 잡아둔다.
+        실제로 채우는 값이 길어 여러 줄로 감싸이면 그 넉넉한 줄간격이 그대로
+        곱해져 셀이 불필요하게 커진다(2026-08-24 실제 발생 — 신청서 표가 빈 여백
+        때문에 여러 페이지로 늘어남). 문단 서식의 LineSpacing(%)이 cap을 넘으면
+        cap으로 낮춘 변형을 만들어 쓴다. 이미 촘촘한 서식(cap 이하)은 그대로 둔다."""
+        if shape_id is None:
+            return shape_id
+        cached = self._tight_pshape_cache.get(shape_id)
+        if cached is not None:
+            return cached
+        src = self._parashape_by_id.get(shape_id)
+        if src is None:
+            self._tight_pshape_cache[shape_id] = shape_id
+            return shape_id
+        margin = src.find("{*}PARAMARGIN")
+        if margin is None or margin.get("LineSpacingType") != "Percent" or int(margin.get("LineSpacing", "100")) <= cap:
+            self._tight_pshape_cache[shape_id] = shape_id
+            return shape_id
+        new = copy.deepcopy(src)
+        new_id = str(max(int(i) for i in self._parashape_by_id) + 1)
+        new.set("Id", new_id)
+        new.find("{*}PARAMARGIN").set("LineSpacing", str(cap))
+        parent = src.getparent()
+        parent.append(new)
+        self._bump_list_count(parent)
+        self._parashape_by_id[new_id] = new
+        self._tight_pshape_cache[shape_id] = new_id
+        return new_id
+
     def _make_p(self, ref_p, text):
-        """서식 참조 문단(ref_p)을 복제해 텍스트만 바꾼 새 <P>."""
+        """서식 참조 문단(ref_p)을 복제해 텍스트만 바꾼 새 <P>
+        (글자색은 검정으로 강제, 줄간격은 너무 넉넉하면 촘촘하게 강제)."""
         p = copy.deepcopy(ref_p)
+        tight_id = self._tight_parashape_id(p.get("ParaShape"))
+        if tight_id is not None:
+            p.set("ParaShape", tight_id)
         texts = [c for c in p if _ln(c.tag) == "TEXT"]
         for t in texts[1:]:
             p.remove(t)
         t0 = texts[0]
+        black_id = self._black_charshape_id(t0.get("CharShape"))
+        if black_id is not None:
+            t0.set("CharShape", black_id)
         for ch in list(t0):
             t0.remove(ch)
         t0.text = None
