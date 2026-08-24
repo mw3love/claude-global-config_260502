@@ -11,3 +11,5 @@
 - [전역 메모리 자동 sync 훅](reference_memory_sync_hook.md) — SessionEnd 훅이 memory/만 자동 commit+push(2026-08-12), sync-repos pull 루프와는 의도적으로 무관, statusline에 전역 상태 가시성도 추가
 - [전역 push 리마인드 훅](reference_global_push_reminder_hook.md) — 다른 프로젝트 push 시 doc-sync-hook이 ~/.claude의 memory/ 외 미반영 변경을 알림(자동 push는 안 함, 2026-08-14)
 - [계획 수립 워크플로 선호](feedback_planning_workflow.md) — Plan 모드보다 deep-interview+대화 후 최종 합성 선호, self-review 자동실행이 재검토 단계를 이미 커버(2026-08-14)
+- [사용자 신원정보](user_profile_kbs.md) — 김민우/KBS 전주총국 기술국/사번 30881/010-414-4142, 기안문·신청서 등 사내 공식문서 작성 시 사용
+- [공식문서 서식 선호](feedback_document_formatting_style.md) — 나열 구분자는 가운데점·쉼표 대신 슬래시, 불릿 적극 사용(HWP 등 마크다운 불가 산출물 한정)
