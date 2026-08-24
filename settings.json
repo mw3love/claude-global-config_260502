@@ -95,8 +95,7 @@
     "document-skills@anthropic-agent-skills": true,
     "playwright@claude-plugins-official": true,
     "telegram@claude-plugins-official": true,
-    "frontend-design@claude-plugins-official": true,
-    "superpowers@claude-plugins-official": true
+    "frontend-design@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "anthropic-agent-skills": {
