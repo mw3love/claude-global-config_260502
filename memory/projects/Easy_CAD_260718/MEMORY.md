@@ -6,4 +6,4 @@
 - [AI 게이트웨이 키 위치](ai-gateway-key-location.md) — ~/.claude/.secrets/easycad-gateway.key, jbnu-gateway.key와 다른 계정이니 혼용 금지
 - [Qt 다이얼로그 크래시는 진짜 클릭으로 재현](qt-dialog-crash-debug-real-click.md) — reject()는 closeEvent() 안 거침, 스크립트 close()≠진짜 X클릭, PowerShell 실클릭 재현법
 - [superpowers 비활성화됨](feedback_no_superpowers.md) — 전역 설정에서 껐음(2026-08-25), 새 세션에서 자동 사용 금지, enabledPlugins 먼저 확인
-- [symbol_library.json 테스트 오염 버그](bug_symbol_library_test_leak.md) — 전체 pytest 실행 후 실제 심볼 파일이 변조됨(원인 미조사), 실행 후 git status 확인 습관화
+- [symbol_library.json 테스트 오염 재조사](bug_symbol_library_test_leak.md) — 정식 스위트는 무죄 재확인(2026-08-25), 실제 위험은 격리 안 된 애드혹 진단 스크립트
