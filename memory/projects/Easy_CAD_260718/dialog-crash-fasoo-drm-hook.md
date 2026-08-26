@@ -1,60 +1,61 @@
 ---
 name: dialog-crash-fasoo-drm-hook
-description: "Mermaid/SVG 창을 X버튼으로 열고닫기를 반복하면 앱 전체가 죽는 문제 — 원인은 EasyCAD 코드가 아니라 이 PC에 깔린 Fasoo DRM(f_sps.dll, 'Secure Print Support Module')이 Qt 창 관리에 개입하다 Qt6Core.dll 안에서 충돌하는 것(2026-08-26 minidump 분석으로 확정)"
+description: "Mermaid/SVG 생성창을 반복 열고 X로 닫으면 앱이 죽던 크래시 — 진짜 원인은 죽은 QThread 래퍼 참조(RuntimeError가 QDialog.done() 밖으로 나가 PyQt6가 abort). Fasoo DRM·한글IME 가설은 둘 다 반증됨. 진단 핵심: fastfail 코드 7 = abort = 파이썬 예외, 커스텀 sys.excepthook으로 traceback 포착"
 metadata:
   type: project
   originSessionId: (2026-08-26 세션)
-  modified: 2026-08-26T12:28:48.244Z
+  modified: 2026-08-26T13:31:30.128Z
 ---
 
-**증상**: `python run.py`(또는 `run.pyw`)로 앱을 켜고 Mermaid 가져오기/AI SVG 생성 창을
-열었다 우상단 X로 닫기를 몇 번(사용자 체감 약 3회) 반복하면 앱 프로세스 전체가 조용히
-죽는다(Python 예외·콘솔 출력 없음).
+**증상**: Mermaid 가져오기 / AI SVG 에셋 생성 창을 열었다 우상단 X로 닫기를 2~6번
+반복하면 앱 프로세스 전체가 조용히 죽는다(타이핑 없이 열자마자 닫기만 해도 재현).
 
-**원인(확정)**: EasyCAD 코드 버그가 아니다. Windows Event Viewer(`Get-WinEvent
--FilterHashtable @{LogName='Application'; ProviderName='Application Error'}`)와
-`%LOCALAPPDATA%\CrashDumps\pythonw.exe.*.dmp`(Python `minidump` 패키지로 파싱,
-`pip show minidump`로 이미 설치돼 있음)를 분석한 결과:
-- 모든 크래시가 **정확히 같은 주소**(`Qt6Core.dll+0x1bbd8`, exception code
-  `0xc0000409` = STATUS_STACK_BUFFER_OVERRUN/fail-fast)에서 발생 — 우연이 아니라
-  결정론적인 진입점.
-- 크래시 스레드(항상 메인 UI 스레드)의 스택을 덤프에서 직접 읽어보면 `user32.dll`
-  (`SendMessage`/`DispatchMessage`류) ↔ **`C:\Program Files\Fasoo DRM\f_sps.dll`**
-  (파일 설명: "Fasoo Secure Print Support Module", Fasoo Co., Ltd.) ↔ `Qt6Widgets`/
-  `Qt6Gui`/`Qt6Core`가 반복적으로 서로를 호출하는 전형적인 **윈도우 프로시저 후킹
-  체인**(hook → CallWindowProc → 원래 wndproc → hook…) 패턴이 나온다.
-- 같은 offset의 크래시가 **2026-08-22부터** Event Log에 남아있다 — 이 세션(08-26)
-  이전, 심지어 08-25 "Mermaid/SVG 창 인스턴스 재사용" 변경 이전부터 있던 것이므로
-  최근 코드 변경과 무관함을 교차 확인.
+**진짜 원인(확정, 2026-08-26)**: `host_dialogs.py`의 `_detach_worker()`는 다이얼로그가
+닫힐 때 아직 도는 워커(QThread)를 고아로 떼어낸 뒤 `finished`에서 `deleteLater()`로
+C++ 객체를 지운다. 그런데 다이얼로그는 2026-08-25부터 **인스턴스를 재사용**(닫아도 안
+죽고 숨기만 함)하는데 `self._model_list_worker` / `self._workers` 참조를 안 비웠다 →
+다음 번 닫기에서 이미 파괴된 C++ 객체에 `worker.isRunning()`을 불러
+`RuntimeError: wrapped C/C++ object of type _ModelListWorker has been deleted` 발생 →
+이 예외가 **Qt 가상함수 재구현인 `QDialog.done()` 밖으로 탈출** → PyQt6가 `qFatal()`
+→ `abort()` → 프로세스 즉사. 워커가 닫는 시점에 "돌고 있었는지"(모델목록 네트워크
+조회 속도)에 따라 몇 번째에 죽는지가 달라져 재현 횟수가 들쭉날쭉했다.
+**수정**: 각 `done()`에서 detach 직후 참조를 `None`/`[]`로 끊고, 공용 헬퍼
+`_detach_worker`도 죽은 래퍼(`RuntimeError`)를 만나면 조용히 반환하게 함.
+회귀 테스트 2종(`sip.delete()`로 죽은 래퍼를 결정론적으로 재현) 추가 — 수정 전 코드에서
+프로덕션과 똑같은 RuntimeError로 실패함을 확인했다.
 
-**결론**: 이 PC에 설치된 Fasoo DRM(인쇄 보안/화면보호 에이전트로 추정, 기업/공공기관
-환경에 흔함)이 프로세스에 전역 후킹을 걸어 모든 최상위 창(HWND) 생성·소멸을 가로채는데,
-Qt6(PyQt6)가 다이얼로그를 반복적으로 열고 닫을 때 이 후킹과 상호작용하다 Qt 내부
-상태가 깨져 크래시하는 것 — **애플리케이션 코드로 근본 수정 불가능한 환경 요인**이다.
+**반증된 가설 2개(같은 세션에서 순차적으로 틀림 — 교훈용으로 남김)**:
+1. **Fasoo DRM(f_sps.dll) 후킹 탓** — 크래시 스택에 이 DLL이 자주 보여 지목했으나,
+   사용자가 삭제+재부팅한 뒤에도 동일 재현되고 새 덤프엔 그 DLL이 아예 없었다. 이 PC의
+   거의 모든 프로세스(Chrome·PowerShell 등 30개+)에 주입되는 흔한 DLL이라 마침 같이
+   잡혔을 뿐인 방관자였다.
+2. **한글 IME(imkrtip.dll/msctf.dll) 탓** — Fasoo 배제 후 모든 덤프의 유일한 공통
+   모듈이라 지목하고 `clearFocus()` 완화책을 넣었다. 20회 무크래시로 "개선됐다"고
+   봤지만 사용자 재현에서 2회 만에 재발 → 이것도 방관자(GUI 앱 메시지 루프엔 항상
+   IME 모듈이 얹힌다). 진짜 원인 확정 후 `clearFocus()`는 **제거**했다(틀린 근거로 남은
+   코드는 미래를 오도한다).
 
-**대응(코드로 못 고침, 사용자가 취해야 할 조치)**:
-1. 사내 IT/보안팀에 "Fasoo f_sps.dll이 Python/PyQt6 프로세스(`python.exe`/
-   `pythonw.exe`, 또는 EasyCAD 실행파일)에서 반복 창 열고닫기 시 크래시를 일으킨다"고
-   보고 — Fasoo 에이전트 최신 버전에 이미 수정됐을 가능성.
-2. 가능하면 EasyCAD 실행파일(빌드된 `.exe` 또는 `python.exe`/`pythonw.exe` 경로)을
-   Fasoo 후킹 대상에서 제외(exclusion/allowlist) 요청 — 많은 DRM 에이전트가 이 옵션을
-   제공.
-3. 임시 완화책으로 사용자에게 "같은 창을 빠르게 여러 번 열고 닫지 말고, 필요한 작업을
-   한 번에 끝내고 닫으라"고 안내할 수 있으나 근본 해결은 아님.
+⚠ **교훈: "크래시 스택에 낯선 DLL이 보인다"는 원인 지목의 근거가 못 된다.** GUI 앱의
+메시지 루프 스택엔 항상 후킹 DLL·IME·테마 DLL이 얹혀 있다. 반드시 **그 후보를 실제로
+제거/무력화한 뒤에도 재현되는지**로 반증을 시도할 것.
 
-**진단에 쓴 도구/기법(재사용 가능)**: `Get-WinEvent -FilterHashtable
-@{LogName='Application'; ProviderName='Application Error'}`로 크래시 이벤트(ID 1000)
-확인 → `%LOCALAPPDATA%\CrashDumps\`에 자동 생성된 `.dmp` 파일을 Python
-`minidump` 패키지(`MinidumpFile.parse(path)`)로 파싱 → `mf.exception.exception_records[0]`
-에서 크래시 스레드ID·주소, `mf.modules.modules`에서 그 주소가 속한 모듈, 크래시
-스레드의 `ContextObject.Rsp`부터 스택 메모리를 `mf.get_reader().read(rsp, size)`로
-읽어 8바이트씩 스캔하며 로드된 모듈 주소 범위와 매칭 — 심볼(PDB) 없이도 "어떤 DLL들이
-스택에 관여했는지"는 충분히 알아낼 수 있다. [[qt-dialog-crash-debug-real-click]](이전
-세션이 진짜 마우스클릭 재현법을 남긴 것)과 짝을 이루는 사후 분석 기법 — 재현까지는
-그 메모리대로, 원인 규명은 이 방법으로.
-
-**주의**: 이전 메모리 [[qt-dialog-crash-debug-real-click]]는 2026-08-22의 "X버튼
-닫기 크래시"를 QThread 라이프사이클 버그로 진단·수정했다(2026-08-23 `_detach_worker`
-도입). 이번에 minidump로 새로 발견한 Fasoo 크래시는 **같은 날짜대의 로그에 섞여
-있던 별개의 원인**이다 — "X버튼 닫기 크래시"라는 증상만으로 QThread 버그로 단정하지
-말고, 이 문서의 진단 절차로 먼저 실제 크래시 덤프를 확인할 것.
+**결정적 진단 기법(이걸 처음부터 했으면 훨씬 빨랐다)**:
+1. `%LOCALAPPDATA%\CrashDumps\*.dmp`를 Python `minidump` 패키지로 파싱해
+   **`ExceptionRecord.ExceptionInformation`(fastfail 코드)**까지 볼 것.
+   `0xC0000409` + `ExceptionInformation[0] == 7` = `FAST_FAIL_FATAL_APP_EXIT` =
+   **누군가 `abort()`를 명시적으로 불렀다** = 메모리 손상이 아니다. PyQt6에서 이건
+   대부분 **Qt 가상함수/슬롯 안에서 처리 안 된 파이썬 예외**다. (크래시 주소가 매번
+   똑같이 고정인 것도 "우연한 손상"이 아니라 "고정된 abort 호출지점"의 신호.)
+2. `pythonw.exe`(콘솔 없음)에서는 그 traceback이 그냥 사라진다. **커스텀 진단 런처**로
+   ⓐ `sys.excepthook` ⓑ stderr 미러링 ⓒ `qInstallMessageHandler` ⓓ `faulthandler`를
+   전부 파일로 **즉시 flush** 하면 크래시 직전 traceback이 그대로 잡힌다.
+   ⚠ 부수효과: **커스텀 `sys.excepthook`을 설치하면 PyQt6가 abort를 안 한다** — 그래서
+   진단 런처로는 크래시가 재현 안 되는 것처럼 보인다(이것 자체가 "파이썬 예외가
+   원인"이라는 강력한 증거다). 최종 검증은 반드시 평범한 `python run.py`로 할 것.
+   이 세션에서 쓴 런처: 스크래치패드 `diag_launcher.py`(세션 종료 시 사라짐 — 필요하면
+   `tools/`로 승격 검토).
+3. 재현 자동화는 [[qt-dialog-crash-debug-real-click]]의 진짜 마우스클릭 기법
+   (PowerShell + `AttachThreadInput`으로 `SetForegroundWindow` 강제)을 반복 루프로 감싸
+   "몇 번째에 죽는지"를 수치로 비교. 수정 전 4회 → 수정 후 24회+ 무크래시.
+   ⚠ PowerShell 도구 호출은 매번 새 세션이라 `Add-Type`한 타입이 안 남는다 — 반복
+   측정 스크립트는 한 호출 안에 자족적으로 담을 것.
