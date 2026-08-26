@@ -34,6 +34,32 @@ def _git_root(cwd):
         return None
 
 
+def _git_remote(cwd):
+    try:
+        r = subprocess.run(["git", "-C", cwd, "remote", "get-url", "origin"],
+                            capture_output=True, text=True, encoding="utf-8", timeout=5)
+        return r.stdout.strip() if r.returncode == 0 else None
+    except Exception:
+        return None
+
+
+def _same_remote(a, b):
+    """github.com/x/y.git, .../y, https vs ssh 표기 차이를 흡수한 비교."""
+    def norm(u):
+        if not u:
+            return None
+        u = u.strip().lower().rstrip("/")
+        if u.endswith(".git"):
+            u = u[:-4]
+        for pre in ("git@github.com:", "ssh://git@github.com/",
+                    "https://github.com/", "http://github.com/"):
+            if u.startswith(pre):
+                return u[len(pre):]
+        return u
+    na, nb = norm(a), norm(b)
+    return bool(na) and na == nb
+
+
 def main():
     raw = sys.stdin.read()
     data = json.loads(raw) if raw.strip() else {}
@@ -63,6 +89,26 @@ def main():
         if candidate == root_norm:
             matched = r
             break
+
+    # repos.json의 path는 홈 기준 상대경로라 PC마다 폴더 배치가 다르면 못 맞춘다.
+    # 실측 2026-08-26(감시운용PC): 이 PC는 프로젝트를 `Dev-Mw\` 아래 두는데 매니페스트는
+    # `Dev/`로 적혀 있어 11개 중 8개가 매칭 실패 -> 훅이 조용히 return하고
+    # autoMemoryDirectory가 한 번도 설정되지 않았다. 그 결과 이 PC의 auto-memory가
+    # 전부 git 제외 대상인 기본 위치에 쌓여 다른 PC로 안 넘어갔다(2주 넘게 아무도 모름).
+    # remote URL은 PC와 무관한 식별자라 폴백으로 쓴다. 그래도 못 찾으면 폴더명으로.
+    if not matched:
+        origin = _git_remote(root)
+        if origin:
+            for r in repos:
+                if _same_remote(r.get("remote"), origin):
+                    matched = r
+                    break
+    if not matched:
+        base = os.path.basename(root_norm).lower()
+        hits = [r for r in repos
+                if r.get("path") and os.path.basename(r["path"].rstrip("/")).lower() == base]
+        if len(hits) == 1:  # 이름이 겹치면 어느 쪽인지 알 수 없으므로 포기
+            matched = hits[0]
 
     if not matched:
         return  # repos.json에 없는 프로젝트 — 손대지 않는다
