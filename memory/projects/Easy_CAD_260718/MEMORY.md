@@ -5,4 +5,5 @@
 - [!프리픽스는 Git Bash](bang-prefix-runs-gitbash-not-powershell.md) — 사용자 `!`입력은 PowerShell 아님, env var 안내 시 export 문법으로
 - [AI 게이트웨이 키 위치](ai-gateway-key-location.md) — ~/.claude/.secrets/easycad-gateway.key, jbnu-gateway.key와 다른 계정이니 혼용 금지
 - [Qt 다이얼로그 크래시는 진짜 클릭으로 재현](qt-dialog-crash-debug-real-click.md) — reject()는 closeEvent() 안 거침, 스크립트 close()≠진짜 X클릭, PowerShell 실클릭 재현법
-- [superpowers 비활성화됨](feedback_no_superpowers.md) — 전역 설정에서 껐음(2026-08-25), 새 세션에서 자동 사용 금지, enabledPlugins 먼저 확인
+- [superpowers 완전 삭제됨](feedback_no_superpowers.md) — 2026-08-26 uninstall, 설치 자체가 없음(재설치 전엔 언급 불필요)
+- [번들 스킬 개별 끄기](claude-code-skill-overrides.md) — settings.json `skillOverrides: {"code-review":"off"}`, 공식문서 확인 완료, 아직 미적용
