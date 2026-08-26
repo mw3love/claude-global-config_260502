@@ -47,6 +47,17 @@ RE_NEG = re.compile(
     r"|not\s+work|doesn'?t\s+work|does\s+not\s+work|won'?t\s+work|fail(s|ed|ing)?|broken|no\s+luck",
     re.IGNORECASE,
 )
+# TIER3(정량반복 × 크래시동사, 같은 문장): 크래시·간헐버그의 재보고는 좌절어휘가 아니라
+#   **횟수**로 온다 — "3번정도 반복하면 꺼져버림", "6번정도에 꺼졌음", "2번만에도 죽는데?".
+#   2026-08-26 실측(EasyCAD 생성창 크래시): 같은 증상 5회 보고 중 TIER1/2 매치는 1건뿐이었고
+#   그마저 리셋 앵커 직후라 THRESHOLD에 못 걸려 사가 내내 훅이 침묵했다(스턱루프 미발화).
+#   숫자+번/회가 크래시 동사와 같은 문장에 붙는 형태는 평범한 지시("이 작업 3번 반복해줘",
+#   "테스트 5번 돌려줘")와 잘 갈려 오탐이 낮다(같은 실측에서 양성 4/5, 오탐 0/6).
+RE_CRASH_COUNT = re.compile(
+    r"(\d+\s*(번|회)|몇\s*번).{0,25}(죽|꺼지|꺼져|꺼짐|꺼졌|튕기|다운|먹통|종료|crash|크래시)"
+    r"|(죽|꺼지|꺼져|꺼짐|꺼졌|튕기|다운|먹통|크래시|crash).{0,25}(\d+\s*(번|회)|몇\s*번)",
+    re.IGNORECASE,
+)
 
 
 def strip_noise(text):
@@ -63,7 +74,8 @@ def strip_noise(text):
 
 
 def is_frustration(text):
-    """강한 좌절어(TIER1)가 단독으로 나오거나, 반복어와 부정어가 '같은 문장'에 함께 나오면 좌절."""
+    """강한 좌절어(TIER1) 단독, 반복어×부정어(TIER2), 또는 정량반복×크래시동사(TIER3)가
+    '같은 문장'에 함께 나오면 좌절로 본다."""
     if not text:
         return False
     clean = strip_noise(text)
@@ -71,6 +83,8 @@ def is_frustration(text):
         if RE_STRONG.search(sent):
             return True
         if RE_REPEAT.search(sent) and RE_NEG.search(sent):
+            return True
+        if RE_CRASH_COUNT.search(sent):
             return True
     return False
 
