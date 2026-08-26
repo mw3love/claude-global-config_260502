@@ -111,6 +111,9 @@
       }
     }
   },
+  "skillOverrides": {
+    "code-review": "user-invocable-only"
+  },
   "effortLevel": "high",
   "autoUpdatesChannel": "latest",
   "skipDangerousModePermissionPrompt": true,
