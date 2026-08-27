@@ -114,7 +114,7 @@
       }
     }
   },
-  "effortLevel": "high",
+  "effortLevel": "xhigh",
   "autoUpdatesChannel": "latest",
   "skipDangerousModePermissionPrompt": true,
   "theme": "dark",
