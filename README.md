@@ -180,9 +180,9 @@ C:\Users\길동\.claude    →  projects/C--Users----claude/memory/       ← PC
 ├── setup/
 │   ├── hooks/
 │   │   └── post-merge        # pull 후 환경 자동 점검 (Bun, $PROFILE, 플러그인, memory 정크션, Cursor 훅 링크)
-│   ├── link-cursor-hooks.py  # ~/.cursor/hooks.json → cursor-hooks/ 연결 (post-merge가 호출)
+│   ├── link-cursor-hooks.py  # ~/.cursor/hooks.json 복사 + hooks/ 링크 (post-merge가 호출)
 │   └── profile.ps1           # PowerShell 프로필 — Bun PATH 보정 + claude (로컬) / tel (텔레그램) 함수 + core.hooksPath 점검(경고)
-├── cursor-hooks/             # Cursor 전역 훅 원본 (Cursor는 여기를 직접 안 봄 — 링크 필요)
+├── cursor-hooks/             # Cursor 전역 훅 원본 (hooks.json은 ~/.cursor로 복사, hooks/만 링크)
 │   ├── hooks.json
 │   └── hooks/
 ├── skills/

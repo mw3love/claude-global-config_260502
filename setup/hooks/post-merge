@@ -3,7 +3,7 @@
 # - 기존 PC: 모두 갖춰져 있으면 무동작 (체크만)
 # - 신규 PC: Bun 설치 + $PROFILE 갱신 + 플러그인 다운로드까지 자동
 # - 봇 토큰(.env)만 사용자 수동 작성 (시크릿이라 git 동기화 불가)
-# - Cursor 훅: ~/.cursor/hooks.json 을 repo cursor-hooks/ 에 연결 (PC당 자동)
+# - Cursor 훅: ~/.cursor/hooks.json 을 repo cursor-hooks/ 에서 복사, hooks/ 는 링크 (PC당 자동)
 
 set +e
 
@@ -120,8 +120,9 @@ if [ -d "$CLAUDE_DIR/memory" ]; then
     esac
 fi
 
-# 6) Cursor 훅 링크 — Cursor는 ~/.claude 훅을 안 읽고 ~/.cursor/hooks.json 만 본다.
-#    원본은 repo cursor-hooks/. pull 한 PC는 이 단계에서 전선만 잇는다.
+# 6) Cursor 훅 — Cursor는 ~/.claude/settings.json 훅도 돌리지만,
+#    Cursor 규격(beforeShellExecution)은 ~/.cursor/hooks.json 이 필요하다.
+#    hooks.json 은 복사(작업공간이 ~/.cursor 이면 심볼릭 링크를 거부함). hooks/ 만 링크.
 if [ -f "$CLAUDE_DIR/setup/link-cursor-hooks.py" ]; then
     CURSOR_OUT=$(python3 "$CLAUDE_DIR/setup/link-cursor-hooks.py" 2>/dev/null \
         || python "$CLAUDE_DIR/setup/link-cursor-hooks.py" 2>/dev/null)
