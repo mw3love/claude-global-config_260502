@@ -1,4 +1,18 @@
 {
   "version": 1,
-  "hooks": {}
+  "hooks": {
+    "beforeShellExecution": [
+      {
+        "command": "python3 ./hooks/pre-push-doc-sync.py || python ./hooks/pre-push-doc-sync.py",
+        "timeout": 15
+      }
+    ],
+    "preToolUse": [
+      {
+        "command": "python3 ./hooks/pre-push-doc-sync.py || python ./hooks/pre-push-doc-sync.py",
+        "matcher": "Shell",
+        "timeout": 15
+      }
+    ]
+  }
 }

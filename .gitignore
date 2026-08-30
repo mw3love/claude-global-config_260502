@@ -41,6 +41,7 @@ history.jsonl
 hook_test.txt
 stuck-loop-hook.log
 pre-push-doc-sync-hook.log
+cursor-hooks/*.log
 session-memory-hook.log
 memory-sync-hook.log
 .doc-sync-ready
