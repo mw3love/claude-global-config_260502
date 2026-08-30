@@ -3,13 +3,13 @@
   "hooks": {
     "beforeShellExecution": [
       {
-        "command": "python3 ./hooks/pre-push-doc-sync.py || python ./hooks/pre-push-doc-sync.py",
+        "command": "./hooks/pre-push-doc-sync.sh",
         "timeout": 15
       }
     ],
     "preToolUse": [
       {
-        "command": "python3 ./hooks/pre-push-doc-sync.py || python ./hooks/pre-push-doc-sync.py",
+        "command": "./hooks/pre-push-doc-sync.sh",
         "matcher": "Shell",
         "timeout": 15
       }
