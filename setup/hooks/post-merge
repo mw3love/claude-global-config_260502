@@ -3,6 +3,7 @@
 # - 기존 PC: 모두 갖춰져 있으면 무동작 (체크만)
 # - 신규 PC: Bun 설치 + $PROFILE 갱신 + 플러그인 다운로드까지 자동
 # - 봇 토큰(.env)만 사용자 수동 작성 (시크릿이라 git 동기화 불가)
+# - Cursor 훅: ~/.cursor/hooks.json 을 repo cursor-hooks/ 에 연결 (PC당 자동)
 
 set +e
 
@@ -116,6 +117,23 @@ if [ -d "$CLAUDE_DIR/memory" ]; then
         NEW)  echo "  ✅ $MEM_MSG" ;;
         TODO) echo "  ⚠  $MEM_MSG"; ANY_TODO=1 ;;
         *)    echo "  ⚠  memory 정크션 생성 실패 — memory가 이 PC에만 남습니다"; ANY_TODO=1 ;;
+    esac
+fi
+
+# 6) Cursor 훅 링크 — Cursor는 ~/.claude 훅을 안 읽고 ~/.cursor/hooks.json 만 본다.
+#    원본은 repo cursor-hooks/. pull 한 PC는 이 단계에서 전선만 잇는다.
+if [ -f "$CLAUDE_DIR/setup/link-cursor-hooks.py" ]; then
+    CURSOR_OUT=$(python3 "$CLAUDE_DIR/setup/link-cursor-hooks.py" 2>/dev/null \
+        || python "$CLAUDE_DIR/setup/link-cursor-hooks.py" 2>/dev/null)
+    CURSOR_STATUS="${CURSOR_OUT%%|*}"
+    CURSOR_MSG="${CURSOR_OUT#*|}"
+    case "$CURSOR_STATUS" in
+        OK)   echo "  ✅ Cursor 훅 링크 OK" ;;
+        NEW)  echo "  ✅ $CURSOR_MSG" ;;
+        SKIP) echo "  ⏭  $CURSOR_MSG" ;;
+        TODO) echo "  ⚠  $CURSOR_MSG"; ANY_TODO=1 ;;
+        FAIL) echo "  ⚠  $CURSOR_MSG"; ANY_TODO=1 ;;
+        *)    echo "  ⚠  Cursor 훅 링크 점검 실패"; ANY_TODO=1 ;;
     esac
 fi
 
