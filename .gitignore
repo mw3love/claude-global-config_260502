@@ -46,6 +46,7 @@ cursor-hooks/pre-push-invoke.log
 session-memory-hook.log
 memory-sync-hook.log
 .doc-sync-ready
+.doc-sync-consumed
 mcp-needs-auth-cache.json
 stats-cache.json
 .last-cleanup

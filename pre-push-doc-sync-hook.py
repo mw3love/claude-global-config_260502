@@ -33,7 +33,9 @@ import time
 from pathlib import Path
 
 SENTINEL = Path.home() / ".claude" / ".doc-sync-ready"
+CONSUMED = Path.home() / ".claude" / ".doc-sync-consumed"
 MAX_AGE_SECONDS = 30 * 60
+CONSUMED_MAX_AGE = 30  # 같은 도구 호출에서 Claude 훅과 Cursor 훅이 연달아 돌 때
 
 # 따옴표 안(커밋 메시지 등)의 문자열을 제거한 뒤, &&·;·|·개행으로 세그먼트를
 # 나누고 공백 토큰 단위로 git·push를 찾는다. \b 기반 정규식은 "pre-push-doc-
@@ -137,6 +139,25 @@ def should_skip_enforcement(cwd: str) -> bool:
     return not _has_doc_candidates(cwd)  # 문서 후보가 아예 없으면 스킵
 
 
+def sentinel_allows() -> bool:
+    """유효 센티널이면 소비하고 True. 직전 훅이 방금 소비했으면 True (이중 훅)."""
+    try:
+        age = time.time() - SENTINEL.stat().st_mtime
+        if age < MAX_AGE_SECONDS:
+            SENTINEL.unlink()
+            try:
+                CONSUMED.write_text(str(time.time()), encoding="utf-8")
+            except OSError:
+                pass
+            return True
+    except OSError:
+        pass
+    try:
+        return (time.time() - CONSUMED.stat().st_mtime) < CONSUMED_MAX_AGE
+    except OSError:
+        return False
+
+
 DENY_REASON = (
     "[pre-push doc-sync] push 전 doc-sync 사전 검토(규칙 10)가 아직 확인되지 않았다. "
     "절차: 1) doc-sync 스킬을 호출해 문서 동기화를 검토하고(변경이 있으면 같은 커밋에 포함) "
@@ -186,13 +207,8 @@ def main() -> None:
     if should_skip_enforcement(cwd):
         return
 
-    try:
-        age = time.time() - SENTINEL.stat().st_mtime
-        if age < MAX_AGE_SECONDS:
-            SENTINEL.unlink()  # 1회용 — push 한 번당 doc-sync 확인 한 번
-            return
-    except OSError:
-        pass  # 센티널 없음/접근 불가 → deny로 진행
+    if sentinel_allows():
+        return
 
     is_cursor = bool(data.get("cursor_version")) or tool == "Shell"
     _emit_deny(is_cursor)

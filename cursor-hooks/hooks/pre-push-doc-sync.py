@@ -12,7 +12,6 @@ import importlib.util
 import json
 import os
 import sys
-import time
 from pathlib import Path
 
 DENY_AGENT = (
@@ -88,14 +87,9 @@ def main() -> None:
         _allow()
         return
 
-    try:
-        age = time.time() - mod.SENTINEL.stat().st_mtime
-        if age < mod.MAX_AGE_SECONDS:
-            mod.SENTINEL.unlink()
-            _allow()
-            return
-    except OSError:
-        pass
+    if mod.sentinel_allows():
+        _allow()
+        return
 
     _deny()
 
