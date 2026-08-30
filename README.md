@@ -222,7 +222,7 @@ C:\Users\길동\.claude    →  projects/C--Users----claude/memory/       ← PC
 ├── pre-push-doc-sync-hook.py # PreToolUse 훅 — 센티널(.doc-sync-ready) 없는 git push 거부 (doc-sync 사전 검토 기계 강제)
 ├── memory-sync-hook.py       # SessionEnd 훅 — memory/ 변경을 자동 commit+push(2026-08-12)
 ├── session-memory-hook.py    # SessionStart 훅 — repos.json 등록 프로젝트의 auto-memory를 memory/projects/<이름>으로 리다이렉트(autoMemoryDirectory)
-├── stuck-loop-hook.py        # UserPromptSubmit 훅 — 좌절 어휘 2회째 감지해 규칙 11-b 트립와이어 주입 (안전망)
+├── stuck-loop-hook.py        # UserPromptSubmit/beforeSubmitPrompt — 좌절 어휘 2회째 주입. Cursor는 role 기록 + JSON(additional_context)
 ├── sync-repos.py             # 여러 repo 일괄 pull+빌드 엔진 (크로스플랫폼, 기본)
 ├── sync-repos.ps1            # 〃 PowerShell 폴백 (python 없는 Windows)
 ├── repos.json                # sync-repos 동기화 명단(홈 기준 상대경로+빌드) + reference-repos 인덱스(remote+reference 필드)
