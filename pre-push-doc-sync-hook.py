@@ -33,7 +33,9 @@ import time
 from pathlib import Path
 
 SENTINEL = Path.home() / ".claude" / ".doc-sync-ready"
+CONSUMED = Path.home() / ".claude" / ".doc-sync-consumed"
 MAX_AGE_SECONDS = 30 * 60
+CONSUMED_MAX_AGE = 30  # 같은 도구 호출에서 Claude 훅과 Cursor 훅이 연달아 돌 때
 
 # 따옴표 안(커밋 메시지 등)의 문자열을 제거한 뒤, &&·;·|·개행으로 세그먼트를
 # 나누고 공백 토큰 단위로 git·push를 찾는다. \b 기반 정규식은 "pre-push-doc-
@@ -137,44 +139,79 @@ def should_skip_enforcement(cwd: str) -> bool:
     return not _has_doc_candidates(cwd)  # 문서 후보가 아예 없으면 스킵
 
 
+def sentinel_allows() -> bool:
+    """유효 센티널이면 소비하고 True. 직전 훅이 방금 소비했으면 True (이중 훅)."""
+    try:
+        age = time.time() - SENTINEL.stat().st_mtime
+        if age < MAX_AGE_SECONDS:
+            SENTINEL.unlink()
+            try:
+                CONSUMED.write_text(str(time.time()), encoding="utf-8")
+            except OSError:
+                pass
+            return True
+    except OSError:
+        pass
+    try:
+        return (time.time() - CONSUMED.stat().st_mtime) < CONSUMED_MAX_AGE
+    except OSError:
+        return False
+
+
+DENY_REASON = (
+    "[pre-push doc-sync] push 전 doc-sync 사전 검토(규칙 10)가 아직 확인되지 않았다. "
+    "절차: 1) doc-sync 스킬을 호출해 문서 동기화를 검토하고(변경이 있으면 같은 커밋에 포함) "
+    "2) `touch ~/.claude/.doc-sync-ready`를 별도 셸 호출로 실행한 뒤 "
+    "3) 그 다음 셸 호출로 push를 재시도한다. "
+    "⚠ touch와 push를 한 명령에 && 로 묶지 말 것 — 이 훅은 명령이 "
+    "실행되기 전에 센티널을 검사하므로, 묶으면 touch가 실행되기도 전에 거부된다. "
+    "이번 대화에서 doc-sync 사전 검토를 이미 마쳤다면 2)~3)만 하면 된다."
+)
+
+
+def _emit_deny(is_cursor: bool) -> None:
+    # Cursor는 ~/.claude/settings.json 훅을 그대로 돌리지만, 거부 JSON 규격이 다르다.
+    if is_cursor:
+        print(json.dumps({
+            "permission": "deny",
+            "user_message": "git push가 막힘 — 먼저 doc-sync 검토 후 touch ~/.claude/.doc-sync-ready",
+            "agent_message": DENY_REASON,
+        }, ensure_ascii=True))
+        return
+    print(json.dumps({
+        "hookSpecificOutput": {
+            "hookEventName": "PreToolUse",
+            "permissionDecision": "deny",
+            "permissionDecisionReason": DENY_REASON,
+        }
+    }))  # ensure_ascii 기본값(True) — Windows 파이프 cp949에서도 JSON이 깨지지 않게
+
+
 def main() -> None:
     try:
         data = json.load(sys.stdin)
     except Exception:
         return
-    if data.get("tool_name") != "Bash":
+    # Claude Code = Bash, Cursor = Shell. Cursor는 Claude settings.json 훅을 그대로 호출한다.
+    tool = data.get("tool_name")
+    if tool not in ("Bash", "Shell"):
         return
     command = (data.get("tool_input") or {}).get("command", "")
+    if not command and data.get("command"):
+        command = data.get("command") or ""
     if not command_has_git_push(command):
         return
 
-    cwd = str(data.get("cwd") or os.getcwd())
+    cwd = data.get("cwd") or (data.get("tool_input") or {}).get("working_directory") or ""
+    cwd = str(cwd).strip() or os.getcwd()
     if should_skip_enforcement(cwd):
         return
 
-    try:
-        age = time.time() - SENTINEL.stat().st_mtime
-        if age < MAX_AGE_SECONDS:
-            SENTINEL.unlink()  # 1회용 — push 한 번당 doc-sync 확인 한 번
-            return
-    except OSError:
-        pass  # 센티널 없음/접근 불가 → deny로 진행
+    if sentinel_allows():
+        return
 
-    print(json.dumps({
-        "hookSpecificOutput": {
-            "hookEventName": "PreToolUse",
-            "permissionDecision": "deny",
-            "permissionDecisionReason": (
-                "[pre-push doc-sync] push 전 doc-sync 사전 검토(규칙 10)가 아직 확인되지 않았다. "
-                "절차: 1) doc-sync 스킬을 호출해 문서 동기화를 검토하고(변경이 있으면 같은 커밋에 포함) "
-                "2) `touch ~/.claude/.doc-sync-ready`를 별도 Bash 호출로 실행한 뒤 "
-                "3) 그 다음 Bash 호출로 push를 재시도한다. "
-                "⚠ touch와 push를 한 명령에 && 로 묶지 말 것 — 이 훅은 PreToolUse라 명령이 "
-                "실행되기 전에 센티널을 검사하므로, 묶으면 touch가 실행되기도 전에 거부된다. "
-                "이번 대화에서 doc-sync 사전 검토를 이미 마쳤다면 2)~3)만 하면 된다."
-            ),
-        }
-    }))  # ensure_ascii 기본값(True) 유지 — Windows 파이프의 cp949 인코딩에도 JSON이 깨지지 않게 ASCII 이스케이프로 내보낸다
+    is_cursor = bool(data.get("cursor_version")) or tool == "Shell"
+    _emit_deny(is_cursor)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "hooks": {
+    "beforeShellExecution": [
+      {
+        "command": "./hooks/pre-push-doc-sync.sh",
+        "timeout": 15
+      }
+    ],
+    "preToolUse": [
+      {
+        "command": "./hooks/pre-push-doc-sync.sh",
+        "matcher": "Shell",
+        "timeout": 15
+      }
+    ]
+  }
+}

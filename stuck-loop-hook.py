@@ -12,7 +12,9 @@
 #   2. 리셋 앵커 이후 좌절 매치가 이번 것 포함 2회 이상  (첫 좌절엔 완전 침묵)
 # 리셋 앵커: assistant가 이미 '🔁 스턱루프' 블록을 낸 지점 — 접근을 전환했으면 새로 센다.
 #
-# UserPromptSubmit은 exit 0 + 평문 stdout이 그대로 컨텍스트로 주입된다(이 이벤트의 특례).
+# Claude UserPromptSubmit은 exit 0 + 평문 stdout이 그대로 컨텍스트로 주입된다(이 이벤트의 특례).
+# Cursor beforeSubmitPrompt는 JSON만 유효하다. cursor_version 이 있으면
+# {"continue": true, "additional_context": "..."} 로 낸다(평문은 파싱 실패로 버려짐).
 # 미발화 시엔 아무것도 출력하지 않는다.
 import sys, os, json, re
 
@@ -89,6 +91,21 @@ def is_frustration(text):
     return False
 
 
+def unwrap_prompt(text):
+    """Cursor transcript는 <timestamp> + <user_query> 래퍼. 본문만 남긴다."""
+    if not text:
+        return ""
+    m = re.search(r"<user_query>\s*(.*?)\s*</user_query>", text, flags=re.S)
+    if m:
+        return m.group(1).strip()
+    return text.strip()
+
+
+def entry_kind(entry):
+    """Claude jsonl 은 type, Cursor jsonl 은 role. 둘 다 받는다."""
+    return entry.get("type") or entry.get("role") or ""
+
+
 def user_text(entry):
     """실제 사용자 발화만 추출. tool_result·슬래시명령·훅주입 턴은 제외."""
     msg = entry.get("message") or {}
@@ -105,7 +122,8 @@ def user_text(entry):
         return ""
     if "<command-name>" in text or "<local-command-stdout>" in text:
         return ""
-    return re.sub(r"<system-reminder>.*?</system-reminder>", " ", text, flags=re.S)
+    text = re.sub(r"<system-reminder>.*?</system-reminder>", " ", text, flags=re.S)
+    return unwrap_prompt(text)
 
 
 def assistant_text(entry):
@@ -133,7 +151,7 @@ def prior_hits(transcript_path):
                 entry = json.loads(line)
             except Exception:
                 continue
-            t = entry.get("type")
+            t = entry_kind(entry)
             if t == "assistant":
                 if RESET_ANCHOR in assistant_text(entry):
                     hits = []          # 접근을 전환했으므로 카운터 리셋
@@ -149,6 +167,22 @@ def clip(s, n=MAX_QUOTE):
     return s if len(s) <= n else s[:n] + "…"
 
 
+def is_cursor(payload):
+    return bool(payload.get("cursor_version")) or payload.get("hook_event_name") == "beforeSubmitPrompt"
+
+
+def emit_tripwire(body, payload):
+    if is_cursor(payload):
+        # additional_context 는 공식 beforeSubmitPrompt 표에 없지만,
+        # 평문 stdout 은 Cursor가 버리고, JSON extra field 는 무시되거나 주입된다.
+        print(json.dumps({
+            "continue": True,
+            "additional_context": body,
+        }, ensure_ascii=True))
+        return
+    sys.stdout.write(body)
+
+
 def main():
     # stdin을 바이너리로 읽어 UTF-8로 명시 디코딩한다. sys.stdin.read()는 Windows에서
     # 로케일(cp949)로 디코딩해 한글 프롬프트가 깨지고, 그러면 패턴이 영영 매치되지 않는다.
@@ -160,21 +194,21 @@ def main():
     except Exception:
         return
 
-    prompt = str(payload.get("prompt") or "")
+    prompt = unwrap_prompt(str(payload.get("prompt") or ""))
     if not is_frustration(prompt):
         return                                   # 좌절 어휘 없음 — 침묵
 
     hits = prior_hits(str(payload.get("transcript_path") or ""))
     # 훅 실행 시점에 이번 프롬프트가 이미 transcript에 적혔을 수 있다 — 중복 카운트 방지
-    if not (hits and hits[-1] == prompt.strip()):
-        hits.append(prompt.strip())
+    if not (hits and hits[-1] == prompt):
+        hits.append(prompt)
 
     if len(hits) < THRESHOLD:
         return                                   # 첫 좌절 보고는 정상 버그 리포트 — 침묵
 
     previous = "\n".join("  %d) %s" % (i + 1, clip(h)) for i, h in enumerate(hits[:-1]))
 
-    sys.stdout.write(
+    emit_tripwire(
         "[stuck-loop hook] 이 세션에서 좌절 어휘가 담긴 사용자 보고가 %d번째입니다. "
         "전역 CLAUDE.md 규칙 11-b(스턱루프 트립와이어)의 트리거 조건입니다.\n\n"
         "이전 좌절 보고:\n%s\n\n"
@@ -191,7 +225,8 @@ def main():
         "무효화하지 못합니다.\n\n"
         "(나) 서로 다른 증상이면 (훅의 오탐) — 한 줄만 남기고 평소대로 진행:\n"
         "  🔁 스킵 — 다른 증상: {이전 증상} vs {이번 증상}\n"
-        % (len(hits), previous, clip(hits[-1], 300))
+        % (len(hits), previous, clip(hits[-1], 300)),
+        payload,
     )
 
 

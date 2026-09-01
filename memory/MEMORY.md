@@ -13,3 +13,6 @@
 - [계획 수립 워크플로 선호](feedback_planning_workflow.md) — Plan 모드보다 deep-interview+대화 후 최종 합성 선호, self-review 자동실행이 재검토 단계를 이미 커버(2026-08-14)
 - [사용자 신원정보](user_profile_kbs.md) — 김민우/KBS 전주총국 기술국/사번 30881/010-414-4142, 기안문·신청서 등 사내 공식문서 작성 시 사용
 - [공식문서 서식 선호](feedback_document_formatting_style.md) — 나열 구분자는 가운데점·쉼표 대신 슬래시, 불릿 적극 사용(HWP 등 마크다운 불가 산출물 한정)
+- [텔레그램 봇 토큰 위치](reference_telegram_bot_tokens.md) — G드라이브 "Telegram Bot 모음" 폴더, Notifier=알림용/Telegram=양방향 채널용 구분
+- [PC별 텔레그램 알림 훅 현황](project_telegram_stop_hook_notify.md) — Minwoo-Samsung-Laptop은 telegram.json 설정+실조건검증 완료(2026-09-01), 다른 PC는 개별 확인 필요
+- [자동화 요청 구체화 피드백](feedback_request_specificity_telegram.md) — 트리거+효과 구체적으로, 기존 자격증명 위치도 초반에 언급 요청(2026-09-01)

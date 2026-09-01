@@ -41,9 +41,12 @@ history.jsonl
 hook_test.txt
 stuck-loop-hook.log
 pre-push-doc-sync-hook.log
+cursor-hooks/*.log
+cursor-hooks/pre-push-invoke.log
 session-memory-hook.log
 memory-sync-hook.log
 .doc-sync-ready
+.doc-sync-consumed
 mcp-needs-auth-cache.json
 stats-cache.json
 .last-cleanup
