@@ -8,7 +8,7 @@
 - [세션 핸드오프](reference_session_handoff.md) — 동일PC 새세션은 2026-08-18부터 handoff 스킬+프로젝트로컬 파일큐(`/handoff`), 다른PC는 여전히 프롬프트 코드블록
 - [터미널 한글 폰트](reference_terminal_font_d2coding.md) — 질문창 정렬 어긋남 원인은 Cascadia Mono 폴백. HOME-DESKTOP·MW-Lenovo 모두 D2Coding 적용 완료(2026-08-10)
 - [Claude Code CJK 인코딩 버그](reference_claude_code_cjk_encoding_bug.md) — 글자 자체가 바뀌는 건 폰트가 아니라 Claude Code 자체 미해결 버그(GitHub #65394/#42899), 코드페이지 조정 무효
-- [전역 메모리 자동 sync 훅](reference_memory_sync_hook.md) — SessionEnd 훅이 memory/만 자동 commit+push(2026-08-12), sync-repos pull 루프와는 의도적으로 무관, statusline에 전역 상태 가시성도 추가
+- [전역 메모리 자동 sync 훅](reference_memory_sync_hook.md) — SessionEnd 자동 commit+push. 8/26 경로매칭 사고+수정, 9/2 MW-Samsung26 재검증 정상. 감시운용PC stranded 데이터 백필 미확인
 - [전역 push 리마인드 훅](reference_global_push_reminder_hook.md) — 다른 프로젝트 push 시 doc-sync-hook이 ~/.claude의 memory/ 외 미반영 변경을 알림(자동 push는 안 함, 2026-08-14)
 - [계획 수립 워크플로 선호](feedback_planning_workflow.md) — Plan 모드보다 deep-interview+대화 후 최종 합성 선호, self-review 자동실행이 재검토 단계를 이미 커버(2026-08-14)
 - [사용자 신원정보](user_profile_kbs.md) — 김민우/KBS 전주총국 기술국/사번 30881/010-414-4142, 기안문·신청서 등 사내 공식문서 작성 시 사용
