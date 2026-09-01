@@ -117,7 +117,7 @@
   "effortLevel": "xhigh",
   "modelSettings": {
     "claude-opus-5": {
-      "effortLevel": "high"
+      "effortLevel": "xhigh"
     }
   },
   "autoUpdatesChannel": "latest",
