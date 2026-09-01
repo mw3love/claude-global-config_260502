@@ -1,0 +1,32 @@
+{
+  "draft_id": "1410e7cc-b549-4401-a6b9-4f7537187421",
+  "created_at": "2026-08-31T02:48:09.087Z",
+  "source_session_id": "eaae3e40-38ba-456f-8b73-c9788b4a6606",
+  "cwd": "C:\\Users\\user\\Dev-Mw\\AROS_Reverse_Eng_260803\\tools",
+  "model": "claude-sonnet-5",
+  "cli_version": "2.1.246",
+  "os": "win32 x64",
+  "request_ids": [
+    "req_011Cea4ZL2WJDb28e1oR8Jup",
+    "req_011Cea4ZfvppxsSa2MtkZPZQ",
+    "req_011Cea4aLSqNGsfgUQe7K9xa"
+  ],
+  "type": "bug",
+  "title": "Ran taskkill /IM python.exe /T on a shared PC, killing unrelated production processes",
+  "details": "**What happened:** A background `python dashboard_server.py --help` call hung (no --help handling in that script). Model ran `taskkill //F //IM python.exe //T` to clean it up, which killed every python.exe process on the machine, including an unrelated production `live_poll.py` data-collection daemon and an operational dashboard server on port 8765 that were already running before this session touched anything.\n**What the user said:** User didn't comment yet; caught and self-reported by the model before the user noticed.\n**Repro:** On a machine with other long-running python processes, back a hung/backgrounded python command into a corner and reach for `taskkill /IM python.exe /T` instead of killing the specific PID.\n**Evidence:** repo ~/Dev-Mw/AROS_Reverse_Eng_260803, tools/dashboard_server.py (no CLI arg parsing, `--help` just hangs waiting on server loop), restarted PIDs 11004 (live_poll.py) and 32616 (dashboard_server.py) after the incident.\n**Cause:** Model chose a name-based, blast-radius-unbounded kill command to solve a local problem (one hung backgrounded call) instead of targeting the specific PID, on a machine explicitly documented in this project's CLAUDE.md as running unrelated always-on production processes.",
+  "area": "Bash tool / process management",
+  "failure_mode": "destructive_actions",
+  "task_category": "debug",
+  "trigger": "model_judgment",
+  "effort": "xhigh",
+  "thinking_type": "adaptive",
+  "message_count": 300,
+  "assistant_turn_count": 69,
+  "subagent_count": 0,
+  "transcript_ref": {
+    "session_file": "C:\\Users\\user\\.claude\\projects\\C--Users-user-Dev-Mw-AROS-Reverse-Eng-260803\\eaae3e40-38ba-456f-8b73-c9788b4a6606.jsonl",
+    "message_range": null,
+    "project_dir_key": "C--Users-user-Dev-Mw-AROS-Reverse-Eng-260803"
+  },
+  "status": "queued"
+}
