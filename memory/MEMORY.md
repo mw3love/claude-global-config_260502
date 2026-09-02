@@ -16,3 +16,5 @@
 - [텔레그램 봇 토큰 위치](reference_telegram_bot_tokens.md) — G드라이브 "Telegram Bot 모음" 폴더, Notifier=알림용/Telegram=양방향 채널용 구분
 - [PC별 텔레그램 알림 훅 현황](project_telegram_stop_hook_notify.md) — Minwoo-Samsung-Laptop은 telegram.json 설정+실조건검증 완료(2026-09-01), 다른 PC는 개별 확인 필요
 - [자동화 요청 구체화 피드백](feedback_request_specificity_telegram.md) — 트리거+효과 구체적으로, 기존 자격증명 위치도 초반에 언급 요청(2026-09-01)
+- [번들 스킬 개별 끄기](claude-code-skill-overrides.md) — settings.json `skillOverrides: {"code-review":"user-invocable-only"}`, 2026-08-26 적용 완료. 원래 Easy_CAD 프로젝트 서랍에 갇혀있었음(2026-09-02 전역 루트로 이동)
+- [superpowers 완전 삭제됨](feedback_no_superpowers.md) — 2026-08-26 uninstall, 설치 자체가 없음(재설치 전엔 언급 불필요). 원래 Easy_CAD 프로젝트 서랍에 갇혀있었음(2026-09-02 전역 루트로 이동)

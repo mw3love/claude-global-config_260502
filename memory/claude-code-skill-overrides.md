@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: reference
   originSessionId: babad006-341e-4aa6-a5bb-183c606bc443
-  modified: 2026-08-25T23:57:45.192Z
+  modified: 2026-09-02T02:36:33.882Z
 ---
 
 Claude Code 공식 문서(`code.claude.com/docs/en/skills.md`, `settings-reference.md`)로 확인한 사실

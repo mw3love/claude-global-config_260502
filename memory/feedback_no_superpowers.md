@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: feedback
   originSessionId: 9975fe4b-a5ba-4158-bdad-d72bd29df6cd
-  modified: 2026-08-25T23:47:33.633Z
+  modified: 2026-09-02T02:36:43.299Z
 ---
 
 2026-08-25 `enabledPlugins`에서 비활성화된 상태였다가, **2026-08-26 사용자 요청으로 `claude plugin uninstall superpowers@claude-plugins-official`로 완전 삭제**했다(설치 목록 `installed_plugins.json`에서도 제거 확인). 이제 비활성화가 아니라 설치 자체가 없는 상태 — superpowers 계열 스킬(brainstorming, writing-plans, subagent-driven-development, systematic-debugging, using-git-worktrees, finishing-a-development-branch 등)을 언급·호출할 일 자체가 생기지 않는다.
