@@ -4,7 +4,7 @@ remote: https://github.com/mw3love/youtube_dual_subtitle
 stack: [Notion API]
 tags: [Notion, 덮어쓰기, 재저장, archived, in_trash, 벌크삭제없음, 어포던스, 크롬확장]
 reuse: Reading Highlighter·AI Dictionary 등 Notion 저장 기능 공유 프로젝트에 직접 재사용
-used: []
+used: [2026-09-03 Eng Shorts (재저장이 pageId를 churn시켜 학습이력 키를 제목 해시로 바꾼 근거)]
 ---
 
 # Notion 페이지 "덮어쓰기"(재저장) 구현
