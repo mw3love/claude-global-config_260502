@@ -1,0 +1,30 @@
+{
+  "draft_id": "4c2fca38-5145-439d-9158-efc62c6d055c",
+  "created_at": "2026-09-03T13:15:45.646Z",
+  "source_session_id": "cd0a9bc5-1c02-4e41-84e0-45dfed3bfc85",
+  "cwd": "C:\\Users\\7make\\Dev\\Eng Shorts",
+  "model": "claude-sonnet-5",
+  "cli_version": "2.1.259",
+  "os": "win32 x64",
+  "request_ids": [
+    "req_011CegZrFqs1WPD8NptDQvZW",
+    "req_011CegZs8xu47swmy5m1aRT5",
+    "req_011CegZsfEop3Fm4GADdHSVx"
+  ],
+  "type": "bug",
+  "title": "claude-in-chrome computer tool: left_click_drag doesn't fire intermediate pointermove events",
+  "details": "**What happened:** Used `mcp__claude-in-chrome__computer` action `left_click_drag` to test a page's custom swipe-gesture handler (bound to `pointerdown`/`pointermove`/`pointerup`). The drag completed with no error, but the page's gesture logic never fired — the app state was unchanged after the drag.\n**What the user said:** User didn't comment; observed by the model during self-verification of a feature before reporting it done.\n**Repro:** Any page with a `pointermove`-driven drag/swipe handler (common pattern: track `dx`/`dy` across `pointermove` events to detect swipe direction). Call `left_click_drag` with a start/end coordinate on such an element. Confirmed via direct comparison: dispatching synthetic `PointerEvent('pointerdown'/'pointermove'×N/'pointerup')` via `javascript_tool` on the exact same element/coordinates worked correctly and advanced app state; `left_click_drag` alone did not.\n**Cause:** `left_click_drag` appears to only dispatch the start and end pointer/mouse events (or dispatches events that don't synthesize `pointermove`), with no intermediate `pointermove` events — so handlers that compute drag distance/direction from a series of `pointermove` events never accumulate any movement.\n**Evidence:** Session working directory `C:\\Users\\7make\\Dev\\Eng Shorts`, tested against `public/index.html`'s card swipe handler (`card.addEventListener('pointermove', ...)`).",
+  "task_category": "code_edit",
+  "trigger": "model_judgment",
+  "effort": "high",
+  "thinking_type": "adaptive",
+  "message_count": 422,
+  "assistant_turn_count": 96,
+  "subagent_count": 0,
+  "transcript_ref": {
+    "session_file": "C:\\Users\\7make\\.claude\\projects\\C--Users-7make-Dev-Eng-Shorts\\cd0a9bc5-1c02-4e41-84e0-45dfed3bfc85.jsonl",
+    "message_range": null,
+    "project_dir_key": "C--Users-7make-Dev-Eng-Shorts"
+  },
+  "status": "queued"
+}
