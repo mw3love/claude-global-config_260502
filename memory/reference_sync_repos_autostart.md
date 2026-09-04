@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: reference
   originSessionId: c0c086e5-8abf-4b73-88e3-7c42862d98f3
-  modified: 2026-08-03T23:05:22.955Z
+  modified: 2026-09-04T05:45:46.469Z
 ---
 
 **Windows 로그온 시 sync-repos.py를 자동 실행**하는 PC가 2대 있다 — 전 repo(`.claude` 포함, repos.json 첫 항목)를 `git pull --ff-only`.
@@ -15,6 +15,9 @@ metadata:
 | HOME-DESKTOP | 7make | 2026-07-17 |
 | MW-Lenovo | minwoo | 2026-07-22 |
 | moak-minwoo | aros | 2026-07-23 |
+| MW-Samsung26 | KBS | 2026-09-04 |
+
+**[2026-09-04 신규 함정] VBS를 새로 만들 때 UTF-8 BOM으로 저장하면 wscript가 멈춘다** — MW-Samsung26(새 PC)에 `_VBS_TEMPLATE`을 PowerShell 헤어스트링(`[System.IO.File]::WriteAllText(..., [System.Text.Encoding]::UTF8)`)으로 처음 써서 만들었더니, `wscript.exe startup.vbs` 실행이 로그 한 줄도 안 남기고 무한 대기(프로세스는 살아있음) — 정황: `On Error Resume Next` 이전 줄(파일 최상단)에서 파싱 실패 시 WSH가 OK 버튼 있는 에러 다이얼로그를 띄우고 멈추는데, 헤드리스 실행이라 그 다이얼로그가 안 보여 "그냥 멈춘 것"처럼 보인다. 구형 VBScript 엔진(`vbscript.dll`)은 UTF-8 BOM(EF BB BF)을 못 읽고 ANSI로 오독해 첫 줄이 깨진다. **해법:** 파일을 ASCII(또는 BOM 없는 인코딩)로 다시 쓰면 즉시 정상 동작(`exit=0`, 로그 정상 기록, `--boot-wait`까지 끝까지 실행 확인). 기존 PC들의 VBS는 `_migrate_boot_vbs()`가 텍스트만 치환(`open(..., encoding="utf-8")`→`write`)하므로 애초에 BOM이 안 붙어 이 문제가 없었다 — **새 PC에서 VBS를 처음부터 만들 때만** 인코딩을 명시적으로 ASCII/UTF-8(BOM 없음)로 지정할 것.
 
 - **메커니즘:** HKCU 레지스트리 Run 키 `sync-repos-on-logon` = `wscript.exe "%LOCALAPPDATA%\sync-repos\startup.vbs"`(경로는 PC별 사용자명 반영)
 - **VBS:** `%LOCALAPPDATA%\sync-repos\startup.vbs` — 60초 Sleep(네트워크 대기) 후 python 숨김 실행(`Run(...,0)`, 비대기). 로그 타임스탬프는 로캘 무관 수동 조립(`Now`의 오전/오후 로캘 포맷이 시스템 코드페이지라 UTF-8 로그와 섞이면 깨짐 — 2026-07-22 MW-Lenovo에서 발견).

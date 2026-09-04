@@ -1,11 +1,11 @@
 ---
 name: reference-terminal-font-d2coding
-description: "터미널 한글 깨짐의 원인은 폰트 폴백 — HOME-DESKTOP·MW-Lenovo·MOAK-MINWOO 모두 D2Coding 적용 완료"
+description: "터미널 한글 깨짐의 원인은 폰트 폴백 — HOME-DESKTOP·MW-Lenovo·MOAK-MINWOO·MW-Samsung26 모두 D2Coding 적용 완료"
 metadata: 
   node_type: memory
   type: project
   originSessionId: 166d242f-05d9-4203-8e52-62303f19e93d
-  modified: 2026-08-11T02:34:10.168Z
+  modified: 2026-09-04T05:45:55.143Z
 ---
 
 Windows Terminal에 폰트 지정이 없으면 기본 `Cascadia Mono`가 쓰이는데 여기엔 한글 글리프가 0개라, 가변폭 `맑은 고딕`으로 폴백되어 한글 행의 폭이 ASCII 행과 어긋난다. 질문창(`AskUserQuestion`)처럼 테두리 박스 + 매 키 입력 재렌더인 UI에서만 이게 눈에 띈다.
@@ -21,5 +21,7 @@ Windows Terminal에 폰트 지정이 없으면 기본 `Cascadia Mono`가 쓰이�
 폰트로 해결되지 **않는** 잔여 문제: 컬러 이모지는 셀보다 크게 렌더돼 박스 테두리를 덮고, `✓✗⚠→`는 폴백에서 1칸 폭으로 그려진다. 이건 전역 `CLAUDE.md`의 이모지 규약(테두리 안 금지)으로 회피한다.
 
 ⚠ **폰트로도 안 풀리는 별도 버그 있음** — 글자가 다른 글자로 바뀌는 증상(정렬 어긋남이 아니라)이면 이 파일이 아니라 [[reference-claude-code-cjk-encoding-bug]] 참고. Claude Code 자체의 미해결 Windows 인코딩 버그라 여기 절차로는 안 고쳐진다(2026-08-10 확인).
+
+**2026-09-04 MW-Samsung26 조치 완료** — 새 PC 온보딩 점검 중 발견(폰트 미설치, WT `profiles.defaults` 비어있음). 같은 codeload 절차로 설치, `profiles.defaults`가 빈 객체(`{}`)라 `font.face`만 추가(MOAK-MINWOO와 동일 패턴). 실행 중인 PowerShell 도구가 `-NoProfile`이라 새 창 캡처로 실조건검증은 못 했음(폰트 파일·레지스트리 등록·WT 설정 반영 자체는 확인) — 사용자가 다음에 새 터미널을 열 때 육안 확인 필요.
 
 관련: [[feedback-answer-shape]], [[feedback-askuserquestion-preference]], [[reference-claude-code-cjk-encoding-bug]]
