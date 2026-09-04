@@ -1,19 +1,21 @@
 ---
 name: reference-global-push-reminder-hook
-description: 다른 프로젝트 push 시 ~/.claude의 memory/ 외 미반영 변경을 doc-sync-hook(post-push)이 자동으로 알려주는 기능 — 2026-08-14 추가
+description: 다른 프로젝트 push 시 ~/.claude의 memory/ 외 미반영 변경을 doc-sync-hook(post-push)이 감지 — 2026-08-14 알림전용 도입, 2026-09-04 부분자동으로 전환
 metadata: 
   node_type: memory
   type: reference
   originSessionId: e7bb6e45-8996-4abb-9e9e-7f4461f56c51
-  modified: 2026-08-13T23:36:10.438Z
+  modified: 2026-09-04T10:08:29.216Z
 ---
 
-**배경:** 사용자가 프로젝트 작업 중 전역(`~/.claude`)에도 반영할 게 있으면 "전역도 같이 커밋 푸쉬해줘"라고 매번 수동으로 말해야 했다. `memory/`는 이미 [[reference_memory_sync_hook]](SessionEnd 훅)이 자동 commit+push하지만, `CLAUDE.md`·skills·hooks·`settings.json` 같은 행동/설정 파일은 자기수정 방지(규칙 12) 때문에 의도적으로 수동 승인만 거치게 되어 있었다. 문제는 그 "수동"을 트리거할 알림이 statusline의 `global:` 세그먼트뿐이라 패시브했다는 것 — 안 보면 놓친다.
+**배경:** 사용자가 프로젝트 작업 중 전역(`~/.claude`)에도 반영할 게 있으면 "전역도 같이 커밋 푸쉬해줘"라고 매번 수동으로 말해야 했다. `memory/`는 이미 [[reference_memory_sync_hook]](SessionEnd 훅)이 자동 commit+push한다. 문제는 나머지(`CLAUDE.md`·skills·hooks·`settings.json`)를 트리거할 신호가 statusline의 `global:` 세그먼트뿐이라 패시브했다는 것 — 안 보면 놓친다.
 
-**해법(2026-08-14):** `doc-sync-hook.py`(PostToolUse, git push 성공 후 발화 — primary, python 사용 가능하면 이게 실행됨)와 `doc-sync-hook.ps1`(python 없을 때 폴백)에 `global_reminder()` / `Get-GlobalReminder` 함수를 추가했다. 동작:
+**감지 로직(2026-08-14, 현재도 동일):** `doc-sync-hook.py`(PostToolUse, git push 성공 후 발화 — primary)와 `doc-sync-hook.ps1`(python 없을 때 폴백)에 `global_reminder()` / `Get-GlobalReminder` 함수. 동작:
 - push된 프로젝트의 cwd가 `~/.claude` 자체가 아닐 때만 체크(자기 자신 push 중이면 스킵).
-- `~/.claude`의 `git status --porcelain` + `git log @{u}..`(unpushed 커밋)을 훑어, `memory/` 하위가 아닌 변경 파일이 하나라도 있으면 `additionalContext`로 리마인드 텍스트를 주입.
-- **자동 commit/push는 하지 않는다** — 텍스트에 "자동으로 처리하지 마세요"를 명시해 자기수정 방지 원칙을 지킨다. 기존 doc-sync 알림(코드 변경 시 문서 동기화 검토 지시)과 같은 자리에서, 있으면 `---` 구분자로 같이 뜨고 doc-sync 알림이 없어도 이 알림만 단독으로 뜬다(예: 코드 변경 없는 push라도 전역에 밀린 게 있으면 발화).
+- `~/.claude`의 `git status --porcelain` + `git log @{u}..`(unpushed 커밋)을 훑어, `memory/` 하위가 아닌 변경 파일이 하나라도 있으면 `additionalContext`로 텍스트를 주입.
+- 기존 doc-sync 알림(코드 변경 시 문서 동기화 검토 지시)과 같은 자리에서, 있으면 `---` 구분자로 같이 뜨고 doc-sync 알림이 없어도 이 알림만 단독으로 뜬다.
+
+**처리 정책 — 2026-08-14(알림전용) → 2026-09-04(부분자동)로 전환.** 예전엔 "자동으로 commit/push하지 마세요"를 명시해 자기수정 방지(규칙 12) 원칙을 지켰으나, 실사용해보니 이 감지→수동처리 왕복이 매 프로젝트 push마다 반복돼 사용자가 세션 종료 전 "정말 clean/sync인지" 계속 재확인해야 했다(대부분 모델 전환에 따른 `settings.json` 변경 등 trivial한 내용). [[project_rules_audit_2026-07-11]] 형태론(훅은 이미 관찰 가능한 트리거라 문구만 바꾸면 됨)에 따라 "알리기"→"판단해서 처리하기"로 바꿨다(코드 로직·감지 조건은 그대로, `global_reminder()`가 반환하는 지시문만 교체). 현재 정책의 정본은 CLAUDE.md 규칙 10-e — 삭제·민감정보 의심·원격 fast-forward 불가 세 가지만 예외로 사용자에게 묻고 나머지는 자동 커밋(+push)/gitignore.
 
 **검증(2026-08-14):** 합성 JSON 페이로드로 `.py`/`.ps1` 양쪽 다 직접 실행해 실조건검증 — (1) 다른 cwd에서 push할 때 전역 미반영 변경(당시 이 두 훅 파일 자체의 미커밋 상태)이 리마인드로 뜨는 것, (2) cwd가 `~/.claude` 자체일 때 침묵하는 것 확인.
 
