@@ -9,7 +9,7 @@
 ```
 design-system/
 ├── README.md          이 파일
-├── preferences.md      범용 취향 — 여러 프로젝트에서 반복 확인된 것만 (아직은 씨앗 단계)
+├── preferences.md      범용 취향 — "확인됨"(2개 이상 프로젝트)과 "가설"(1개) 두 층
 └── projects/
     └── <slug>.md        프로젝트별 확정 토큰 + 라운드별 채택/탈락 로그
 ```
