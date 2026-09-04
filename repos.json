@@ -68,6 +68,14 @@
     "reference": "탐색기 우클릭 이미지/PDF/HWP→PDF 변환·병합(PyMuPDF+한컴COM, HKCU 레지스트리·관리자 불요). MultiSelectModel 다중선택 세션 수집기(프로세스별 엔트리파일+lock 마스터선출). 클라우드 동기화 드라이브(구글 드라이브)에서 실행 시 로컬 디스크 대비 8배 이상 느려짐(2026-08-03 실측) — 로컬 디스크 배포 필수. 상세 함정→해법은 wiki/ — HWP SaveAs PDF 2-up 모아찍기(pdfmaker-hwp-saveas-2up)"
   },
   {
+    "path": "Dev/Eng Shorts",
+    "desc": "Shorts Deck — Notion 영어표현 스와이프 복습 웹앱 (Cloudflare Worker)",
+    "short": "ShortsDeck",
+    "build": "npm install",
+    "remote": "https://github.com/mw3love/Shorts_Eng_260903.git",
+    "reference": "Cloudflare Worker 단일 컴포넌트로 Notion API CORS 회피 + 정적서빙 겸용. 서브요청 예산(50/req) 안에서 청크 동기화(syncStep+cron), KV 인덱스+버킷 분리로 상태값 유계화. pageId 대신 정규화 제목을 학습이력 키로 사용(재저장 시 pageId churn 면역)"
+  },
+  {
     "path": "Dev/Moak_PLC_Rerverse_Eng_260804",
     "desc": "모악산 집수정 PLC 리버스 엔지니어링 — 낙뢰 취약 장비 대체 검토",
     "short": "PLC리버싱",
