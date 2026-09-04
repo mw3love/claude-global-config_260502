@@ -60,6 +60,18 @@ function Get-GitPart($cwd) {
 
         $statusOut = & git -C $cwd --no-optional-locks status --porcelain -uall 2>$null
         $lines = @($statusOut | Where-Object { $_ -and $_.Trim() -ne "" })
+
+        # settings.json은 modelstrip clean 필터 때문에 git diff/hash 기준으론 완전히 clean한데도
+        # status --porcelain엔 상시 " M"으로 잡히는 필터 특유의 버그가 있다(2026-09-04 실측,
+        # statusline.py와 동일 처리 — 상세 사유는 그쪽 주석 참조). 실제 내용차가 없는지 재확인
+        # 후 그 경우에만 제외한다.
+        function Test-ReallyClean($path) {
+            & git -C $cwd --no-optional-locks diff --quiet -- $path 2>$null
+            return $LASTEXITCODE -eq 0
+        }
+        $lines = @($lines | Where-Object {
+            -not ($_.TrimEnd() -eq " M settings.json" -and (Test-ReallyClean "settings.json"))
+        })
         $fileCount = $lines.Count
 
         $upstream = (& git -C $cwd rev-parse --abbrev-ref '@{upstream}' 2>$null)

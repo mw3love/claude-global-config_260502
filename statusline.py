@@ -95,6 +95,27 @@ def git_status_part(cwd):
         except Exception:
             status_out = ""
         lines = [l for l in status_out.splitlines() if l.strip()]
+
+        # settings.json은 modelstrip clean 필터(model/effortLevel/modelSettings 제거) 때문에
+        # git diff/hash 기준으론 완전히 clean한데도 `git status --porcelain`엔 상시 " M"으로
+        # 잡히는 필터 특유의 버그가 있다(2026-09-04 실측: git diff --quiet 는 0을 반환하는데도
+        # status는 계속 modified로 봄 — 커스텀 clean 필터 경로의 git 자체 한계, 필터/스크립트
+        # 쪽에서 더 손볼 여지가 없어 표시 단계에서 걸러냄). 실제 내용차가 없는지 매번 재확인 후
+        # 그 경우에만 제외 — 필터 로직이 바뀌어 진짜 diff가 생기면 그때는 정상 표시된다.
+        def is_really_clean(path):
+            try:
+                r = subprocess.run(
+                    ["git", "-C", cwd, "--no-optional-locks", "diff", "--quiet", "--", path],
+                    capture_output=True, timeout=2
+                )
+                return r.returncode == 0
+            except Exception:
+                return False
+
+        lines = [
+            l for l in lines
+            if not (l.rstrip() == " M settings.json" and is_really_clean("settings.json"))
+        ]
         file_count = len(lines)
 
         upstream = run(["rev-parse", "--abbrev-ref", "@{upstream}"])
