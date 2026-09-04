@@ -9,7 +9,7 @@
 - [터미널 한글 폰트](reference_terminal_font_d2coding.md) — 질문창 정렬 어긋남 원인은 Cascadia Mono 폴백. HOME-DESKTOP·MW-Lenovo 모두 D2Coding 적용 완료(2026-08-10)
 - [Claude Code CJK 인코딩 버그](reference_claude_code_cjk_encoding_bug.md) — 글자 자체가 바뀌는 건 폰트가 아니라 Claude Code 자체 미해결 버그(GitHub #65394/#42899), 코드페이지 조정 무효
 - [전역 메모리 자동 sync 훅](reference_memory_sync_hook.md) — SessionEnd 자동 commit+push. 8/26 경로매칭 사고+수정, 9/2 MW-Samsung26 재검증 정상. 감시운용PC stranded 데이터 백필 미확인
-- [전역 push 리마인드 훅](reference_global_push_reminder_hook.md) — 다른 프로젝트 push 시 doc-sync-hook이 ~/.claude의 memory/ 외 미반영 변경을 알림(자동 push는 안 함, 2026-08-14)
+- [전역 push 리마인드 훅](reference_global_push_reminder_hook.md) — 다른 프로젝트 push 시 doc-sync-hook이 ~/.claude 미반영 변경 감지, 부분자동 처리(삭제·민감정보·원격충돌만 예외, 2026-09-04)
 - [계획 수립 워크플로 선호](feedback_planning_workflow.md) — Plan 모드보다 deep-interview+대화 후 최종 합성 선호, self-review 자동실행이 재검토 단계를 이미 커버(2026-08-14)
 - [사용자 신원정보](user_profile_kbs.md) — 김민우/KBS 전주총국 기술국/사번 30881/010-414-4142, 기안문·신청서 등 사내 공식문서 작성 시 사용
 - [공식문서 서식 선호](feedback_document_formatting_style.md) — 나열 구분자는 가운데점·쉼표 대신 슬래시, 불릿 적극 사용(HWP 등 마크다운 불가 산출물 한정)

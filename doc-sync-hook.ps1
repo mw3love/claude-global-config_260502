@@ -12,8 +12,9 @@ $OutputEncoding           = [System.Text.UTF8Encoding]::new($false)
 
 function Exit-Silent { exit 0 }
 
-# 다른 프로젝트 push 시, ~/.claude의 memory/ 외 미반영 변경이 있으면 알림 텍스트를 반환.
-# 자동 commit/push는 하지 않는다 — CLAUDE.md 규칙 12(자기수정 방지) 유지, 알림만 강제.
+# 다른 프로젝트 push 시, ~/.claude의 memory/ 외 미반영 변경이 있으면 처리 지시 텍스트를 반환.
+# 2026-09-04부터 알림전용 → 부분자동(CLAUDE.md 규칙 10-e): 삭제/민감정보 의심/원격충돌만
+# 예외로 두고 나머지는 Claude가 스스로 커밋·gitignore 판단해 처리.
 # memory/ 는 별도 SessionEnd 훅(memory-sync-hook.py)이 이미 자동 처리하므로 제외.
 function Get-GlobalReminder([string]$PushCwd) {
     try {
@@ -46,7 +47,7 @@ function Get-GlobalReminder([string]$PushCwd) {
         if ($changed.Count -eq 0) { return $null }
 
         $sample = ($changed | Select-Object -First 15) -join "`n  - "
-        return "[global-reminder] 방금 다른 프로젝트에서 push했는데, 전역 저장소(~/.claude)에도 memory/ 외의 미반영 변경(미커밋 또는 미푸쉬)이 있습니다.`n- 변경 파일($($changed.Count)개):`n  - $sample`n`n자동으로 commit/push하지 마세요(CLAUDE.md 규칙 12 자기수정 방지) - 사용자에게 알리고, 사용자가 원하면 검토 후 ~/.claude에서 직접 처리하세요."
+        return "[global-reminder] 방금 다른 프로젝트에서 push했는데, 전역 저장소(~/.claude)에도 memory/ 외의 미반영 변경(미커밋 또는 미푸쉬)이 있습니다.`n- 변경 파일($($changed.Count)개):`n  - $sample`n`n처리 지시(CLAUDE.md 규칙 10-e): 아래 예외가 아니면 스스로 판단해 커밋(+push)하거나 필요하면 .gitignore에 추가해 정리하세요. 예외 - 파일 삭제가 필요해 보임 / 내용에 토큰·비밀번호·키 등 민감정보로 의심되는 게 있음 / push가 원격에 뒤처져(fast-forward 불가) 거부됨 -> 이 경우만 자동 처리하지 말고 사용자에게 물어보세요(강제 push 금지)."
     }
     catch { return $null }
 }
