@@ -1,0 +1,31 @@
+{
+  "draft_id": "22eb7f2f-bfcb-47cc-af52-07882e991f8c",
+  "created_at": "2026-09-04T04:38:13.107Z",
+  "source_session_id": "475fc15c-928a-4af4-b534-6b5e709b7ad2",
+  "cwd": "C:\\Users\\user\\Dev-Mw\\AROS_Reverse_Eng_260803",
+  "model": "claude-sonnet-5",
+  "cli_version": "2.1.246",
+  "os": "win32 x64",
+  "request_ids": [
+    "req_011CehnDKpDRCBKFQ6d1xfVz",
+    "req_011CehnEjP5gEpRD2GpCgyXS",
+    "req_011CehnEw91mG6CzumdnuDEb"
+  ],
+  "type": "bug",
+  "title": "Grep tool's -A/-B context output occasionally corrupts leading \"//\" to \"\\\\\"",
+  "details": "**What happened:** Grep with `-A`/`-B` context lines twice rendered a JS line comment's leading `//` as a single `\\` character in the tool result (e.g. `      \\ 2026-09-04: 드래그...` instead of `      // 2026-09-04: 드래그...`). A direct `Read` of the exact same line both times showed the correct `//`, confirming the file itself was fine and the corruption was in Grep's context-line rendering only.\n**What the user said:** User didn't comment; observed by the model.\n**Repro:** Ran Grep with `-A`/`-B` context spanning a line beginning with `      // comment text` inside a `<script>` block of a large (~9000 line) `.html` file; the affected line's leading `//` rendered as `\\` in the returned context, while re-reading via `Read` (no grep context) showed it correctly.\n**Evidence:** File `tools/dashboard.html` in project `AROS_Reverse_Eng_260803`, near line ~2560 and separately near line ~8963 (line numbers shifted across edits in the session) — same two-tool-output-vs-Read discrepancy pattern both times.\n**Cause:** Not verified — root cause of the rendering corruption is unknown; only the symptom (Grep context vs Read mismatch) was confirmed.\n\nThis nearly caused a false bug report to the user (almost claimed their code had a stray backslash / syntax error based on Grep context output before double-checking with Read).",
+  "area": "Grep tool (context lines)",
+  "task_category": "debug",
+  "trigger": "model_judgment",
+  "effort": "high",
+  "thinking_type": "adaptive",
+  "message_count": 1047,
+  "assistant_turn_count": 201,
+  "subagent_count": 0,
+  "transcript_ref": {
+    "session_file": "C:\\Users\\user\\.claude\\projects\\C--Users-user-Dev-Mw-AROS-Reverse-Eng-260803\\475fc15c-928a-4af4-b534-6b5e709b7ad2.jsonl",
+    "message_range": null,
+    "project_dir_key": "C--Users-user-Dev-Mw-AROS-Reverse-Eng-260803"
+  },
+  "status": "queued"
+}
