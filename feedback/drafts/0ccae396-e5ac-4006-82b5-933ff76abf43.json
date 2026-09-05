@@ -1,0 +1,32 @@
+{
+  "draft_id": "0ccae396-e5ac-4006-82b5-933ff76abf43",
+  "created_at": "2026-09-05T13:59:11.049Z",
+  "source_session_id": "b5fac949-8681-4bc8-ac9f-20d984667269",
+  "cwd": "C:\\Users\\7make\\.claude",
+  "model": "claude-sonnet-5",
+  "cli_version": "2.1.261",
+  "os": "win32 x64",
+  "request_ids": [
+    "req_011CekQnncdxyYwX58HavXJp",
+    "req_011CekQoYMRP3tveNmwN9Lpe",
+    "req_011CekQozexsVs6Q49RqN4bh"
+  ],
+  "type": "bug",
+  "title": "Fork task-notification arrived under wrong agentId, spanning ~1hr and mixing two distinct assigned tasks",
+  "details": "**What happened:** Launched two separate forks with distinct agentIds for two unrelated tasks (task A: rewrite a drag-and-drop UI in repo X; task B: restructure CLAUDE.md docs across three other repos Y/Z/W). Both agentIds initially showed the 0-tool-use/4s \"fake progress\" pattern reported earlier. ~1 hour later, a single task-notification arrived tagged with task A's agentId, but its content and 220 tool_uses/70min duration clearly belong to task B (mentions the three repos from task B by name, none of task A's repo). `ListAgents` now shows only one subagent entry (task A's id) — task B's agentId is gone entirely from the list, as if the two sessions were merged into one slot.\n**What the user said:** User didn't comment; observed by the model.\n**Repro:** Launch Agent(subagent_type:\"fork\") twice in the same turn-sequence for two unrelated tasks, each producing its own agentId in the tool result. Wait for completion notifications.\n**Evidence:** agentIds a0cfd1a03819797a3 (task A, drag rewrite) and abf684d5242aaf4fc (task B, doc restructuring). The ~70min/220-tool_use notification arrived under a0cfd1a03819797a3's task-id but its `<result>` content is unambiguously task B's report (names the three doc-restructuring repos, none of task A's). `ListAgents` after this notification lists only a0cfd1a03819797a3, not abf684d5242aaf4fc.\n**Cause:** Unconfirmed — possibly the two fork spawns collapsed onto the same underlying background slot/process, with the second Agent call's agentId being cosmetic while actually resuming the first fork's process, which then executed task B's prompt instead of (or in addition to) task A's.",
+  "area": "Agent tool (fork subagent)",
+  "failure_mode": "other",
+  "task_category": "code_edit",
+  "trigger": "model_judgment",
+  "effort": "high",
+  "thinking_type": "adaptive",
+  "message_count": 800,
+  "assistant_turn_count": 113,
+  "subagent_count": 3,
+  "transcript_ref": {
+    "session_file": "C:\\Users\\7make\\.claude\\projects\\C--Users-7make--claude\\b5fac949-8681-4bc8-ac9f-20d984667269.jsonl",
+    "message_range": null,
+    "project_dir_key": "C--Users-7make--claude"
+  },
+  "status": "queued"
+}

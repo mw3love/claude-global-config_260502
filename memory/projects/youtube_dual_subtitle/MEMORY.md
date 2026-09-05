@@ -1,1 +1,0 @@
-- [Gemini BYOK backend](gemini_byok_backend.md) — A20·A21로 세 번째 번역 백엔드 추가 (2026-05-27 푸쉬 완료, v0.2.0)

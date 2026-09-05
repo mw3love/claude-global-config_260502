@@ -1,5 +1,1 @@
-- [UI 심플 원칙](ui-simplicity-principle.md) — 상단 툴바에 종류를 늘리지 말고, 선택 후 컨텍스트 하위목록에서 고르게
-- [캔버스 점 용어](canvas-point-terminology.md) — 큐닷·포트점·리사이즈핸들 등, 점 종류 얘기할 때 이 용어로
-- [AI 보조 UI 패턴](ai-assist-ui-pattern.md) — 분리형 입력·수동모드 UI 중복 금지·모델 드롭다운 추천 압축
 - [AI 게이트웨이 키 위치](ai-gateway-key-location.md) — ~/.claude/.secrets/easycad-gateway.key, jbnu-gateway.key와 다른 계정이니 혼용 금지
-- [symbol_library.json 테스트 오염 재조사](bug_symbol_library_test_leak.md) — 정식 스위트는 무죄 재확인(2026-08-25), 실제 위험은 격리 안 된 애드혹 진단 스크립트

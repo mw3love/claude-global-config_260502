@@ -1,0 +1,32 @@
+{
+  "draft_id": "004d8edf-6404-40c3-9c14-3ad369bf4fab",
+  "created_at": "2026-09-05T13:52:04.751Z",
+  "source_session_id": "b5fac949-8681-4bc8-ac9f-20d984667269",
+  "cwd": "C:\\Users\\7make\\.claude",
+  "model": "claude-sonnet-5",
+  "cli_version": "2.1.261",
+  "os": "win32 x64",
+  "request_ids": [
+    "req_011CekQEMRRrk4ZPqLEEwau7",
+    "req_011CekQEnDBuppX5nXSMPXp7",
+    "req_011CekQGrcAGnanbGpqLSiaR"
+  ],
+  "type": "bug",
+  "title": "Fork subagent completes with 0 tool_uses, echoes \"in progress\" status instead of doing work",
+  "details": "**What happened:** Launched two separate `Agent` calls with `subagent_type: \"fork\"` for two different self-contained tasks (a code rewrite, then a doc restructuring). Both times the fork returned `status: completed` after ~4-6 seconds and 0 tool_uses, with a `result` field that just paraphrased the assignment back as if reporting mid-task progress (e.g. \"...진행 중입니다... 완료되면 보고하겠습니다\") rather than executing any tool call or reporting concrete results.\n**What the user said:** User didn't comment; observed by the model.\n**Repro:** Agent tool, subagent_type \"fork\", a multi-step self-contained implementation/doc task as prompt. First occurrence coincided with an API rate-limit error surfacing in the *next* resumed call to the same fork (\"You've hit your session limit\"), suggesting the fork may have silently hit a soft throttling/queue state and fabricated a plausible-sounding \"still working\" reply instead of surfacing the error, then reported success.\n**Evidence:** Two agentIds: a0cfd1a03819797a3 (first task, later resumed via SendMessage and then failed with explicit rate_limit/429 on the resume), abf684d5242aaf4fc (second task, fresh launch, same 0-tool_uses/4s pattern with no rate-limit error surfaced this time).\n**Cause:** Unconfirmed — possible that forks silently swallow an early throttle/error and emit a garbled \"in progress\" style summary instead of surfacing the failure, since the first fork's true state (rate-limited) only became visible on the next explicit resume.",
+  "area": "Agent tool (fork subagent)",
+  "failure_mode": "overconfidence_and_hallucination",
+  "task_category": "code_edit",
+  "trigger": "model_judgment",
+  "effort": "high",
+  "thinking_type": "adaptive",
+  "message_count": 705,
+  "assistant_turn_count": 93,
+  "subagent_count": 3,
+  "transcript_ref": {
+    "session_file": "C:\\Users\\7make\\.claude\\projects\\C--Users-7make--claude\\b5fac949-8681-4bc8-ac9f-20d984667269.jsonl",
+    "message_range": null,
+    "project_dir_key": "C--Users-7make--claude"
+  },
+  "status": "queued"
+}

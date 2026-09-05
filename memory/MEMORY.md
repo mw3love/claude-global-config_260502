@@ -27,3 +27,4 @@
 - [콘솔 cp949 → PYTHONIOENCODING](reference_console_cp949_pythonioencoding.md) — 한글 출력 Python 실행 시 필수, 출력 크래시를 코드 버그로 오진 말 것. 원래 KBS 서랍(2026-09-05 이동)
 - [토론 → 결정 → 실행 분리](feedback_discuss_before_implement.md) — 안전망·추상화 제안 시 코드 수정 보류, 단순 해결책 우선. 원래 KBS 서랍(2026-09-05 이동)
 - [git 커밋 신원](reference_git_identity.md) — 이 PC 전역 jjrftech@ / `.claude` repo만 7maker@ override. 옛 서술이 반대로 적혀 있어 실측으로 정정(2026-09-05)
+- [구글드라이브 폴더 삭제 잠금](reference_gdrive_folder_lock_on_delete.md) — desktop.ini 핸들로 rm -rf가 빈 폴더 남김, 재시도 말고 탐색기 수동삭제 요청(원래 KBS 서랍, 2026-09-05 전역 이동)

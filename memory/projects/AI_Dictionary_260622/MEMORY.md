@@ -1,1 +1,0 @@
-- [새 PC 단축키 재지정 함정](new-pc-shortcut-rebind.md) — 새 PC 로드 시 Ctrl+Shift+Y 미등록, shortcuts 페이지에서 재지정으로 해결
