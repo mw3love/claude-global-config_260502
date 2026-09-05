@@ -1,4 +1,4 @@
-- [reference 위키 이관](project_reference_wiki_migration.md) — repos.json 블롭→wiki/*.md 재설계, Notion 페이지나눔만 남음
+- [reference 위키 이관](project_reference_wiki_migration.md) — repos.json 블롭→wiki/*.md 재설계 완료(2026-07-09). 위키 감사 기준 + 새 wiki 파일 커밋 함정(`add -N`)
 - [전역 규칙 감사 (2026-07-11)](project_rules_audit_2026-07-11.md) — 173세션 측정 → 규칙 19개로 개편. 재감사(2026-08-11) 완료: 지문 9개 전부 살아있음, 사문화 0. 세션 로그가 2026-07-14부터만 남아 전/후 비교는 이후 불가(절대율로만 판단)
 - [답변 형식 선호](feedback_answer_shape.md) — A-B-A(결론·내용·결론), 목록 항목 사이 빈 줄, 프롬프트엔 `[프롬프트]` 라벨
 - [커밋 확인 후·답변 간결](feedback_commit_and_brevity.md) — 커밋은 물어보고 승인 후(2026-07-12 자동→수동 되돌림), 답변은 diff 재나열 없이 결론+한 것+할 것
@@ -6,7 +6,7 @@
 - [알림 설계 선호](feedback_notification_design.md) — 백그라운드 자동화는 "조용함=성공"보다 "항상 알림·부재=이상". WinRT 토스트는 이 PC서 실패, NotifyIcon 사용
 - [선택창 선호](feedback_askuserquestion_preference.md) — 모호한 질문은 텍스트보다 AskUserQuestion 기본, 추천안+Other 보완 방식 선호. deep-interview 기본값도 이에 맞춰 수정(2026-08-07)
 - [세션 핸드오프](reference_session_handoff.md) — 동일PC 새세션은 2026-08-18부터 handoff 스킬+프로젝트로컬 파일큐(`/handoff`), 다른PC는 여전히 프롬프트 코드블록
-- [터미널 한글 폰트](reference_terminal_font_d2coding.md) — 질문창 정렬 어긋남 원인은 Cascadia Mono 폴백. HOME-DESKTOP·MW-Lenovo 모두 D2Coding 적용 완료(2026-08-10)
+- [터미널 한글 폰트](reference_terminal_font_d2coding.md) — 질문창 정렬 어긋남 원인은 Cascadia Mono 폴백. PC 4대(HOME-DESKTOP·MW-Lenovo·MOAK-MINWOO·MW-Samsung26) D2Coding 적용 완료(2026-09-04)
 - [Claude Code CJK 인코딩 버그](reference_claude_code_cjk_encoding_bug.md) — 글자 자체가 바뀌는 건 폰트가 아니라 Claude Code 자체 미해결 버그(GitHub #65394/#42899), 코드페이지 조정 무효
 - [전역 메모리 자동 sync 훅](reference_memory_sync_hook.md) — SessionEnd 자동 commit+push. 8/26 경로매칭 사고+수정, 9/2 MW-Samsung26 재검증 정상. 감시운용PC stranded 데이터 백필 미확인
 - [전역 push 리마인드 훅](reference_global_push_reminder_hook.md) — 다른 프로젝트 push 시 doc-sync-hook이 ~/.claude 미반영 변경 감지, 부분자동 처리(삭제·민감정보·원격충돌만 예외, 2026-09-04)
@@ -20,3 +20,10 @@
 - [superpowers 완전 삭제됨](feedback_no_superpowers.md) — 2026-08-26 uninstall, 설치 자체가 없음(재설치 전엔 언급 불필요). 원래 Easy_CAD 프로젝트 서랍에 갇혀있었음(2026-09-02 전역 루트로 이동)
 - [Notion 커넥터 워크스페이스 한계](reference_notion_connector_workspace.md) — 업무용 "rf jj의 Notion"에만 연결, 개인 mw2love 페이지는 404(공유해도 안 뚫림, 재연결 필요)
 - [claude-in-chrome 아티팩트 iframe 한계](claude_in_chrome_artifact_iframe_limits.md) — claude.ai 아티팩트 뷰어 내부는 스크롤·find 불가(cross-origin iframe), 우회법은 로컬 서빙+probe 아티팩트
+- [Bash kill이 Windows에서 안 먹음](reference_bash_kill_unreliable_windows.md) — python.exe는 `taskkill //F //PID <pid> //T` + netstat로 확인. 원래 AROS 서랍에 갇혀있었음(2026-09-05 이동)
+- [구글 드라이브 계정 매핑](reference_google_drive_accounts.md) — mw-lenovo: G:=개인(7maker@) / H:=회사공유(jjrftech@), PC간 파일 전달은 H:. 원래 AROS 서랍(2026-09-05 이동)
+- [`!` 프리픽스는 Git Bash](reference_bang_prefix_gitbash.md) — 사용자 `!`입력은 PowerShell 아님, env var 안내는 export 문법으로. 원래 Easy_CAD 서랍(2026-09-05 이동)
+- [Qt 크래시는 진짜 클릭으로 재현](reference_qt_dialog_crash_real_click.md) — reject()는 closeEvent() 안 거침, 스크립트 close()≠진짜 X클릭. 원래 Easy_CAD 서랍(2026-09-05 이동)
+- [콘솔 cp949 → PYTHONIOENCODING](reference_console_cp949_pythonioencoding.md) — 한글 출력 Python 실행 시 필수, 출력 크래시를 코드 버그로 오진 말 것. 원래 KBS 서랍(2026-09-05 이동)
+- [토론 → 결정 → 실행 분리](feedback_discuss_before_implement.md) — 안전망·추상화 제안 시 코드 수정 보류, 단순 해결책 우선. 원래 KBS 서랍(2026-09-05 이동)
+- [git 커밋 신원](reference_git_identity.md) — 이 PC 전역 jjrftech@ / `.claude` repo만 7maker@ override. 옛 서술이 반대로 적혀 있어 실측으로 정정(2026-09-05)

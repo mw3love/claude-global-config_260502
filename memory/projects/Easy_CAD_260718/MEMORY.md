@@ -1,8 +1,5 @@
 - [UI 심플 원칙](ui-simplicity-principle.md) — 상단 툴바에 종류를 늘리지 말고, 선택 후 컨텍스트 하위목록에서 고르게
-- [웹 트랙 병행개발 진행상황](project_web_pivot_experiment.md) — Python·웹 둘 다 완주 목표, 웹이 늦게 시작해 당분간 웹에 집중
 - [캔버스 점 용어](canvas-point-terminology.md) — 큐닷·포트점·리사이즈핸들 등, 점 종류 얘기할 때 이 용어로
 - [AI 보조 UI 패턴](ai-assist-ui-pattern.md) — 분리형 입력·수동모드 UI 중복 금지·모델 드롭다운 추천 압축
-- [!프리픽스는 Git Bash](bang-prefix-runs-gitbash-not-powershell.md) — 사용자 `!`입력은 PowerShell 아님, env var 안내 시 export 문법으로
 - [AI 게이트웨이 키 위치](ai-gateway-key-location.md) — ~/.claude/.secrets/easycad-gateway.key, jbnu-gateway.key와 다른 계정이니 혼용 금지
-- [Qt 다이얼로그 크래시는 진짜 클릭으로 재현](qt-dialog-crash-debug-real-click.md) — reject()는 closeEvent() 안 거침, 스크립트 close()≠진짜 X클릭, PowerShell 실클릭 재현법
 - [symbol_library.json 테스트 오염 재조사](bug_symbol_library_test_leak.md) — 정식 스위트는 무죄 재확인(2026-08-25), 실제 위험은 격리 안 된 애드혹 진단 스크립트

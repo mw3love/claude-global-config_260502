@@ -1,7 +1,5 @@
 # Memory Index
 
-- [bash-kill-unreliable-on-windows](bash_kill_unreliable_on_windows.md) — Bash `kill` doesn't actually stop test python.exe servers here; use `taskkill //F //PID <pid> //T` and verify via netstat/wmic.
-- [google-drive-accounts](google_drive_accounts.md) — mw-lenovo: G:\ is personal (7maker@), H:\ is company-shared (jjrftech@) — use H:\ for cross-PC file handoffs.
 - [project-d-cimon-s-on-gamsi-pc](project_d_cimon_s_on_gamsi_pc.md) — 감시운용PC에 `D:\CIMON S` 전체 트리(+공식 매뉴얼 `CimonD.chm`)가 로컬로 붙어 있음, 2026-08-26 확인
 
 > 이 폴더는 `~/.claude` repo 안이라 git으로 PC 간 동기화된다(`session-memory-hook.py`가

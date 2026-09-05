@@ -1,3 +1,1 @@
-- [User git identity](user_git_identity.md) — mw3love / 7maker@gmail.com (NOT the older jjrftech@gmail.com from history)
 - [Gemini BYOK backend](gemini_byok_backend.md) — A20·A21로 세 번째 번역 백엔드 추가 (2026-05-27 푸쉬 완료, v0.2.0)
-- [Pending: last-backend popup line](pending_last_backend_debug.md) — A21 팝업 "최근 번역" 라인 안 뜨는 이슈, 디버깅 중단 상태. 다음 세션에서 진단 3건으로 좁힐 것

@@ -1,17 +1,21 @@
 ---
-name: user-git-identity
-description: "User's preferred git commit identity for this repo (mw3love / 7maker@gmail.com)"
+name: reference-git-identity
+description: "이 PC(7make)의 git 커밋 신원 — 전역은 mw3love/jjrftech@gmail.com, ~/.claude repo만 7maker@gmail.com로 덮어씀"
 metadata: 
   node_type: memory
-  type: user
-  originSessionId: 2f243dde-6059-4705-9eb6-6f8f9b943bf7
+  type: reference
+  originSessionId: b0095da3-18a2-434a-8a81-87cab7ff96c9
+  modified: 2026-09-05T09:22:51.497Z
 ---
 
-이 저장소에서 사용자가 쓰는 git commit identity:
+**이 PC(사용자 폴더 `C:\Users\7make`) 실측, 2026-09-05.**
 
-- name: `mw3love`
-- email: `7maker@gmail.com`
+| 범위 | user.name | user.email |
+|---|---|---|
+| 전역(`--global`) | `mw3love` | `jjrftech@gmail.com` |
+| `~/.claude` repo | `mw3love` | `7maker@gmail.com` (repo 로컬 override) |
+| 그 외 repo(youtube_dual_subtitle 등) | 전역 상속 | 전역 상속 |
 
-이전 커밋들은 `jjrftech@gmail.com`으로 찍혀 있으나, 사용자가 명시적으로 `7maker@gmail.com`을 선호한다고 알려줌 (2026-05-19).
+**정정 이력** — 이 메모의 옛 서술은 「youtube_dual_subtitle repo가 `7maker@gmail.com`을 쓰고 `jjrftech@`는 낡은 값」이라고 되어 있었으나 **실측과 반대였다**(2026-09-05 `git config` 직접 확인으로 정정). `7maker@`를 쓰는 건 `~/.claude` repo 하나뿐이고, 나머지는 전부 전역값 `jjrftech@`를 상속한다.
 
-저장소에 user.name/user.email이 아직 설정되어 있지 않을 수 있다. 커밋이 identity 부재로 실패하면 `git -c user.name=... -c user.email=...` inline override로 진행하고, 영구 설정은 사용자에게 직접 실행을 권한다 (Claude는 git config를 임의 변경하지 않는다).
+**How to apply:** 커밋 신원을 묻거나 새 repo를 세팅할 땐 이 표를 근거로 하되, PC가 바뀌면 값이 다를 수 있으니 `git config --global user.email`로 한 번 확인한다. 원래 `projects/youtube_dual_subtitle/` 서랍에 갇혀 있었음(2026-09-05 전역 루트로 이동 — 특정 repo 사실이 아니라 이 PC의 환경 사실이라).
