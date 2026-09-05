@@ -19,3 +19,4 @@
 - [번들 스킬 개별 끄기](claude-code-skill-overrides.md) — settings.json `skillOverrides: {"code-review":"user-invocable-only"}`, 2026-08-26 적용 완료. 원래 Easy_CAD 프로젝트 서랍에 갇혀있었음(2026-09-02 전역 루트로 이동)
 - [superpowers 완전 삭제됨](feedback_no_superpowers.md) — 2026-08-26 uninstall, 설치 자체가 없음(재설치 전엔 언급 불필요). 원래 Easy_CAD 프로젝트 서랍에 갇혀있었음(2026-09-02 전역 루트로 이동)
 - [Notion 커넥터 워크스페이스 한계](reference_notion_connector_workspace.md) — 업무용 "rf jj의 Notion"에만 연결, 개인 mw2love 페이지는 404(공유해도 안 뚫림, 재연결 필요)
+- [claude-in-chrome 아티팩트 iframe 한계](claude_in_chrome_artifact_iframe_limits.md) — claude.ai 아티팩트 뷰어 내부는 스크롤·find 불가(cross-origin iframe), 우회법은 로컬 서빙+probe 아티팩트
