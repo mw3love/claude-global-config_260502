@@ -24,6 +24,13 @@ MAX_QUOTE = 160        # 주입문에 인용할 이전 프롬프트 길이 상�
 # 쓰므로, 내가 그 신호에 반응한(접근 전환했든, 다른 증상으로 스킵했든) 시점 이후로 새로 센다.
 # '🔁 스턱루프'만 앵커로 잡으면 '🔁 스킵'이 카운터를 못 비워 오탐 1건이 세션을 오염시킨다(S3).
 RESET_ANCHOR = "🔁"
+# 스턱루프 블록을 「몇 번째로 내는가」는 리셋 앵커와 무관하게 따로 센다(2026-09-07).
+# 왜 — 격상이 실제로 필요해지는 순간은 "패치 2번 실패"가 아니라 "접근 전환까지 하고도 또 실패"인데,
+# 좌절 카운터는 🔁를 보면 0으로 돌아가므로 그 상태가 어디에도 기록되지 않았다.
+# 그래서 격상 판정을 Claude 자기평가에서 떼어내 이 횟수 하나로 대체한다
+# (자기평가는 항상 "불필요"로 수렴 — 못 푸는 이유는 못 푸는 동안엔 안 보이므로 원리적으로 반증 불가).
+RE_STUCK_BLOCK = re.compile(r"^[>\s*_#-]*🔁\s*스턱루프", re.MULTILINE)
+ESCALATE_AT = 2       # 스턱루프 블록 N회째부터 모델 격상을 무조건 권고(판정 없음)
 
 # TIER1(단독 발화): "고쳤는데 여전히 안 풀렸다"를 거의 모호함 없이 가리키는 강한 신호.
 #   한국어 좌절은 대개 부정어 없이 이 어휘만으로 끝난다("그대로인데?", "여전히 느려").
@@ -138,10 +145,11 @@ def assistant_text(entry):
 
 
 def prior_hits(transcript_path):
-    """리셋 앵커 이후의 좌절 발화 목록(오래된 것부터)."""
+    """(리셋 앵커 이후의 좌절 발화 목록, 세션 전체의 스턱루프 블록 출력 횟수)."""
     hits = []
+    blocks = 0
     if not transcript_path or not os.path.isfile(transcript_path):
-        return hits
+        return hits, blocks
     with open(transcript_path, "r", encoding="utf-8", errors="replace") as f:
         for line in f:
             line = line.strip()
@@ -153,13 +161,16 @@ def prior_hits(transcript_path):
                 continue
             t = entry_kind(entry)
             if t == "assistant":
-                if RESET_ANCHOR in assistant_text(entry):
-                    hits = []          # 접근을 전환했으므로 카운터 리셋
+                atext = assistant_text(entry)
+                if RE_STUCK_BLOCK.search(atext):
+                    blocks += 1        # 이 카운터는 리셋되지 않는다(세션 누적)
+                if RESET_ANCHOR in atext:
+                    hits = []          # 접근을 전환했으므로 좌절 카운터만 리셋
             elif t == "user":
                 text = user_text(entry)
                 if text and is_frustration(text):
                     hits.append(text.strip())
-    return hits
+    return hits, blocks
 
 
 def clip(s, n=MAX_QUOTE):
@@ -198,7 +209,7 @@ def main():
     if not is_frustration(prompt):
         return                                   # 좌절 어휘 없음 — 침묵
 
-    hits = prior_hits(str(payload.get("transcript_path") or ""))
+    hits, blocks = prior_hits(str(payload.get("transcript_path") or ""))
     # 훅 실행 시점에 이번 프롬프트가 이미 transcript에 적혔을 수 있다 — 중복 카운트 방지
     if not (hits and hits[-1] == prompt):
         hits.append(prompt)
@@ -207,6 +218,23 @@ def main():
         return                                   # 첫 좌절 보고는 정상 버그 리포트 — 침묵
 
     previous = "\n".join("  %d) %s" % (i + 1, clip(h)) for i, h in enumerate(hits[:-1]))
+
+    # 스턱루프 블록을 이미 낸 적이 있으면(= 접근 전환까지 하고도 또 막힘) 격상을 무조건 권고한다.
+    # "필요한가"를 Claude가 판정하게 두지 않는다 — 판정형이면 항상 "불필요"로 수렴한다
+    # (못 푸는 이유는 못 푸는 동안엔 안 보이고, 풀린 뒤엔 늘 "모델 문제 아니었다"로 설명된다).
+    if blocks >= ESCALATE_AT - 1:
+        escalate = (
+            "\n\n[격상 게이트] 이 세션에서 이미 스턱루프 블록을 %d번 냈습니다. "
+            "접근 전환까지 하고도 또 막힌 상태이므로, 블록의 마지막 줄을 아래 형태로 "
+            "**판단 없이** 쓰세요. 필요/불필요를 저울질하지 마세요.\n"
+            "  모델 격상 권고: 상위 모델로 전환 권함 — 컨텍스트는 이미 로드돼 있어 "
+            "추가 비용은 프롬프트 한 번뿐이고, 안 바꾸고 헤매는 비용이 더 큽니다.\n"
+            "  → 이미 최상위 모델이면 대신 «새 세션(백지 컨텍스트)» 또는 «사용자 직접 개입»을 "
+            "같은 자리에서 권하세요. 이 줄을 생략하지 마세요."
+            % blocks
+        )
+    else:
+        escalate = ""
 
     emit_tripwire(
         "[stuck-loop hook] 이 세션에서 좌절 어휘가 담긴 사용자 보고가 %d번째입니다. "
@@ -218,14 +246,16 @@ def main():
         "정확히 하나를 반드시 출력하세요.\n\n"
         "(가) 같은 증상의 반복이면 — 같은 메커니즘에 3번째 패치를 제안하지 말고:\n"
         "  🔁 스턱루프 — 접근 전환\n"
+        "  부재 확인: {증상이 「X가 안 나온다」류면 필수 — X의 전제조건 중 무엇이 거짓인지 코드·로그로 지목}\n"
         "  구조적 한계: {지금 메커니즘이 왜 이 증상을 원리적으로 못 잡는가, 한 줄}\n"
         "  다른 메커니즘: {A / B / C — 트레이드오프 한 줄씩}\n"
+        "  동일모델 복기: {판단 없이 항상 실행 — 대화 처음부터 다시 훑어 새 단서 찾기 → 새 단서 발견 / 여전히 동일}\n"
         "  → 사용자와 방향을 정한 뒤 진행합니다. 정말 대안이 없으면 '대안 없음'을 "
         "근거와 함께 명시하고 계속하는 이유를 대세요. '거의 됐다'는 느낌은 트리거를 "
         "무효화하지 못합니다.\n\n"
         "(나) 서로 다른 증상이면 (훅의 오탐) — 한 줄만 남기고 평소대로 진행:\n"
-        "  🔁 스킵 — 다른 증상: {이전 증상} vs {이번 증상}\n"
-        % (len(hits), previous, clip(hits[-1], 300)),
+        "  🔁 스킵 — 다른 증상: {이전 증상} vs {이번 증상}%s\n"
+        % (len(hits), previous, clip(hits[-1], 300), escalate),
         payload,
     )
 
