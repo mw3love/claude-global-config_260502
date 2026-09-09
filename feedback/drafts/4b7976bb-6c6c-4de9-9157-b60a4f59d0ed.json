@@ -1,0 +1,31 @@
+{
+  "draft_id": "4b7976bb-6c6c-4de9-9157-b60a4f59d0ed",
+  "created_at": "2026-09-09T04:19:01.596Z",
+  "source_session_id": "68448873-5a19-4f5e-aa5c-a5871bd4bbce",
+  "cwd": "C:\\Users\\KBS\\Dev\\PDF_Studio_260908",
+  "model": "claude-sonnet-5",
+  "cli_version": "2.1.263",
+  "os": "win32 x64",
+  "request_ids": [
+    "req_011CesDoiTP9Zw36aoWoNacs",
+    "req_011CesDosAGDaWQf8sBP5Npz",
+    "req_011CesDpbzihLrACTpboAWMo"
+  ],
+  "type": "bug",
+  "title": "Reached for ScheduleWakeup to wait on a Bash background task outside /loop",
+  "details": "**What happened:** Started a Bash command with `run_in_background: true`; it moved to background after timeout. Instead of just ending the turn and letting the harness's automatic background-completion notification resume me, I called ScheduleWakeup (a /loop-dynamic-mode tool) with a 90s delay to \"wait\" for it.\n**What the user said:** User didn't comment; observed by the model.\n**Repro:** Any non-/loop session: start `run_in_background` Bash, then call ScheduleWakeup instead of simply stopping the turn.\n**Cause:** ScheduleWakeup's own tool description says it's for /loop dynamic mode and explicitly warns against scheduling short-interval wakeups to poll background work, but I misapplied it as a generic \"wait for me\" primitive in a plain (non-loop) session.",
+  "failure_mode": "instruction_following",
+  "task_category": "code_edit",
+  "trigger": "model_judgment",
+  "effort": "high",
+  "thinking_type": "adaptive",
+  "message_count": 341,
+  "assistant_turn_count": 72,
+  "subagent_count": 0,
+  "transcript_ref": {
+    "session_file": "C:\\Users\\KBS\\.claude\\projects\\C--Users-KBS-Dev-PDF-Studio-260908\\68448873-5a19-4f5e-aa5c-a5871bd4bbce.jsonl",
+    "message_range": null,
+    "project_dir_key": "C--Users-KBS-Dev-PDF-Studio-260908"
+  },
+  "status": "queued"
+}
