@@ -9,10 +9,26 @@
 """
 import json
 import os
+import ssl
 import sys
 import urllib.request
 import urllib.error
 from pathlib import Path
+
+
+def _ssl_context():
+    """Windows 인증서 저장소에 Amazon Root CA 1이 없어 kairos 도메인이
+    'self-signed certificate in certificate chain'으로 거부되는 문제를 피한다.
+    certifi 번들(Amazon 루트 포함)을 우선 쓰고, 없으면 기본값으로 되돌린다.
+    검증 자체는 절대 끄지 않는다."""
+    try:
+        import certifi
+        return ssl.create_default_context(cafile=certifi.where())
+    except ImportError:
+        return ssl.create_default_context()
+
+
+_SSL = _ssl_context()
 
 ACCOUNTS = {
     "kairos": {
@@ -122,7 +138,7 @@ def get(path: str, key: str | None = None, account=None):
 
 def _send(req):
     try:
-        with urllib.request.urlopen(req, timeout=300) as resp:
+        with urllib.request.urlopen(req, timeout=300, context=_SSL) as resp:
             raw = resp.read()
             ctype = resp.headers.get("Content-Type", "")
             headers = dict(resp.headers.items())
