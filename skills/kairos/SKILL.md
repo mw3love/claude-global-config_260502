@@ -162,6 +162,14 @@ python skills/kairos/scripts/crosscheck.py --mode code \
 
 - **Cloudflare 403 / `error code: 1010`** 이 뜨면 키 문제가 아니라 User-Agent 차단이다.
   `_gw.py`가 브라우저형 User-Agent를 보내 해결해 둠. 그래도 막히면 UA 문자열을 갱신한다.
+- **`SSL: CERTIFICATE_VERIFY_FAILED` / `self-signed certificate in certificate chain`**
+  이 kairos에서만 뜨면 키·서버 문제가 아니라 **로컬 신뢰 저장소**에 루트 CA가 없는 것이다.
+  두 도메인의 발급자가 다르다 — kairos는 **Amazon Root CA 1**, jbnu는 Google Trust
+  Services. Windows 인증서 저장소에 Amazon 루트가 없으면 kairos만 실패한다(2026-09-09
+  실측: 이 PC 기본 저장소 CA 37개, Amazon 루트 없음). `_gw.py`가 certifi 번들(CA 121개)을
+  쓰도록 해결해 둠. **SSL 검증을 끄는 방식으로 우회하지 말 것** — 중간자 공격에 무방비다.
+  진단은 `openssl s_client -connect <호스트>:443` 로 `Verify return code: 0` 이 나오는지
+  보면 된다. 0이면 서버는 정상이고 클라이언트 신뢰 저장소 문제다.
 - 비동기 이미지의 폴링 status 엔드포인트는 문서에 명시가 약하다 → flux/grok에서 폴링이
   안 끝나면 응답 원문을 보고 경로를 조정한다(`image.py`의 폴링부). 동기 모델은 영향 없음.
 - 이 스킬은 게이트웨이의 **생성 기능**만 다룬다. 클로드코드의 두뇌를 게이트웨이로 바꾸는
