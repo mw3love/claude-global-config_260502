@@ -19,7 +19,7 @@
 - **statusline** — 폴더 / git 브랜치(미커밋 개수·GitHub 동기화 상태, fetch 없이 `@{upstream}` 캐시 비교 + 마지막 fetch 시각 절대표기(오늘이면 `HH:MM`, 아니면 `MM/DD HH:MM`)) / 모델명(`opusplan` 설정 시 `[opusplan]` 태그 병기) / 컨텍스트 사용률 / 5시간·7일 레이트리밋을 터미널 상태바에 표시
 - **플러그인 마켓플레이스** — `claude-plugins-official`, `anthropic-agent-skills` 등록
 - **document-skills, playwright, telegram, frontend-design 플러그인** 활성화 (superpowers는 2026-08-24 비활성화 — CLAUDE.md 규칙과 겹쳐 실익이 좁다는 판단)
-- **전역 스킬** — `/draft`(KBS 기안문), `/deep-interview`(요구사항 명확화 인터뷰), `/doc-sync`(푸쉬 전후 문서 동기화), `/self-review`(답변을 근거 기반으로 적대적 재검토), `/sync-repos`(여러 PC git 프로젝트를 명단 기반으로 일괄 pull+빌드), `/reference-repos`(비자명한 설계 전 비슷한 문제를 푼 기존 git repo를 찾아 참고(읽기) + 어렵게 뚫은 해법·재사용 기법을 묻지 말고 인덱스에 자동 기록(쓰기, CLAUDE.md 4-c) — 사용자 지목 우선 + `repos.json` 인덱스, 모자라면 GitHub 공개 API 라이브 스캔(gh 불요), remote로 PC 독립 접근), `/skillify`(세션에서 잘 통한 반복 절차를 재사용 스킬로 굳히기 — 품질 게이트 + memory(사실)와 경계), `design-bakeoff`(여러 AI 모델에게 같은 UI 디자인 과제를 시켜 한 Artifact에서 나란히 비교, 사용자 피드백으로 한 축씩 좁혀 최종 스펙으로 수렴 — 취향은 `design-system/`에 축적), `jbnu-gateway`(전북대 API Gateway로 이미지·비디오·TTS 생성 — "이미지/영상 만들어줘" 등에 자동 발동), `hwp-from-data`(데이터로 한글 .hwp 양식 표 칸 채우기 — COM+HWPML2X, Windows+한글 전용), `kairos-proposal`(사내 KAIROS AI 서비스 콘테스트 제안 신청서를 프로젝트 문서 기반으로 작성해 원본 HWP 템플릿을 채운 완성본으로 만듦, `hwp-from-data` 기반)
+- **전역 스킬** — `/draft`(KBS 기안문), `/deep-interview`(요구사항 명확화 인터뷰), `/doc-sync`(푸쉬 전후 문서 동기화), `/self-review`(답변을 근거 기반으로 적대적 재검토), `/sync-repos`(여러 PC git 프로젝트를 명단 기반으로 일괄 pull+빌드), `/reference-repos`(비자명한 설계 전 비슷한 문제를 푼 기존 git repo를 찾아 참고(읽기) + 어렵게 뚫은 해법·재사용 기법을 묻지 말고 인덱스에 자동 기록(쓰기, CLAUDE.md 4-c) — 사용자 지목 우선 + `repos.json` 인덱스, 모자라면 GitHub 공개 API 라이브 스캔(gh 불요), remote로 PC 독립 접근), `/skillify`(세션에서 잘 통한 반복 절차를 재사용 스킬로 굳히기 — 품질 게이트 + memory(사실)와 경계), `design-bakeoff`(여러 AI 모델에게 같은 UI 디자인 과제를 시켜 한 Artifact에서 나란히 비교, 사용자 피드백으로 한 축씩 좁혀 최종 스펙으로 수렴 — 취향은 `design-system/`에 축적), `kairos`(mindlogic API Gateway — 이미지·비디오·TTS 생성에 자동 발동 + GPT 계열에 계획·코드 교차검증(`crosscheck.py`, CLAUDE.md 11-b 스턱루프 2회째 자동 호출). kairos(회사)·jbnu(학교) 두 계정을 `--account`로 선택, 용도가 달라 자동 폴백 없음), `hwp-from-data`(데이터로 한글 .hwp 양식 표 칸 채우기 — COM+HWPML2X, Windows+한글 전용), `kairos-proposal`(사내 KAIROS AI 서비스 콘테스트 제안 신청서를 프로젝트 문서 기반으로 작성해 원본 HWP 템플릿을 채운 완성본으로 만듦, `hwp-from-data` 기반)
 - **post-merge hook** — `git pull` 후 환경 자동 점검·복구 (Bun 설치, $PROFILE 갱신, 플러그인 다운로드, memory 연결, Cursor 훅 복사·링크)
 - **Cursor** — 같은 전역 스킬(`~/.claude/skills`)을 Cursor가 호환 로딩한다. Cursor 전역 훅 원본은 `cursor-hooks/`에 두고, post-merge가 `~/.cursor/hooks.json`으로 **복사**(심볼릭 링크 아님 — 작업공간이 `~/.cursor`이면 링크를 거부함)하고 `hooks/`만 링크한다. Cursor용 별도 git 없음. `git push` 문지기는 Claude `settings.json` 훅과 같은 `.doc-sync-ready`를 쓴다.
 - **pre-push doc-sync 게이트** — `git push` 전 doc-sync 사전 검토를 기계로 강제(PreToolUse 훅). 센티널(`.doc-sync-ready`, 1회용·30분 유효)이 없으면 push 자체가 거부됨
@@ -193,7 +193,7 @@ C:\Users\길동\.claude    →  projects/C--Users----claude/memory/       ← PC
 │   ├── draft/                # KBS 기안문 작성 스킬
 │   ├── handoff/              # 세션 인계 파일 생성·소비 스킬 (CLAUDE.md 규칙 10-b의 짝)
 │   ├── hwp-from-data/        # 데이터로 한글(.hwp) 양식 표 칸 채우기 (COM+HWPML2X, Windows+한글 전용)
-│   ├── jbnu-gateway/         # 전북대 API Gateway로 이미지·비디오·TTS 생성 (preflight 비용고지)
+│   ├── kairos/               # mindlogic Gateway — 이미지·비디오·TTS 생성 + GPT 교차검증 (preflight 비용고지)
 │   ├── kairos-proposal/      # 사내 KAIROS AI 서비스 콘테스트 신청서를 프로젝트 문서 기반으로 HWP 완성본으로 작성 (hwp-from-data 기반)
 │   ├── reference-repos/      # 기존 git repo prior art 참고(읽기)+참고 가치 자동 기록(쓰기, CLAUDE.md 4-c) (인덱스=repos.json reference 필드)
 │   ├── self-review/          # 답변 근거 기반 적대적 재검토 스킬
