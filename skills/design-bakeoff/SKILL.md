@@ -1,7 +1,7 @@
 ---
 name: design-bakeoff
 description: |
-  여러 AI 모델(Claude 자신 + jbnu-gateway로 부르는 Gemini/GPT-image 등)에게 같은 UI 디자인 과제를
+  여러 AI 모델(Claude 자신 + kairos로 부르는 Gemini/GPT-image 등)에게 같은 UI 디자인 과제를
   동시에 시켜 한 Artifact 페이지에서 나란히 비교하고, 사용자 피드백으로 한 축(색·모양 등)씩 좁혀가며
   최종 스펙으로 수렴시킨다.
   "버튼/아이콘/색상/툴바 디자인 여러 안 비교해줘", "GPT랑 Gemini로도 시안 뽑아서 비교하자",
@@ -18,7 +18,7 @@ description: |
 맛만 보고 고른다 — 직접 요리할 줄 몰라도 된다.
 
 ## 전제
-- `jbnu-gateway` 스킬로 이미지 생성 모델(`gemini-2.5-flash-image`, `gpt-image-2` 등) 호출 가능
+- `kairos` 스킬로 이미지 생성 모델(`gemini-2.5-flash-image`, `gpt-image-2` 등) 호출 가능
 - `Artifact` 도구로 HTML 게시 가능
 - 비자명한 스코프(다룰 범위·색 고정 여부 등)가 아직 안 정해졌다면 `deep-interview`로 먼저 좁힌다
 
@@ -37,7 +37,7 @@ description: |
 ### 2단계 — 후보 구성 정하기
 몇 개를 누구에게 맡길지 정한다. 기본 추천: Claude 라이브 CSS 2~3안 + 게이트웨이 모델당 2안.
 `preflight.py image`로 잔액·비용을 사용자에게 보여준 뒤 진행(저렴해서 승인 대기는 불필요,
-비용·모델 추천 근거는 항상 한 줄로 고지 — jbnu-gateway 스킬 규칙 그대로).
+비용·모델 추천 근거는 항상 한 줄로 고지 — kairos 스킬 규칙 그대로).
 
 ### 3단계 — 게이트웨이 이미지 생성
 - 같은 프롬프트 템플릿을 콘셉트별로 **강조색/스타일 키워드만 바꿔** 재사용한다 — 나머지 문장이
@@ -116,6 +116,6 @@ description: |
 
 ## 관련
 - `deep-interview` — 라운드 시작 전 스코프 좁히기
-- `jbnu-gateway` — 이미지 생성 호출
+- `kairos` — 이미지 생성 호출
 - `artifact-design` — Artifact 작성 전 필수 로드
 - `~/.claude/design-system/` — 취향 축적 문서(이 스킬이 읽고 쓰는 대상, 별도 관리)

@@ -1,5 +1,18 @@
 {
-  "_note": "크레딧 단가·추천 카탈로그. 이미지/비디오/TTS 모델·단가는 /models API에 없어 문서·실측 기준으로 유지한다. 단가·추천 변동 시 이 파일만 수정. recommend:true = 기본 추천 모델.",
+  "_note": "크레딧 단가·추천 카탈로그. 모델·단가는 /models API에 없어 문서·실측 기준으로 유지한다. 단가·추천 변동 시 이 파일만 수정. recommend:true = 기본 추천 모델.",
+  "chat": {
+    "unit": "1M 토큰당 크레딧 (입력/출력)",
+    "source": "2026-09-09 실측 (크레딧 delta ÷ usage 토큰, 역산 오차 0.00%). 1크레딧=$0.001로 정가와 1:1 대응",
+    "approval": "show_only",
+    "cache_note": "캐시읽기 = 입력단가의 10%. GPT 계열은 /chat/completions/ 에서 자동 적용(1024토큰 이상). Claude는 /claude/v1/messages + cache_control 블록 필요 — OpenAI 호환 경로로는 캐시가 적용되지 않는다(실측: 절감 0%).",
+    "models": {
+      "gpt-5.6-terra": { "in": 2000, "out": 12000, "best_for": "최저가, 대량 배치 작업용" },
+      "claude-sonnet-5": { "in": 3000, "out": 15000, "best_for": "클로드코드 게이트웨이 경유 시" },
+      "gpt-5.6-sol": { "in": 4000, "out": 20000, "best_for": "성능·비용 중간" },
+      "claude-opus-5": { "in": 5000, "out": 25000, "best_for": "고난도 추론(고가)" },
+      "gpt-6-astra": { "in": 10000, "out": 50000, "recommend": true, "best_for": "최고 성능, 교차검증 2차 소견용(고가)" }
+    }
+  },
   "video": {
     "unit": "클립당 크레딧",
     "source": "mindlogic 문서",

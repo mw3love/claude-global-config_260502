@@ -1,1 +1,1 @@
-- [AI 게이트웨이 키 위치](ai-gateway-key-location.md) — ~/.claude/.secrets/easycad-gateway.key, jbnu-gateway.key와 다른 계정이니 혼용 금지
+- [AI 게이트웨이 키 위치](ai-gateway-key-location.md) — Easy CAD는 easycad-gateway.key 전용. .secrets/에 kairos·jbnu 키가 더 있으니 혼용 금지

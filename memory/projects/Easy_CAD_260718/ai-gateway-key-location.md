@@ -13,10 +13,18 @@ kairos 계정) 키는 `~/.claude/.secrets/easycad-gateway.key`(첫 줄, `.gitign
 읽는다 — `resolve_api_key()`의 최우선 소스(그다음 QSettings, 마지막 환경변수
 `EASYCAD_GW_KEY`).
 
-**주의: `jbnu-gateway` 스킬이 쓰는 `~/.claude/.secrets/jbnu-gateway.key`와는 다른
-계정이다**(jbnu-gateway=전북대 학교 계정, easycad-gateway=kairos 회사 계정, base URL도
-다름: `factchat-cloud.mindlogic.ai` vs `factchat.mindlogic-kr-api.com`). 두 파일을
-섞어 쓰지 말 것.
+**키 파일 3개가 같은 `.secrets/`에 공존하므로 혼동 주의** (2026-09-09 갱신 — 스킬명이
+`jbnu-gateway` → `kairos`로 바뀌고 계정별 키가 분리됨):
+
+| 파일 | 계정 | base URL | 쓰는 곳 |
+|---|---|---|---|
+| `easycad-gateway.key` | kairos(회사) | `factchat.mindlogic-kr-api.com` | Easy CAD의 `gateway.py` |
+| `kairos-gateway.key` | kairos(회사) | `factchat.mindlogic-kr-api.com` | `kairos` 스킬 `--account kairos`(기본) |
+| `jbnu-gateway.key` | jbnu(학교) | `factchat-cloud.mindlogic.ai` | `kairos` 스킬 `--account jbnu` |
+
+앞의 둘은 **같은 계정을 가리키지만 파일이 별개**라 한쪽만 재발급하면 조용히 어긋난다.
+Easy CAD 코드는 `easycad-gateway.key`만 보므로 그쪽을 지우거나 합치지 말 것.
+학교 계정(`jbnu`)과는 크레딧 풀도 용도도 다르니 절대 섞지 않는다.
 
 **Why:** 2026-08-11 세션에서 사용자가 `!` 프리픽스로 키를 직접 타이핑하다 PowerShell
 문법(`$env:...`)을 이 프로젝트의 Bash(Git Bash) 세션에 잘못 써서 명령이 실패하며 키가

@@ -59,7 +59,7 @@ OMC는 **배포용 제품**(수천 사용자, npm+플러그인, TS 빌드, 5,795
 ---
 
 ## 4. 가져오지 말 것
-TS/npm/dist 빌드, HUD, 벤치마크, i18n 13개, 50스킬 난립, 멀티 CLI(codex/gemini/antigravity) tmux 패널. 멀티모델은 우리 jbnu-gateway로 이미 해결.
+TS/npm/dist 빌드, HUD, 벤치마크, i18n 13개, 50스킬 난립, 멀티 CLI(codex/gemini/antigravity) tmux 패널. 멀티모델은 우리 `kairos` 스킬로 이미 해결.
 
 ---
 
