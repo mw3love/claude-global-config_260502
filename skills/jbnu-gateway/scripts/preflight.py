@@ -71,7 +71,22 @@ def show_capability(cap: str, rem: float):
 
 def show_chat(rem: float):
     _, data, _ = _gw.get("/models/")
-    print(f"\n[chat] {len(data['data'])}종 (단가는 API 미노출 · 토큰당 변동)")
+    spec = COSTS.get("chat", {})
+    known = spec["models"]
+    print(f"\n[chat] 단위: {spec['unit']}  · 출처: {spec['source']}")
+    rec = None
+    for model, info in sorted(known.items(), key=lambda kv: kv[1]["in"]):
+        mark = "★" if info.get("recommend") else " "
+        if info.get("recommend"):
+            rec = (model, info["best_for"])
+        print(f" {mark} {model:18} 입력 {info['in']:>6,} / 출력 {info['out']:>6,}"
+              f"   잔액으로 입력 ~{rem / info['in']:.1f}M토큰")
+        print(f"      └ {info['best_for']}")
+    if rec:
+        print(f"\n  ★추천: {rec[0]} — {rec[1]}")
+    print(f"\n  ⚠ {spec['cache_note']}")
+
+    print(f"\n  [전체 {len(data['data'])}종 — 위 5종 외에는 단가 미측정]")
     by_owner = {}
     for it in data["data"]:
         by_owner.setdefault(it.get("owned_by", "?"), []).append(it["id"])

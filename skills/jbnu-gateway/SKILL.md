@@ -73,7 +73,12 @@ python skills/jbnu-gateway/scripts/video.py \
 python skills/jbnu-gateway/scripts/preflight.py video   # image | tts | chat | (없으면 잔액만)
 ```
 실시간 잔액 + 해당 기능의 모델·단가·"잔액으로 N개 가능"을 출력. 단가표는 `costs.json`
-(이미지/비디오/TTS 모델·단가는 /models API에 없어 문서·실측 기준). 단순 잔액만: `credits.py`.
+(모델·단가가 /models API에 없어 문서·실측 기준). 단순 잔액만: `credits.py`.
+
+`chat`은 1M 토큰당 크레딧(2026-09-09 실측, **1크레딧 = $0.001**로 실제 API 정가와 1:1).
+**캐시읽기는 입력의 10%** — GPT 계열은 `/chat/completions/`에서 자동 적용되지만 Claude는
+`/claude/v1/messages` + `cache_control` 블록을 써야 하고, OpenAI 호환 경로로 부르면
+캐시가 아예 안 걸린다(실측 절감 0%).
 
 ## 사전 고지·승인 규칙 (필수)
 
@@ -100,3 +105,7 @@ python skills/jbnu-gateway/scripts/preflight.py video   # image | tts | chat | (
   안 끝나면 응답 원문을 보고 경로를 조정한다(`image.py`의 폴링부). 동기 모델은 영향 없음.
 - 이 스킬은 게이트웨이의 **생성 기능**만 다룬다. 클로드코드의 두뇌를 게이트웨이로 바꾸는
   것(`ANTHROPIC_BASE_URL` 교체)은 별개이며 여기서 하지 않는다.
+- ⚠ 그 교체를 굳이 한다면 **비용을 먼저 보라**. 2026-09-09 실측 기준 실제 클로드코드
+  사용량(30일 입력 11억 토큰)을 크레딧으로 환산하면 **월 약 50만 크레딧** — 캐시가
+  정상 작동해도 월 4만 크레딧으로는 **2~3일치**다. 에이전트 코딩은 매 턴 컨텍스트를
+  통째로 재전송하므로 입력:출력이 223:1이고, 비용의 98%가 캐시읽기에서 나온다.
