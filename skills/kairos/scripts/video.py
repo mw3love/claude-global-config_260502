@@ -43,7 +43,9 @@ def main():
     ap.add_argument("--image", default=None, help="image-to-video 입력 URL")
     ap.add_argument("--out", default="video.mp4")
     ap.add_argument("--timeout", type=int, default=240, help="폴링 최대 초")
+    ap.add_argument("--account", default=None, help="kairos(기본) | jbnu")
     args = ap.parse_args()
+    _gw.use(args.account)
 
     body = {"model": args.model, "prompt": args.prompt}
     if args.image:

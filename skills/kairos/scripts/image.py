@@ -66,7 +66,9 @@ def main():
     ap.add_argument("--quality", default=None, help='standard/hd 또는 low/medium/high')
     ap.add_argument("--n", type=int, default=1)
     ap.add_argument("--out", default="image.png")
+    ap.add_argument("--account", default=None, help="kairos(기본) | jbnu")
     args = ap.parse_args()
+    _gw.use(args.account)
 
     body = {"model": args.model, "prompt": args.prompt, "number_of_images": args.n}
     if args.aspect:

@@ -25,16 +25,28 @@ except Exception:
 COSTS = json.loads((Path(__file__).parent / "costs.json").read_text(encoding="utf-8"))
 
 
-def balance():
-    _, data, _ = _gw.get("/credits/")
+def balance(account=None):
+    _, data, _ = _gw.get("/credits/", account=account)
     t = data["total"]
     return t["remaining"], t["quota"], data["monthly_allocated"].get("renewal_date", "")
 
 
-def show_balance():
-    rem, quota, renew = balance()
-    print(f"💳 잔액: {rem:,.1f} / {quota:,.0f} 크레딧  (리셋: {renew[:10]})")
-    return rem
+def show_balance(active):
+    """두 계정 잔액을 함께 표시하고 활성 계정의 잔액을 반환한다."""
+    rem_active = None
+    for name, c in _gw.ACCOUNTS.items():
+        mark = "▶" if name == active else " "
+        if not _gw.has_key(name):
+            print(f" {mark} {name:7} 키 없음 — {c['use']}")
+            continue
+        rem, quota, renew = balance(name)
+        print(f" {mark} {name:7} {rem:>9,.1f} / {quota:,.0f} 크레딧"
+              f"  (리셋 {renew[:10]})  {c['use']}")
+        if name == active:
+            rem_active = rem
+    if rem_active is None:
+        sys.exit(f"[오류] 활성 계정 '{active}'의 키가 없어 진행 불가")
+    return rem_active
 
 
 def show_capability(cap: str, rem: float):
@@ -95,8 +107,15 @@ def show_chat(rem: float):
 
 
 def main():
-    cap = sys.argv[1].lower() if len(sys.argv) > 1 else None
-    rem = show_balance()
+    args = [a for a in sys.argv[1:]]
+    account = None
+    if "--account" in args:
+        i = args.index("--account")
+        account = args[i + 1] if i + 1 < len(args) else None
+        del args[i:i + 2]
+    active = _gw.use(account)
+    cap = args[0].lower() if args else None
+    rem = show_balance(active)
     if cap == "chat":
         show_chat(rem)
     elif cap in ("video", "image", "tts"):

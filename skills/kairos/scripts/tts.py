@@ -25,7 +25,9 @@ def main():
     ap.add_argument("--voice", default="Aoede")
     ap.add_argument("--model", default="gemini-2.5-flash-preview-tts")
     ap.add_argument("--out", default="speech.wav")
+    ap.add_argument("--account", default=None, help="kairos(기본) | jbnu")
     args = ap.parse_args()
+    _gw.use(args.account)
 
     body = {"model": args.model, "input": args.text, "voice": args.voice}
     _, resp, headers = _gw.post_json("/audio/speech/", body)
