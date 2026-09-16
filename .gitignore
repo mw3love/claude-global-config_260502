@@ -81,3 +81,6 @@ skills/kairos/scripts/*_b64.txt
 # Windows 폴더뷰 메타데이터 (추적 불필요)
 desktop.ini
 Thumbs.db
+
+# Claude Code가 계정에서 자동 동기화하는 원격 스킬 캐시(기계 생성물, PC마다 재생성)
+skills/synced/
