@@ -1,6 +1,7 @@
 # Memory Index
 
 - [project-d-cimon-s-on-gamsi-pc](project_d_cimon_s_on_gamsi_pc.md) — 감시운용PC에 `D:\CIMON S` 전체 트리(+공식 매뉴얼 `CimonD.chm`)가 로컬로 붙어 있음, 2026-08-26 확인
+- [gamsi-pc-no-spreadsheet-app](gamsi_pc_no_spreadsheet_app.md) — 감시운용PC엔 엑셀·LibreOffice·한컴이 하나도 없음; 파일 전달은 `G:\내 드라이브`(구글 드라이브) 경유, 2026-09-17 확인
 
 > 이 폴더는 `~/.claude` repo 안이라 git으로 PC 간 동기화된다(`session-memory-hook.py`가
 > `autoMemoryDirectory`를 여기로 돌려놓고, `memory-sync-hook.py`가 세션 종료 시 commit+push).
