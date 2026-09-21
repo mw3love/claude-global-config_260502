@@ -84,3 +84,7 @@ Thumbs.db
 
 # Claude Code가 계정에서 자동 동기화하는 원격 스킬 캐시(기계 생성물, PC마다 재생성)
 skills/synced/
+
+# kairos-toggle.py 가 생성하는 apiKeyHelper 셰임(PC별 절대경로가 박힘)
+scripts/gateway-key.ps1
+scripts/__pycache__/
