@@ -88,3 +88,7 @@ skills/synced/
 # kairos-toggle.py 가 생성하는 apiKeyHelper 셰임(PC별 절대경로가 박힘)
 scripts/gateway-key.ps1
 scripts/__pycache__/
+
+# /doctor 런타임·백업 (2026-09-23)
+state/
+*.doctor-bak
