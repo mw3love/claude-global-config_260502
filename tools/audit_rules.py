@@ -43,6 +43,16 @@ except Exception:
 ROOT = os.path.expanduser("~/.claude/projects")
 TODAY = date.today().isoformat()
 
+# 2026-09-25 CLAUDE.md 다이어트 개편(8974536). 모든 규칙을 이 날짜 앞뒤로 한 번 더 나눠 본다.
+REFORM = "2026-09-25"
+# 성적표: 사용자가 "쉽게 말해줘"류를 말한 비율(history.jsonl, 이 PC 기록만).
+# 정규식은 CLAUDE.md 맨 위 개편 메모와 같다. 목표는 1%대.
+# 주의: 개편 메모의 '2026-09 = 4.6%'는 분모 정의가 남아 있지 않아 똑같이 재현되지 않는다
+# (2026-09-25 재계산: 전체 입력 기준 4.1%, 슬래시 명령 뺀 기준 5.0%). 그래서 아래 출력의
+# 개편 전 값을 새 기준선으로 삼는다. 분모는 슬래시 명령(/...)을 뺀 입력 — 명령은 말이 아니므로.
+HISTORY = os.path.expanduser("~/.claude/history.jsonl")
+RE_EASY = re.compile(r"쉽게|쉬운 말|쉽고|이해가 안|이해 안|무슨 말|뭔 말|어렵|직관적으로")
+
 # ── 측정할 규칙: (라벨, CLAUDE.md 추가일, 지문, 플래그) ────────────────────────
 #   지문 종류: ("skill", 스킬명) | ("cmd", "/슬래시명령") | ("re", 정규식 → assistant 발언에서)
 #            | ("tool", 도구명 → assistant tool_use, 예: AskUserQuestion)
@@ -61,7 +71,6 @@ MIN_SESSIONS = 15   # 이만큼 세션이 쌓이기 전엔 사문화 판정 보�
 RULES = [
     # ── 2026-07-11 개편으로 새로 심은 규칙들. 다음 재감사의 본체.
     #    0회면 그 규칙도 죽은 것 — 옛 규칙 4·6-b를 자른 것과 같은 기준으로 자른다.
-    ("규칙2 '손안의 카드' 한 줄",      "2026-07-11", ("re", r"손안의 카드")),
     ("규칙11-b '🔁 스턱루프' 블록",     "2026-07-11", ("re", r"🔁 ?스턱루프")),
     ("규칙7 '검토한 대안:' 한 줄",      "2026-07-11", ("re", r"검토한 대안\s*:")),
     ("규칙10-b '[세션 상태]' 헤더",     "2026-07-11", ("re", r"`?\[세션 상태")),
@@ -83,7 +92,7 @@ RULES = [
     # ⚠ 해석 함정: 라벨 강제 *이전*엔 라벨 없는 비유가 안 잡힌다. 그래서 8월에 수치가
     #   올라도 "비유가 늘었다"로 읽으면 안 된다 — 라벨링이 늘어난 것일 수 있다(교란).
     #   before/after 상승분이 아니라 **절대 발화율(세션당)**로만 판단하라.
-    ("규칙7-b '비유:' 라벨",           "2026-07-11", ("re", r"\*\*비유\s*[:：]")),
+    ("규칙7 '비유:' 라벨(옛 7-b)",      "2026-07-11", ("re", r"\*\*비유\s*[:：]")),
     # 규칙7 그릇 조항(2026-07-11): 데이터 모양에 그릇을 맞춘다 — 표 / 트리 / 목록.
     # 표는 지문화하지 않는다: 마크다운 표 문법(|---|)은 내가 늘 쓰던 것이라 baseline이
     # 높아 '규칙이 살아있다'는 거짓 신호가 된다(함정 ⓓ). 트리 문자는 드물어 지문이 된다.
@@ -94,14 +103,19 @@ RULES = [
     # 그래서 선택창은 질문 문구('지금 이어서')로 좁혀 10-b 전용 지문만 센다. 넓은 지문은
     # 규칙이 죽어도 높게 나와 '거짓 안심'을 만든다 — 함정 (1)과 같은 오염이다.
     # ── 기존 규칙(대조군)
-    ("규칙11 self-review 자동실행",   "2026-06-24", ("skill", "self-review")),
-    ("  └ 사용자 수동 /self-review",  "2026-06-24", ("cmd", "/self-review"), "goal_zero"),
     ("규칙3 '확인 필요'",             "2026-05-06", ("re", r"확인\s*필요")),
     ("규칙7 '추천:' 명시",            "2026-06-11", ("re", r"추천\s*:")),
     ("규칙11-c 프록시/실조건 표기",     "2026-06-11", ("re", r"프록시\s*검증|실조건\s*검증")),
-    ("규칙4-b/4-c reference-repos",  "2026-06-24", ("skill", "reference-repos")),
+    ("reference-repos 스킬(옛 4-b/4-c)", "2026-06-24", ("skill", "reference-repos")),
     ("규칙10 doc-sync (훅)",          "2026-05-23", ("skill", "doc-sync")),
     # ── 삭제된 규칙(사문화 확인용 — 되살릴지 판단할 때 참고)
+    # 2026-09-25 개편(8974536)으로 지운 규칙 둘. 0으로 떨어지는지 보는 대조군이다.
+    # 단 self-review는 스킬로 남아 '자동'이 0이 아닐 수 있다 — 핵심은 아래 '사용자 수동'.
+    # 2026-10 성적표: 사용자가 손으로 /self-review를 다시 시키기 시작하면(goal_zero 깨짐)
+    # 자동 재검토(옛 규칙 11)를 되살린다.
+    ("[삭제] 규칙2 '손안의 카드' 한 줄",  "2026-07-11", ("re", r"손안의 카드")),
+    ("[삭제] 규칙11 self-review 자동",  "2026-06-24", ("skill", "self-review")),
+    ("  └ 사용자 수동 /self-review",  "2026-06-24", ("cmd", "/self-review"), "goal_zero"),
     ("[삭제] 규칙6-b pick-skill",     "2026-06-11", ("skill", "pick-skill")),
     ("[삭제] 규칙4 'No only way'",    "2026-05-06", ("re", r"다른 방법이 있을 수")),
 ]
@@ -231,6 +245,42 @@ def main():
         else:
             mark = "↓"
         print(f"{label:32s} {added}  {a:5d} ({ra:5.2f})  {b:5d} ({rb:5.2f})  {mark}")
+
+    print(f"\n=== {REFORM} 개편 전후 (괄호=세션당, 전=세션 로그 시작~개편 전날) ===")
+    pre = window(atext, skills, cmds, tools_day, sessions, "2026-01-01", REFORM)
+    post = window(atext, skills, cmds, tools_day, sessions, REFORM, "9999-12-31")
+    print(f"{'규칙':32s} {'개편 前':>14s} {'개편 後':>14s}   (개편 後 {post[4]}세션)")
+    print("-" * 70)
+    for label, added, metric, *rest in RULES:
+        a, b = value(metric, *pre[:4]), value(metric, *post[:4])
+        ra = a / pre[4] if pre[4] else 0
+        rb = b / post[4] if post[4] else 0
+        print(f"{label:32s} {a:5d} ({ra:5.2f})  {b:5d} ({rb:5.2f})")
+    if post[4] < MIN_SESSIONS:
+        print(f"  ⏳ 개편 後 세션이 {post[4]}개라 아직 판정하지 않는다({MIN_SESSIONS}개부터).")
+
+    print("\n=== 성적표: '쉽게 말해줘' 비율 (history.jsonl, 이 PC만, 슬래시 명령 제외) ===")
+    easy = collections.Counter()
+    total_p = collections.Counter()
+    try:
+        with open(HISTORY, encoding="utf-8", errors="replace") as fh:
+            for line in fh:
+                try:
+                    h = json.loads(line)
+                except Exception:
+                    continue
+                txt = str(h.get("display") or "")
+                if not txt.strip() or txt.startswith("/"):
+                    continue
+                day = date.fromtimestamp(h.get("timestamp", 0) / 1000).isoformat()
+                key = "개편 後" if day >= REFORM else day[:7]
+                total_p[key] += 1
+                easy[key] += bool(RE_EASY.search(txt))
+    except OSError:
+        print("  history.jsonl 없음 — 이 PC에선 성적표를 못 잰다.")
+    for k in sorted(total_p, key=lambda x: (x == "개편 後", x)):
+        print(f"  {k:8s} {easy[k]:4d} / {total_p[k]:5d}  = {easy[k] / total_p[k] * 100:4.1f}%")
+    print("  ※ 목표 1%대. 2026-09 줄은 개편 전날(09-24)까지만 담는다.")
 
     print("\n=== Skill 실제 호출 (시스템 프롬프트 언급 아님) ===")
     agg = collections.Counter()

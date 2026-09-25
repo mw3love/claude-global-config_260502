@@ -41,6 +41,6 @@ metadata:
 
 **memory 구조 — 이 문단의 옛 서술은 폐기됨(2026-09-05 정정):** 2026-07-11 당시엔 memory가 프로젝트별 로컬(`projects/<절대경로 인코딩>/memory/`)이라 "git으로 꺼내지 않는다(로컬 전용 유지)"고 결론냈으나, **지금은 그렇지 않다** — `session-memory-hook.py`가 저장 위치를 `~/.claude/memory/`로 돌려놓고 `memory-sync-hook.py`가 세션 종료 시 commit+push해 PC 간 동기화된다([[reference-memory-sync-hook]]). 어디에 무엇을 쓰는지는 전역 CLAUDE.md 10-c(프로젝트 사실→repo)·10-d(전역 사실→memory 전역 루트)가 규정한다.
 
-**규칙 번호 제약:** `4-b`·`4-c`·`7-b`·`8`·`9`·`11`·`11-b`·`11-c`·`12`는 외부 스킬 9곳(self-review·reference-repos·doc-sync·skillify SKILL.md, wiki, README)이 번호로 참조 중 → **재번호 금지**. 번호 4·5가 빈 것은 의도된 삭제 흔적.
+**규칙 번호 제약:** 스킬·훅·wiki가 규칙을 번호로 참조하므로 **재번호 금지**(빈 번호는 의도된 삭제 흔적). ⚠ 2026-09-25 CLAUDE.md 개편(`8974536`)으로 1-b·3-b·4-b·4-c·7-b·9-b·10-d·10-e·10-f·11이 지워지거나 합쳐졌다. 이 문서의 규칙 번호·목록은 그 이전 기록이니, 지금 목록은 전역 `CLAUDE.md`를 직접 볼 것. 같은 날 2차 검토에서 남은 옛 번호 참조를 정리하고 `audit_rules.py`에 개편 전후 비교(2026-09-25 경계)를 넣었다.
 
 관련: [[project-reference-wiki-migration]]

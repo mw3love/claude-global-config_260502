@@ -1,7 +1,5 @@
 - [reference 위키 이관](project_reference_wiki_migration.md) — repos.json 블롭→wiki/*.md 재설계 완료(2026-07-09). 위키 감사 기준 + 새 wiki 파일 커밋 함정(`add -N`)
-- [전역 규칙 감사 (2026-07-11)](project_rules_audit_2026-07-11.md) — 173세션 측정 → 규칙 19개로 개편. 재감사(2026-08-11) 완료: 지문 9개 전부 살아있음, 사문화 0. 세션 로그가 2026-07-14부터만 남아 전/후 비교는 이후 불가(절대율로만 판단)
-- [답변 형식 선호](feedback_answer_shape.md) — A-B-A(결론·내용·결론), 목록 항목 사이 빈 줄, 프롬프트엔 `[프롬프트]` 라벨
-- [커밋 확인 후·답변 간결](feedback_commit_and_brevity.md) — 커밋은 물어보고 승인 후(2026-07-12 자동→수동 되돌림), 답변은 diff 재나열 없이 결론+한 것+할 것
+- [전역 규칙 감사 (2026-07-11)](project_rules_audit_2026-07-11.md) — 173세션 측정·재감사(2026-08-11) 기록과 감사 함정. 규칙 목록은 2026-09-25 개편 전 것(지금 목록은 CLAUDE.md). 세션 로그가 일부만 남아 절대율로만 판단
 - [sync-repos 로그온 자동실행](reference_sync_repos_autostart.md) — HKCU Run 키+VBS(PC 2대: HOME-DESKTOP·MW-Lenovo), 자기업데이트+항상알림(NotifyIcon) 2026-07-22 추가
 - [알림 설계 선호](feedback_notification_design.md) — 백그라운드 자동화는 "조용함=성공"보다 "항상 알림·부재=이상". WinRT 토스트는 이 PC서 실패, NotifyIcon 사용
 - [선택창 선호](feedback_askuserquestion_preference.md) — 모호한 질문은 텍스트보다 AskUserQuestion 기본, 추천안+Other 보완 방식 선호. deep-interview 기본값도 이에 맞춰 수정(2026-08-07)
@@ -9,8 +7,8 @@
 - [터미널 한글 폰트](reference_terminal_font_d2coding.md) — 질문창 정렬 어긋남 원인은 Cascadia Mono 폴백. PC 4대(HOME-DESKTOP·MW-Lenovo·MOAK-MINWOO·MW-Samsung26) D2Coding 적용 완료(2026-09-04)
 - [Claude Code CJK 인코딩 버그](reference_claude_code_cjk_encoding_bug.md) — 글자 자체가 바뀌는 건 폰트가 아니라 Claude Code 자체 미해결 버그(GitHub #65394/#42899), 코드페이지 조정 무효
 - [전역 메모리 자동 sync 훅](reference_memory_sync_hook.md) — SessionEnd 자동 commit+push. 8/26 경로매칭 사고+수정, 9/2 MW-Samsung26 재검증 정상. 감시운용PC stranded 데이터 백필 미확인
-- [전역 push 리마인드 훅](reference_global_push_reminder_hook.md) — 다른 프로젝트 push 시 doc-sync-hook이 ~/.claude 미반영 변경 감지, 부분자동 처리(삭제·민감정보·원격충돌만 예외, 2026-09-04)
-- [계획 수립 워크플로 선호](feedback_planning_workflow.md) — Plan 모드보다 deep-interview+대화 후 최종 합성 선호, self-review 자동실행이 재검토 단계를 이미 커버(2026-08-14)
+- [전역 push 리마인드 훅](reference_global_push_reminder_hook.md) — 다른 프로젝트 push 시 doc-sync-hook이 ~/.claude 미반영 변경 감지, 부분자동 처리(삭제·민감정보·원격충돌만 예외). 정책 정본은 훅 문구(규칙 10-e는 2026-09-25 폐지)
+- [계획 수립 워크플로 선호](feedback_planning_workflow.md) — Plan 모드보다 deep-interview+대화 후 최종 합성 선호. 자동 재검토는 2026-09-25 폐지, 중요한 계획엔 /self-review를 권함
 - [사용자 신원정보](user_profile_kbs.md) — 김민우/KBS 전주총국 기술국/사번 30881/010-414-4142, 기안문·신청서 등 사내 공식문서 작성 시 사용
 - [공식문서 서식 선호](feedback_document_formatting_style.md) — 나열 구분자는 가운데점·쉼표 대신 슬래시, 불릿 적극 사용(HWP 등 마크다운 불가 산출물 한정)
 - [텔레그램 봇 토큰 위치](reference_telegram_bot_tokens.md) — G드라이브 "Telegram Bot 모음" 폴더, Notifier=알림용/Telegram=양방향 채널용 구분

@@ -24,4 +24,4 @@ Windows Terminal에 폰트 지정이 없으면 기본 `Cascadia Mono`가 쓰이�
 
 **2026-09-04 MW-Samsung26 조치 완료** — 새 PC 온보딩 점검 중 발견(폰트 미설치, WT `profiles.defaults` 비어있음). 같은 codeload 절차로 설치, `profiles.defaults`가 빈 객체(`{}`)라 `font.face`만 추가(MOAK-MINWOO와 동일 패턴). 실행 중인 PowerShell 도구가 `-NoProfile`이라 새 창 캡처로 실조건검증은 못 했음(폰트 파일·레지스트리 등록·WT 설정 반영 자체는 확인) — 사용자가 다음에 새 터미널을 열 때 육안 확인 필요.
 
-관련: [[feedback-answer-shape]], [[feedback-askuserquestion-preference]], [[reference-claude-code-cjk-encoding-bug]]
+관련: [[feedback-askuserquestion-preference]], [[reference-claude-code-cjk-encoding-bug]]

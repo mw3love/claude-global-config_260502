@@ -23,7 +23,7 @@ def git(cwd, *args):
 
 def global_reminder(push_cwd):
     """다른 프로젝트 push 시, ~/.claude의 memory/ 외 미반영 변경이 있으면 처리 지시 텍스트를 반환.
-    2026-09-04부터 알림전용 → 부분자동(CLAUDE.md 규칙 10-e): 삭제/민감정보 의심/원격충돌만
+    2026-09-04부터 알림전용 → 부분자동: 삭제/민감정보 의심/원격충돌만
     예외로 두고 나머지는 Claude가 스스로 커밋·gitignore 판단해 처리.
     memory/ 는 별도 SessionEnd 훅(memory-sync-hook.py)이 이미 자동 처리하므로 제외."""
     try:
