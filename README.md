@@ -197,7 +197,7 @@ C:\Users\길동\.claude    →  projects/C--Users----claude/memory/       ← PC
 │   ├── hwp-from-data/        # 데이터로 한글(.hwp) 양식 표 칸 채우기 (COM+HWPML2X, Windows+한글 전용)
 │   ├── kairos/               # mindlogic Gateway — 이미지·비디오·TTS 생성 + GPT 교차검증 (preflight 비용고지)
 │   ├── kairos-proposal/      # 사내 KAIROS AI 서비스 콘테스트 신청서를 프로젝트 문서 기반으로 HWP 완성본으로 작성 (hwp-from-data 기반)
-│   ├── reference-repos/      # 기존 git repo prior art 참고(읽기)+참고 가치 자동 기록(쓰기, CLAUDE.md 4-c) (인덱스=repos.json reference 필드)
+│   ├── reference-repos/      # 기존 git repo prior art 참고(읽기)+참고 가치 자동 기록(쓰기, 옛 CLAUDE.md 4-c — 2026-09-25부터 스킬이 소유) (인덱스=repos.json reference 필드)
 │   ├── self-review/          # 답변 근거 기반 적대적 재검토 스킬
 │   ├── skillify/             # 세션의 반복 절차를 재사용 스킬로 굳히기 (품질 게이트)
 │   └── sync-repos/           # 여러 PC git 프로젝트 일괄 pull+빌드 동기화 스킬
