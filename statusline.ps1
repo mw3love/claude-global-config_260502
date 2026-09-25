@@ -156,7 +156,11 @@ try {
     if ($modelSetting -like "opusplan*") { $tag = " [opusplan]" }
 } catch {}
 
-$modelPart = "${short}${tag}${ctxSize}"
+# effort: 모델이 effort를 지원할 때만 오는 값(세션 중 /effort 변경도 실시간 반영)
+$eff = ""
+if ($data.effort.level) { $eff = " $([char]0x00B7) $($data.effort.level)" }
+
+$modelPart = "${short}${tag}${ctxSize}${eff}"
 
 # Context usage
 $used = $data.context_window.used_percentage

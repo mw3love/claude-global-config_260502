@@ -196,7 +196,10 @@ if cwd and os.path.realpath(str(cwd)) != os.path.realpath(claude_home):
 model = g(data, "model", "display_name") or g(data, "model", "id") or "Claude"
 short = re.sub(r"\s", "", re.sub(r"^Claude\s*", "", model)) or "Claude"
 tag = " [opusplan]" if str(model_setting() or "").startswith("opusplan") else ""
-line2.append(short + tag + fmt_ctxsize(g(data, "context_window", "context_window_size")))
+# effort: 모델이 effort를 지원할 때만 오는 값(세션 중 /effort 변경도 실시간 반영)
+effort = g(data, "effort", "level")
+eff = " · {}".format(effort) if effort else ""
+line2.append(short + tag + fmt_ctxsize(g(data, "context_window", "context_window_size")) + eff)
 
 # 컨텍스트 사용률
 used = g(data, "context_window", "used_percentage")
