@@ -5,7 +5,6 @@
   "skillOverrides": {
     "code-review": "user-invocable-only",
     "sync-repos": "user-invocable-only",
-    "hwp-from-data": "user-invocable-only",
     "skillify": "off",
     "kairos-proposal": "off"
   },
