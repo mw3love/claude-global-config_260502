@@ -121,5 +121,6 @@
   "skipDangerousModePermissionPrompt": true,
   "theme": "dark",
   "remoteControlAtStartup": false,
-  "agentPushNotifEnabled": true
+  "agentPushNotifEnabled": true,
+  "switchModelsOnFlag": false
 }
