@@ -26,3 +26,4 @@
 - [토론 → 결정 → 실행 분리](feedback_discuss_before_implement.md) — 안전망·추상화 제안 시 코드 수정 보류, 단순 해결책 우선. 원래 KBS 서랍(2026-09-05 이동)
 - [git 커밋 신원](reference_git_identity.md) — 이 PC 전역 jjrftech@ / `.claude` repo만 7maker@ override. 옛 서술이 반대로 적혀 있어 실측으로 정정(2026-09-05)
 - [구글드라이브 폴더 삭제 잠금](reference_gdrive_folder_lock_on_delete.md) — desktop.ini 핸들로 rm -rf가 빈 폴더 남김, 재시도 말고 탐색기 수동삭제 요청(원래 KBS 서랍, 2026-09-05 전역 이동)
+- [결정 전 상황부터 설명](feedback_explain_situation_before_choice.md) — 선택창 전에 '지금 작업 중 어디·뭘 정하나·그대로 두면?'을 쉬운 말로, 설명 요청 턴엔 선택창 금지
