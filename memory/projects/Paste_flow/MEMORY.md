@@ -1,0 +1,1 @@
+- [키 주입 테스트 포커스 위험](gui-key-injection-focus-risk.md) — 이 PC는 원격 데스크톱 창이 포커스를 뺏음, 매 전송 전 포그라운드 확인
