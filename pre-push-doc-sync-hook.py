@@ -7,7 +7,8 @@ CLAUDE.md 규칙 10의 '사전(메인)' 경로가 모델 기억에만 의존해 
 
 동작:
 - Bash 명령에 git push가 없으면 침묵 통과.
-- 필터(2026-08-10 추가): push 예정 범위 + 미커밋 변경을 훑어 아래 중 하나면
+- 필터(2026-08-10 추가): push 예정 범위(+ 같은 명령에 git commit이 있으면 미커밋
+  변경까지)를 훑어 아래 중 하나면
   doc-sync 의식 없이 자동 통과 — doc-sync 스킬을 불러도 결론이 100% "변경
   없음"일 게 뻔한 경우이므로 사전에 걸러도 보호 수준이 줄지 않는다.
     a) 문서 아닌 파일 변경이 0개 (코드가 안 바뀌었으니 동기화할 게 없음)
@@ -20,6 +21,10 @@ CLAUDE.md 규칙 10의 '사전(메인)' 경로가 모델 기억에만 의존해 
   30분 이내인지 확인 — 있으면 소비(삭제)하고 통과.
 - 없거나 오래됐으면 push를 deny하고 이유에 절차를 적는다:
   doc-sync 실행 → 센티널 touch → push 재시도.
+- 같은 명령에 센티널 touch가 있으면(`touch ~/.claude/.doc-sync-ready && git push`)
+  통과(2026-10-03 추가). 센티널은 어차피 자기 신고라 따로 치든 묶든 보호 수준이
+  같은데, 묶은 명령이 막힌 게 이 PC 기록상 거부 18회 중 16회였다. 통과 뒤에
+  만들어지는 그 센티널은 다음 push에서 버린다(CHAINED 시각 기록).
 
 실패는 열림(fail-open): 스크립트 오류·파싱 실패 시 push를 막지 않는다
 (디스패처의 `|| true`와 이 파일의 광역 except가 함께 보장).
@@ -34,6 +39,8 @@ from pathlib import Path
 
 SENTINEL = Path.home() / ".claude" / ".doc-sync-ready"
 CONSUMED = Path.home() / ".claude" / ".doc-sync-consumed"
+CHAINED = Path.home() / ".claude" / ".doc-sync-chained"
+CHAINED_WINDOW = 120  # 묶은 명령 통과 후 이 안에 생긴 센티널은 그 명령의 것
 MAX_AGE_SECONDS = 30 * 60
 CONSUMED_MAX_AGE = 30  # 같은 도구 호출에서 Claude 훅과 Cursor 훅이 연달아 돌 때
 
@@ -53,6 +60,29 @@ def command_has_git_push(command: str) -> bool:
         except ValueError:
             continue
         if "push" in tokens[git_at + 1:]:
+            return True
+    return False
+
+
+def _segments(command: str, strip_quotes: bool):
+    text = _QUOTED.sub("", command) if strip_quotes else command
+    return [s.split() for s in re.split(r"&&|\|\||;|\||\n", text)]
+
+
+def command_has_git_commit(command: str) -> bool:
+    for tokens in _segments(command, strip_quotes=True):
+        if "git" in tokens and "commit" in tokens[tokens.index("git") + 1:]:
+            return True
+    return False
+
+
+def command_touches_sentinel(command: str) -> bool:
+    # 경로가 따옴표로 감싸일 수 있어 따옴표를 지우지 않고 토큰 양끝만 벗긴다.
+    for tokens in _segments(command, strip_quotes=False):
+        if "touch" in tokens and any(
+            t.strip("\"'").replace("\\", "/").endswith(".claude/.doc-sync-ready")
+            for t in tokens
+        ):
             return True
     return False
 
@@ -79,8 +109,13 @@ def _is_doc(path: str) -> bool:
     )
 
 
-def _pushed_and_uncommitted_files(cwd: str):
-    """push 예정 범위(unpushed) + 미커밋 변경 파일 목록. 못 구하면 None."""
+def _pushed_and_uncommitted_files(cwd: str, include_uncommitted: bool):
+    """push 예정 범위(unpushed) 파일 목록. 못 구하면 None.
+
+    미커밋 변경은 이번 push에 안 실리므로 기본은 빼고, 같은 명령에 git commit이
+    있을 때만 넣는다(2026-10-03: 관계없는 미커밋 settings.json 때문에 문서만
+    올리는 push가 막혔다).
+    """
     diff_out = _git(cwd, "diff", "--name-only", "@{u}...HEAD")
     if diff_out is None:
         diff_out = _git(cwd, "diff", "--name-only", "origin/main...HEAD")
@@ -90,6 +125,8 @@ def _pushed_and_uncommitted_files(cwd: str):
         return None  # 범위를 전혀 못 구함 → 안전 쪽 폴백
 
     files = [f for f in diff_out.splitlines() if f.strip()]
+    if not include_uncommitted:
+        return files
 
     status_out = _git(cwd, "status", "--porcelain") or ""
     for line in status_out.splitlines():
@@ -123,12 +160,12 @@ def _has_doc_candidates(cwd: str) -> bool:
     return False
 
 
-def should_skip_enforcement(cwd: str) -> bool:
+def should_skip_enforcement(cwd: str, include_uncommitted: bool = True) -> bool:
     """True면 doc-sync 의식 없이 자동 통과해도 안전(동기화할 게 구조적으로 없음)."""
     if not cwd or not os.path.isdir(cwd):
         return False  # cwd 불명 → 안전 쪽 폴백(기존 로직대로 진행)
 
-    files = _pushed_and_uncommitted_files(cwd)
+    files = _pushed_and_uncommitted_files(cwd, include_uncommitted)
     if files is None:
         return False  # 범위 판단 불가 → 안전 쪽 폴백
 
@@ -141,6 +178,14 @@ def should_skip_enforcement(cwd: str) -> bool:
 
 def sentinel_allows() -> bool:
     """유효 센티널이면 소비하고 True. 직전 훅이 방금 소비했으면 True (이중 훅)."""
+    try:
+        # 묶은 명령(touch && push)이 통과한 뒤 그 touch가 남긴 센티널은 이미 쓴 것
+        chained_at = CHAINED.stat().st_mtime
+        if 0 <= SENTINEL.stat().st_mtime - chained_at < CHAINED_WINDOW:
+            SENTINEL.unlink()
+            CHAINED.unlink()
+    except OSError:
+        pass
     try:
         age = time.time() - SENTINEL.stat().st_mtime
         if age < MAX_AGE_SECONDS:
@@ -161,11 +206,9 @@ def sentinel_allows() -> bool:
 DENY_REASON = (
     "[pre-push doc-sync] push 전 doc-sync 사전 검토(규칙 10)가 아직 확인되지 않았다. "
     "절차: 1) doc-sync 스킬을 호출해 문서 동기화를 검토하고(변경이 있으면 같은 커밋에 포함) "
-    "2) `touch ~/.claude/.doc-sync-ready`를 별도 셸 호출로 실행한 뒤 "
-    "3) 그 다음 셸 호출로 push를 재시도한다. "
-    "⚠ touch와 push를 한 명령에 && 로 묶지 말 것 — 이 훅은 명령이 "
-    "실행되기 전에 센티널을 검사하므로, 묶으면 touch가 실행되기도 전에 거부된다. "
-    "이번 대화에서 doc-sync 사전 검토를 이미 마쳤다면 2)~3)만 하면 된다."
+    "2) `touch ~/.claude/.doc-sync-ready && git push`로 push를 재시도한다"
+    "(따로 실행해도 된다). "
+    "이번 대화에서 doc-sync 사전 검토를 이미 마쳤다면 2)만 하면 된다."
 )
 
 
@@ -204,7 +247,14 @@ def main() -> None:
 
     cwd = data.get("cwd") or (data.get("tool_input") or {}).get("working_directory") or ""
     cwd = str(cwd).strip() or os.getcwd()
-    if should_skip_enforcement(cwd):
+    if should_skip_enforcement(cwd, command_has_git_commit(command)):
+        return
+
+    if command_touches_sentinel(command):
+        try:
+            CHAINED.write_text(str(time.time()), encoding="utf-8")
+        except OSError:
+            pass
         return
 
     if sentinel_allows():
